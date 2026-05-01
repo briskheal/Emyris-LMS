@@ -10,6 +10,18 @@ let currentRole = 'employee';
 let loggedInUser = null;
 const API_URL = '/api';
 
+// --- BRANDING ---
+async function fetchBranding() {
+    try {
+        const res = await fetch(`${API_URL}/company`);
+        const data = await res.json();
+        if (data.logo) {
+            document.getElementById('appLogoAuth').src = data.logo;
+            document.getElementById('appLogoNav').src = data.logo;
+        }
+    } catch (e) { console.error('Branding fetch failed', e); }
+}
+
 // --- UI HELPERS ---
 
 function setRole(role) {
@@ -279,4 +291,7 @@ function toBase64(file) {
 }
 
 // On Load
-window.onload = initIcons;
+window.onload = () => {
+    initIcons();
+    fetchBranding();
+};
