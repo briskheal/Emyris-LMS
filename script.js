@@ -227,18 +227,20 @@ async function viewDetails(id) {
 
     let videoHtml = '';
     if (p.videoUrl) {
-        const isYoutube = p.videoUrl.includes('youtube.com') || p.videoUrl.includes('youtu.be');
-        if (isYoutube) {
-            const vidId = p.videoUrl.split('v=')[1] || p.videoUrl.split('/').pop();
+        if (p.videoUrl.includes('youtube.com') || p.videoUrl.includes('youtu.be')) {
+            const vidId = p.videoUrl.split('v=')[1]?.split('&')[0] || p.videoUrl.split('/').pop();
             videoHtml = `
-                <div style="margin-top: 20px; border-radius: 12px; overflow: hidden; border: 1px solid var(--glass-border);">
-                    <iframe width="100%" height="315" src="https://www.youtube.com/embed/${vidId}" frameborder="0" allowfullscreen></iframe>
-                </div>
-            `;
+                <div class="video-container" style="margin-top: 2rem;">
+                    <iframe src="https://www.youtube.com/embed/${vidId}" frameborder="0" allowfullscreen></iframe>
+                </div>`;
         } else {
-            videoHtml = `<a href="${p.videoUrl}" target="_blank" class="btn btn-glass" style="margin-top: 15px; width: 100%;">
-                <i data-lucide="play-circle"></i> Watch Video Content
-            </a>`;
+            videoHtml = `
+                <div class="video-container" style="margin-top: 2rem;">
+                    <video controls style="width: 100%; border-radius: 15px; border: 1px solid var(--glass-border);">
+                        <source src="${p.videoUrl}" type="video/mp4">
+                        Your browser does not support the video tag.
+                    </video>
+                </div>`;
         }
     }
 

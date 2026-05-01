@@ -130,6 +130,13 @@ app.post('/api/products', async (req, res) => {
     } catch (e) { res.status(500).json({ success: false, message: e.message }); }
 });
 
+app.patch('/api/products/:id', async (req, res) => {
+    try {
+        await Product.findByIdAndUpdate(req.params.id, req.body);
+        res.json({ success: true });
+    } catch (e) { res.status(500).json({ success: false }); }
+});
+
 app.delete('/api/products/:id', async (req, res) => {
     try {
         await Product.findByIdAndDelete(req.params.id);

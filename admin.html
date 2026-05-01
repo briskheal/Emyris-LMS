@@ -3,209 +3,148 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Emyris Admin | Command Center</title>
+    <title>Emyris Admin | Control Center</title>
     <link rel="stylesheet" href="style.css">
     <link rel="icon" href="logo.png">
     <script src="https://unpkg.com/lucide@latest"></script>
     <style>
-        .sidebar { width: 280px; height: 100vh; position: fixed; left: 0; top: 0; padding: 2rem; border-right: 1px solid var(--glass-border); background: rgba(15, 23, 42, 0.95); z-index: 100; }
-        .main-content { margin-left: 280px; padding: 3rem; }
-        .nav-link { 
-            display: flex; align-items: center; gap: 12px; padding: 12px 20px; 
-            border-radius: 12px; color: var(--text-dim); text-decoration: none; margin-bottom: 8px; transition: all 0.3s;
-        }
-        .nav-link.active { background: var(--primary); color: white; box-shadow: 0 4px 15px var(--primary-glow); }
-        .nav-link:hover:not(.active) { background: rgba(255,255,255,0.05); color: white; }
-        .tab-section { display: none; animation: fadeIn 0.4s ease-out; }
-        .tab-section.active { display: block; }
+        /* High-Efficiency Dashboard Overrides */
+        .tab-section { height: 100%; display: none; flex-direction: column; }
+        .tab-section.active { display: flex; }
+        .scroll-area { flex: 1; overflow-y: auto; padding-right: 10px; margin-top: 1rem; }
+        .scroll-area::-webkit-scrollbar { width: 5px; }
+        .scroll-area::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 10px; }
+        .form-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1.5rem; }
+        .compact-card { padding: 2rem; margin-bottom: 0; }
+        .modal-content { width: 1400px; max-width: 95%; max-height: 95vh; overflow-y: auto; padding: 3.5rem; }
+        .nav-link { margin-bottom: 4px; padding: 10px 15px; font-size: 0.95rem; }
         
-        .hub-card { background: var(--glass); padding: 3rem; border-radius: 24px; border: 1px solid var(--glass-border); box-shadow: var(--card-shadow); }
-        
-        .switch { position: relative; display: inline-block; width: 50px; height: 26px; }
-        .switch input { opacity: 0; width: 0; height: 0; }
-        .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #334155; transition: .4s; border-radius: 34px; }
-        .slider:before { position: absolute; content: ""; height: 18px; width: 18px; left: 4px; bottom: 4px; background-color: white; transition: .4s; border-radius: 50%; }
-        input:checked + .slider { background-color: #22c55e; }
-        input:checked + .slider:before { transform: translateX(24px); }
-
-        @media (max-width: 768px) {
-            .sidebar { width: 100%; height: auto; position: relative; border-right: none; padding: 1rem; }
-            .main-content { margin-left: 0; padding: 1.5rem; }
-        }
+        /* Switch Grid */
+        .switch-board { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 1rem; background: rgba(255,255,255,0.02); padding: 1.5rem; border-radius: 15px; border: 1px solid var(--glass-border); }
+        .switch-item { display: flex; justify-content: space-between; align-items: center; background: rgba(255,255,255,0.03); padding: 12px 15px; border-radius: 10px; border: 1px solid transparent; transition: all 0.3s; }
+        .switch-item.active { border-color: var(--primary); background: rgba(99, 102, 241, 0.1); }
     </style>
 </head>
 <body>
 
     <aside class="sidebar" id="adminSidebar" style="display: none;">
-        <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 3rem;">
-            <img src="logo.png" id="sidebarLogo" style="height: 35px;">
-            <h2 style="font-size: 1.2rem; background: linear-gradient(45deg, var(--primary), var(--secondary)); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">EMYRIS ADMIN</h2>
+        <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 2rem;">
+            <img src="logo.png" id="sidebarLogo" style="height: 30px;">
+            <h2 style="font-size: 1.1rem; font-weight: 700; color: white;">EMYRIS ADMIN</h2>
         </div>
-        
-        <a href="#" class="nav-link active" onclick="showTab('centralHub')"><i data-lucide="building"></i> Central Hub</a>
+        <a href="#" class="nav-link active" onclick="showTab('centralHub')"><i data-lucide="shield-check"></i> Central Hub</a>
         <a href="#" class="nav-link" onclick="showTab('productHub')"><i data-lucide="package"></i> Product Hub</a>
         <a href="#" class="nav-link" onclick="showTab('employees')"><i data-lucide="users"></i> Employee Hub</a>
-        
-        <div style="position: absolute; bottom: 2rem; left: 2rem; right: 2rem;">
-            <button class="btn btn-glass" style="width: 100%;" onclick="logout()"><i data-lucide="log-out"></i> Logout</button>
-        </div>
+        <div style="position: absolute; bottom: 1.5rem; left: 1rem; right: 1rem;"><button class="btn btn-glass" style="width: 100%; font-size: 0.8rem;" onclick="logout()"><i data-lucide="log-out"></i> Logout</button></div>
     </aside>
 
     <main id="authScreen" class="auth-container">
         <div class="glass-panel auth-card animate-fade">
-            <h1>Admin Access</h1>
-            <p style="color: var(--text-dim); margin-bottom: 2rem;">Secure Management Login</p>
-            <div class="input-group">
-                <label>Username</label>
-                <input type="text" id="username" placeholder="EMYRISLMS">
-            </div>
-            <div class="input-group">
-                <label>Password</label>
-                <input type="password" id="password" placeholder="••••••••">
-            </div>
-            <button class="btn btn-primary" style="width: 100%; justify-content: center;" onclick="handleLogin()">Access Dashboard</button>
+            <h1>Admin Login</h1>
+            <p style="color: var(--text-dim); margin-bottom: 2rem;">Full Screen Access</p>
+            <div class="input-group"><label>Username</label><input type="text" id="username" placeholder="EMYRISLMS"></div>
+            <div class="input-group"><label>Password</label><input type="password" id="password" placeholder="••••••••"></div>
+            <button class="btn btn-primary" style="width: 100%; justify-content: center;" onclick="handleLogin()">Login to Hub</button>
         </div>
     </main>
 
     <main id="adminPortal" class="main-content" style="display: none;">
         
-        <!-- 1. CENTRAL HUB (Admin Strictly) -->
+        <!-- 1. CENTRAL HUB -->
         <section id="centralHub" class="tab-section active">
-            <div style="margin-bottom: 3rem;">
-                <h1 style="font-size: 2.5rem; margin-bottom: 0.5rem;">Central Hub</h1>
-                <p style="color: var(--text-dim);">Company Branding & Identity Settings</p>
-            </div>
-
-            <div class="hub-card animate-fade">
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 3rem;">
-                    <div>
-                        <h3 style="margin-bottom: 2rem; color: var(--primary);">Brand Identity</h3>
-                        <div style="display: flex; align-items: center; gap: 2rem; margin-bottom: 2rem;">
-                            <div id="logoPreviewContainer" style="width: 120px; height: 120px; border-radius: 16px; background: rgba(255,255,255,0.02); border: 2px dashed var(--glass-border); display: flex; align-items: center; justify-content: center; overflow: hidden;">
-                                <img id="c_logo_preview" src="" style="max-width: 100%; max-height: 100%; display: none;">
-                            </div>
-                            <div style="flex: 1;">
-                                <label style="display: block; margin-bottom: 10px;">Update Logo</label>
-                                <input type="file" id="c_logo_file" accept="image/*" onchange="previewLogo(this)">
-                            </div>
-                        </div>
-                        <div class="input-group"><label>Website</label><input type="text" id="c_web" placeholder="https://emyrisbio.com"></div>
-                    </div>
-                    <div>
-                        <h3 style="margin-bottom: 2rem; color: var(--primary);">Contact Details</h3>
-                        <div class="input-group"><label>Office Address</label><textarea id="c_address" rows="3"></textarea></div>
-                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
-                            <div class="input-group"><label>Telephone</label><input type="text" id="c_phone"></div>
-                            <div class="input-group"><label>Toll Free</label><input type="text" id="c_tollfree"></div>
-                        </div>
+            <div style="margin-bottom: 1.5rem;"><h1 style="font-size: 2rem;">Central Hub</h1></div>
+            <div class="glass-panel compact-card" style="flex: 1; display: flex; flex-direction: column;">
+                <div style="display: flex; gap: 3rem; align-items: center; margin-bottom: 2rem; background: rgba(255,255,255,0.02); padding: 1.5rem; border-radius: 15px;">
+                    <div id="logoPreviewContainer" style="width: 100px; height: 100px; border-radius: 12px; border: 2px dashed var(--glass-border); display: flex; align-items: center; justify-content: center; overflow: hidden; background: #0f172a;"><img id="c_logo_preview" src="" style="max-width: 100%; max-height: 100%; display: none;"></div>
+                    <div style="flex: 1;"><label style="font-weight: 600; margin-bottom: 8px; display: block;">Brand Logo</label><input type="file" id="c_logo_file" accept="image/*" onchange="previewLogo(this)"></div>
+                    <div style="width: 300px;"><label style="font-weight: 600; margin-bottom: 8px; display: block;">Official Website</label><input type="text" id="c_web" placeholder="emyrisbio.com"></div>
+                </div>
+                <div class="form-grid">
+                    <div class="input-group" style="grid-column: span 2;"><label>Company Address</label><textarea id="c_address" rows="4"></textarea></div>
+                    <div style="display: flex; flex-direction: column; gap: 1.5rem;">
+                        <div class="input-group"><label>Telephone</label><input type="text" id="c_phone"></div>
+                        <div class="input-group"><label>Toll Free</label><input type="text" id="c_tollfree"></div>
                     </div>
                 </div>
-                <div style="margin-top: 3rem; border-top: 1px solid var(--glass-border); padding-top: 2rem; text-align: right;">
-                    <button class="btn btn-primary" style="padding: 15px 40px;" onclick="saveCompany()">Update Central Hub Settings</button>
-                </div>
+                <div style="margin-top: auto; padding-top: 2rem; text-align: right;"><button class="btn btn-primary" style="padding: 12px 50px;" onclick="saveCompany()">Save All Hub Settings</button></div>
             </div>
         </section>
 
         <!-- 2. PRODUCT HUB -->
         <section id="productHub" class="tab-section">
-            <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 3rem;">
-                <div>
-                    <h1 style="font-size: 2.5rem; margin-bottom: 0.5rem;">Product Hub</h1>
-                    <p style="color: var(--text-dim);">Manage your scientific catalog and multimedia vault</p>
-                </div>
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+                <div><h1 style="font-size: 2rem;">Product Hub</h1><p style="color: var(--text-dim); font-size: 0.9rem;">Catalog Management</p></div>
                 <div style="display: flex; gap: 1rem;">
                     <button class="btn btn-glass" onclick="openCategoryHub()"><i data-lucide="layers"></i> Product Categorization</button>
-                    <button class="btn btn-primary" onclick="openModal('productModal')"><i data-lucide="plus"></i> Add New Product</button>
+                    <button class="btn btn-primary" onclick="openProductModal()"><i data-lucide="plus"></i> Add New Product</button>
                 </div>
             </div>
-            <div id="adminProductGrid" class="dashboard-grid"></div>
+            <div id="adminProductGrid" class="dashboard-grid scroll-area"></div>
         </section>
 
         <!-- 3. EMPLOYEE HUB -->
         <section id="employees" class="tab-section">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 3rem;">
-                <h1>Employee Hub</h1>
-                <button class="btn btn-primary" onclick="openModal('empModal')">+ Register Staff</button>
-            </div>
-            
-            <div class="glass-panel" style="overflow: hidden; border-radius: 20px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;"><h1>Employee Hub</h1><button class="btn btn-primary" onclick="openModal('empModal')">+ Register Staff</button></div>
+            <div class="glass-panel scroll-area" style="padding: 0;">
                 <table style="width: 100%; border-collapse: collapse; text-align: left;">
-                    <thead style="background: rgba(255,255,255,0.05);">
-                        <tr>
-                            <th style="padding: 1.5rem;">Employee Name</th>
-                            <th>ID / Code</th>
-                            <th>Access Status</th>
-                        </tr>
-                    </thead>
+                    <thead style="background: rgba(255,255,255,0.05); position: sticky; top: 0; z-index: 10;"><tr><th style="padding: 1rem 1.5rem;">Staff Name</th><th>Login ID</th><th>Status</th></tr></thead>
                     <tbody id="empTableBody"></tbody>
                 </table>
             </div>
         </section>
     </main>
 
-    <!-- Modals -->
+    <!-- Product Modal -->
     <div id="productModal" class="modal">
         <div class="glass-panel modal-content animate-fade">
+            <input type="hidden" id="p_id">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2.5rem;">
-                <h2 style="font-size: 2.5rem;">Add Scientific Product</h2>
+                <h2 id="modalTitle" style="font-size: 2.5rem;">Add Scientific Product</h2>
                 <button class="btn btn-glass" style="border: none; padding: 15px;" onclick="closeModal('productModal')"><i data-lucide="x"></i></button>
             </div>
-            <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 1.5rem; margin-bottom: 2rem;">
-                <div class="input-group"><label>Product Title</label><input type="text" id="p_title" placeholder="e.g. Emyris-K"></div>
-                <div class="input-group"><label>Category</label><select id="p_category">
-                    <option>Injectables</option><option>Enteral Nutrition</option><option>Nutraceuticals</option><option>Pharmaceuticals</option>
-                </select></div>
-                <div class="input-group"><label>YouTube Link (Optional)</label><input type="text" id="p_video_link" placeholder="Paste link..."></div>
+            <div class="form-grid">
+                <div class="input-group" style="grid-column: span 2;"><label>Product Title</label><input type="text" id="p_title" placeholder="e.g. Emyris-K"></div>
+                <div class="input-group"><label>YouTube Link (Optional)</label><input type="text" id="p_video_link"></div>
                 <div class="input-group"><label>Upload Video/Audio File</label><input type="file" id="p_video_file" accept="video/*,audio/*"></div>
-                <div class="input-group"><label>Packing Photo</label><input type="file" id="p_image"></div>
                 
-                <div class="input-group" style="grid-column: span 4;"><label>Scientific Composition / Clinical Details</label><textarea id="p_info" rows="6" placeholder="Enter molecular details..."></textarea></div>
-                
-                <div class="input-group" style="grid-column: span 4;"><label>Scientific Journals (Select Multiple PDFs)</label><input type="file" id="p_docs" multiple></div>
+                <div class="input-group" style="grid-column: span 4;">
+                    <label style="font-size: 1.1rem; color: var(--primary); font-weight: 700; margin-bottom: 1rem; display: block;">Select Scientific Categories (Switch Board)</label>
+                    <div id="p_category_switches" class="switch-board"></div>
+                </div>
+
+                <div class="input-group" style="grid-column: span 4;"><label>Scientific Composition / Details</label><textarea id="p_info" rows="5"></textarea></div>
+                <div class="input-group" style="grid-column: span 2;"><label>Packing Photo</label><input type="file" id="p_image"></div>
+                <div class="input-group" style="grid-column: span 2;"><label>Journals (Select Multiple PDFs)</label><input type="file" id="p_docs" multiple></div>
             </div>
-            <div style="display: flex; justify-content: flex-end; gap: 1.5rem; border-top: 1px solid var(--glass-border); padding-top: 2rem;">
-                <button class="btn btn-glass" style="padding: 15px 30px;" onclick="closeModal('productModal')">Discard Changes</button>
-                <button class="btn btn-primary" style="padding: 15px 60px; font-size: 1.1rem;" onclick="saveProduct()">Save Product to catalog</button>
+            <div style="margin-top: 2rem; display: flex; justify-content: flex-end; gap: 1.5rem; border-top: 1px solid var(--glass-border); padding-top: 2rem;">
+                <button class="btn btn-glass" onclick="closeModal('productModal')">Discard Changes</button>
+                <button class="btn btn-primary" id="saveBtn" style="padding: 15px 60px;" onclick="saveProduct()">Save Product to catalog</button>
             </div>
         </div>
     </div>
 
-    <div id="empModal" class="modal">
-        <div class="glass-panel modal-content" style="max-width: 500px;">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
-                <h2>Register Staff</h2>
-                <button class="btn btn-glass" style="border: none; padding: 10px;" onclick="closeModal('empModal')"><i data-lucide="x"></i></button>
-            </div>
-            <div style="margin-bottom: 2rem;">
-                <div class="input-group"><label>Full Name</label><input type="text" id="e_name"></div>
-                <div class="input-group"><label>Employee ID</label><input type="text" id="e_code"></div>
-                <div class="input-group"><label>Password</label><input type="text" id="e_pass"></div>
-            </div>
-            <button class="btn btn-primary" style="width: 100%; justify-content: center;" onclick="saveEmployee()">Activate Account</button>
-        </div>
-    </div>
-
+    <!-- Category Hub Modal -->
     <div id="categoryHub" class="modal">
         <div class="glass-panel modal-content" style="max-width: 800px !important;">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 3rem;">
-                <h2 style="font-size: 2rem;">Product Categorization</h2>
-                <button class="btn btn-glass" style="border: none;" onclick="closeModal('categoryHub')"><i data-lucide="x"></i></button>
-            </div>
-            
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 3rem;"><h2>Product Categorization</h2><button class="btn btn-glass" onclick="closeModal('categoryHub')"><i data-lucide="x"></i></button></div>
             <div style="background: rgba(255,255,255,0.02); padding: 1.5rem; border-radius: 15px; margin-bottom: 2rem; display: flex; gap: 1rem; align-items: flex-end; border: 1px solid var(--glass-border);">
-                <div class="input-group" style="flex: 1; margin-bottom: 0;">
-                    <label>New Scientific Category Name</label>
-                    <input type="text" id="newCatName" placeholder="e.g. Oncology, Critical Care...">
-                </div>
+                <div class="input-group" style="flex: 1; margin-bottom: 0;"><label>New Category Name</label><input type="text" id="newCatName"></div>
                 <button class="btn btn-primary" onclick="addCategory()">Add Category</button>
             </div>
+            <div id="categorySwitchBoard" class="switch-board" style="max-height: 300px; overflow-y: auto;"></div>
+            <div style="margin-top: 3rem; text-align: right;"><button class="btn btn-primary" onclick="closeModal('categoryHub')">Done</button></div>
+        </div>
+    </div>
 
-            <p style="color: var(--text-dim); margin-bottom: 1.5rem; font-size: 0.9rem;">Toggle active categories:</p>
-            <div id="categorySwitchBoard" style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; max-height: 300px; overflow-y: auto;">
-                <!-- Switches will be injected here -->
-            </div>
-            <div style="margin-top: 3rem; text-align: right;">
-                <button class="btn btn-primary" onclick="closeModal('categoryHub')">Done</button>
+    <!-- Employee Modal -->
+    <div id="empModal" class="modal">
+        <div class="glass-panel modal-content" style="max-width: 600px !important;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;"><h2>Register Staff</h2><button class="btn btn-glass" onclick="closeModal('empModal')"><i data-lucide="x"></i></button></div>
+            <div style="display: flex; flex-direction: column; gap: 1.5rem;">
+                <div class="input-group"><label>Full Name</label><input type="text" id="e_name"></div>
+                <div class="input-group"><label>Employee ID</label><input type="text" id="e_code"></div>
+                <div class="input-group"><label>Access Password</label><input type="text" id="e_pass"></div>
+                <button class="btn btn-primary" style="width: 100%; justify-content: center;" onclick="saveEmployee()">Enable Portal Access</button>
             </div>
         </div>
     </div>
@@ -217,79 +156,94 @@
         function closeModal(id) { document.getElementById(id).style.display = 'none'; }
         function logout() { window.location.href = '/admin'; }
 
+        async function openProductModal(editData = null) {
+            document.getElementById('p_id').value = editData ? editData._id : '';
+            document.getElementById('modalTitle').innerText = editData ? 'Edit Scientific Product' : 'Add Scientific Product';
+            document.getElementById('saveBtn').innerText = editData ? 'Update Product' : 'Save Product to catalog';
+            
+            document.getElementById('p_title').value = editData ? editData.title : '';
+            document.getElementById('p_video_link').value = editData ? editData.videoUrl : '';
+            document.getElementById('p_info').value = editData ? editData.scientificInfo : '';
+            
+            // Build Switches
+            const res = await fetch(`${API}/categories`);
+            const cats = await res.json();
+            const activeCats = cats.filter(c => c.active);
+            document.getElementById('p_category_switches').innerHTML = activeCats.map(c => `
+                <div class="switch-item ${editData && editData.category === c.name ? 'active' : ''}">
+                    <span>${c.name}</span>
+                    <label class="switch">
+                        <input type="radio" name="p_cat_radio" value="${c.name}" ${editData && editData.category === c.name ? 'checked' : ''} onchange="this.parentElement.parentElement.parentElement.querySelectorAll('.switch-item').forEach(i => i.classList.remove('active')); this.parentElement.parentElement.classList.add('active')">
+                        <span class="slider"></span>
+                    </label>
+                </div>
+            `).join('');
+            
+            openModal('productModal');
+            initIcons();
+        }
+
         async function openCategoryHub() {
             openModal('categoryHub');
             const res = await fetch(`${API}/categories`);
             const cats = await res.json();
             document.getElementById('categorySwitchBoard').innerHTML = cats.map(c => `
-                <div class="glass-panel" style="padding: 1.5rem; display: flex; justify-content: space-between; align-items: center; background: rgba(255,255,255,0.02);">
-                    <span style="font-weight: 600;">${c.name}</span>
+                <div class="switch-item">
+                    <span>${c.name}</span>
                     <label class="switch">
                         <input type="checkbox" ${c.active ? 'checked' : ''} onchange="toggleCategory('${c._id}', this.checked)">
                         <span class="slider"></span>
                     </label>
                 </div>
             `).join('');
+            initIcons();
         }
 
         async function addCategory() {
             const name = document.getElementById('newCatName').value;
             if (!name) return;
-            await fetch(`${API}/categories`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ name })
-            });
+            await fetch(`${API}/categories`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ name }) });
             document.getElementById('newCatName').value = '';
-            openCategoryHub(); // Refresh the list
+            openCategoryHub();
         }
 
         async function toggleCategory(id, active) {
-            await fetch(`${API}/categories/${id}`, {
-                method: 'PATCH',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ active })
-            });
+            await fetch(`${API}/categories/${id}`, { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ active }) });
         }
 
-        async function showTab(tabId) {
-            document.querySelectorAll('.tab-section').forEach(s => s.classList.remove('active'));
-            document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
-            document.getElementById(tabId).classList.add('active');
-            
-            // Find the link that has the matching onclick and set it active
-            document.querySelectorAll('.nav-link').forEach(link => {
-                if(link.getAttribute('onclick').includes(tabId)) link.classList.add('active');
-            });
+        async function saveProduct() {
+            const id = document.getElementById('p_id').value;
+            const saveBtn = document.getElementById('saveBtn');
+            saveBtn.disabled = true;
+            saveBtn.innerText = 'Syncing...';
 
-            if(tabId === 'centralHub') fetchCompany();
-            if(tabId === 'productHub') {
-                fetchProducts();
-                // Fetch categories for the dropdown
-                const res = await fetch(`${API}/categories`);
-                const cats = await res.json();
-                const activeCats = cats.filter(c => c.active);
-                document.getElementById('p_category').innerHTML = activeCats.map(c => `<option value="${c.name}">${c.name}</option>`).join('');
+            let videoUrl = document.getElementById('p_video_link').value;
+            const videoFile = document.getElementById('p_video_file').files[0];
+            if (videoFile) {
+                const formData = new FormData();
+                formData.append('file', videoFile);
+                const uploadRes = await fetch(`${API}/upload`, { method: 'POST', body: formData });
+                const uploadData = await uploadRes.json();
+                if (uploadData.success) videoUrl = uploadData.url;
             }
-            if(tabId === 'employees') fetchEmployees();
-            initIcons();
-        }
 
-        async function handleLogin() {
-            const empCode = document.getElementById('username').value;
-            const password = document.getElementById('password').value;
-            const res = await fetch(`${API}/auth/login`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ empCode, password, isAdmin: true })
-            });
-            const data = await res.json();
-            if (data.success) {
-                document.getElementById('authScreen').style.display = 'none';
-                document.getElementById('adminSidebar').style.display = 'block';
-                document.getElementById('adminPortal').style.display = 'block';
-                showTab('centralHub');
-            } else { alert('Access Denied'); }
+            const selectedCat = document.querySelector('input[name="p_cat_radio"]:checked')?.value || '';
+            const b64 = (f) => new Promise(r => { const reader = new FileReader(); reader.readAsDataURL(f); reader.onload = () => r(reader.result); });
+            let img = document.getElementById('p_image').files[0] ? await b64(document.getElementById('p_image').files[0]) : null;
+            let docs = [];
+            for (let f of document.getElementById('p_docs').files) { docs.push({ name: f.name, data: await b64(f) }); }
+
+            const payload = { title: document.getElementById('p_title').value, category: selectedCat, scientificInfo: document.getElementById('p_info').value, videoUrl: videoUrl };
+            if (img) payload.image = img;
+            if (docs.length > 0) payload.documents = docs;
+
+            const method = id ? 'PATCH' : 'POST';
+            const url = id ? `${API}/products/${id}` : `${API}/products`;
+            await fetch(url, { method, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
+            
+            saveBtn.disabled = false;
+            closeModal('productModal');
+            fetchProducts();
         }
 
         async function fetchProducts() {
@@ -300,10 +254,44 @@
                     <div class="product-content">
                         <span class="badge">${p.category}</span>
                         <h3>${p.title}</h3>
-                        <button class="btn btn-glass" style="margin-top: 1rem; color: #f43f5e;" onclick="deleteProduct('${p._id}')"><i data-lucide="trash"></i> Delete</button>
+                        <div style="display: flex; gap: 10px; margin-top: 1.5rem;">
+                            <button class="btn btn-glass" style="flex: 1;" onclick="editProduct('${p._id}')"><i data-lucide="edit-3"></i> Edit</button>
+                            <button class="btn btn-glass" style="color: #f43f5e;" onclick="deleteProduct('${p._id}')"><i data-lucide="trash"></i></button>
+                        </div>
                     </div>
                 </div>
             `).join('');
+            initIcons();
+        }
+
+        async function editProduct(id) {
+            const res = await fetch(`${API}/products`);
+            const data = await res.json();
+            const p = data.products.find(x => x._id === id);
+            openProductModal(p);
+        }
+
+        async function deleteProduct(id) {
+            if(!confirm('Delete Product?')) return;
+            await fetch(`${API}/products/${id}`, { method: 'DELETE' });
+            fetchProducts();
+        }
+
+        async function handleLogin() {
+            const res = await fetch(`${API}/auth/login`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ empCode: document.getElementById('username').value, password: document.getElementById('password').value, isAdmin: true }) });
+            const data = await res.json();
+            if (data.success) { document.getElementById('authScreen').style.display = 'none'; document.getElementById('adminSidebar').style.display = 'block'; document.getElementById('adminPortal').style.display = 'block'; showTab('centralHub'); }
+            else { alert('Access Denied'); }
+        }
+
+        async function showTab(tabId) {
+            document.querySelectorAll('.tab-section').forEach(s => s.classList.remove('active'));
+            document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
+            document.getElementById(tabId).classList.add('active');
+            document.querySelectorAll('.nav-link').forEach(link => { if(link.getAttribute('onclick').includes(tabId)) link.classList.add('active'); });
+            if(tabId === 'centralHub') fetchCompany();
+            if(tabId === 'productHub') fetchProducts();
+            if(tabId === 'employees') fetchEmployees();
             initIcons();
         }
 
@@ -314,110 +302,17 @@
             document.getElementById('c_phone').value = data.phone || '';
             document.getElementById('c_web').value = data.website || '';
             document.getElementById('c_tollfree').value = data.tollFree || '';
-            if (data.logo) {
-                document.getElementById('c_logo_preview').src = data.logo;
-                document.getElementById('c_logo_preview').style.display = 'block';
-                document.getElementById('sidebarLogo').src = data.logo;
-            }
+            if (data.logo) { document.getElementById('c_logo_preview').src = data.logo; document.getElementById('c_logo_preview').style.display = 'block'; document.getElementById('sidebarLogo').src = data.logo; }
         }
 
         let tempLogoBase64 = null;
-        async function previewLogo(input) {
-            if (input.files && input.files[0]) {
-                const reader = new FileReader();
-                reader.onload = (e) => {
-                    tempLogoBase64 = e.target.result;
-                    document.getElementById('c_logo_preview').src = e.target.result;
-                    document.getElementById('c_logo_preview').style.display = 'block';
-                }
-                reader.readAsDataURL(input.files[0]);
-            }
-        }
+        function previewLogo(input) { if (input.files && input.files[0]) { const reader = new FileReader(); reader.onload = (e) => { tempLogoBase64 = e.target.result; document.getElementById('c_logo_preview').src = e.target.result; document.getElementById('c_logo_preview').style.display = 'block'; }; reader.readAsDataURL(input.files[0]); } }
+        async function saveCompany() { const payload = { address: document.getElementById('c_address').value, phone: document.getElementById('c_phone').value, website: document.getElementById('c_web').value, tollFree: document.getElementById('c_tollfree').value }; if (tempLogoBase64) payload.logo = tempLogoBase64; await fetch(`${API}/company`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) }); alert('Branding Updated'); fetchCompany(); }
 
-        async function saveCompany() {
-            const payload = {
-                address: document.getElementById('c_address').value,
-                phone: document.getElementById('c_phone').value,
-                website: document.getElementById('c_web').value,
-                tollFree: document.getElementById('c_tollfree').value
-            };
-            if (tempLogoBase64) payload.logo = tempLogoBase64;
-            await fetch(`${API}/company`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
-            alert('Central Hub Updated Successfully');
-            tempLogoBase64 = null;
-            fetchCompany();
-        }
+        async function fetchEmployees() { const res = await fetch(`${API}/employees`); const data = await res.json(); document.getElementById('empTableBody').innerHTML = data.employees.map(e => `<tr style="border-bottom: 1px solid var(--glass-border);"><td style="padding: 1rem 1.5rem;">${e.name}</td><td>${e.empCode}</td><td><label class="switch"><input type="checkbox" ${e.active ? 'checked' : ''} onchange="toggleEmp('${e._id}', this.checked)"><span class="slider"></span></label></td></tr>`).join(''); }
+        async function saveEmployee() { await fetch(`${API}/employees`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ name: document.getElementById('e_name').value, empCode: document.getElementById('e_code').value, password: document.getElementById('e_pass').value }) }); closeModal('empModal'); fetchEmployees(); }
+        async function toggleEmp(id, active) { await fetch(`${API}/employees/${id}/status`, { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ active }) }); fetchEmployees(); }
 
-        async function fetchEmployees() {
-            const res = await fetch(`${API}/employees`);
-            const data = await res.json();
-            document.getElementById('empTableBody').innerHTML = data.employees.map(e => `
-                <tr style="border-bottom: 1px solid var(--glass-border);">
-                    <td style="padding: 1.5rem;">${e.name}</td>
-                    <td>${e.empCode}</td>
-                    <td>
-                        <label class="switch">
-                            <input type="checkbox" ${e.active ? 'checked' : ''} onchange="toggleEmp('${e._id}', this.checked)">
-                            <span class="slider"></span>
-                        </label>
-                    </td>
-                </tr>
-            `).join('');
-        }
-
-        async function saveEmployee() {
-            await fetch(`${API}/employees`, {
-                method: 'POST', headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ name: document.getElementById('e_name').value, empCode: document.getElementById('e_code').value, password: document.getElementById('e_pass').value })
-            });
-            closeModal('empModal');
-            fetchEmployees();
-        }
-
-        async function toggleEmp(id, active) {
-            await fetch(`${API}/employees/${id}/status`, { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ active }) });
-            fetchEmployees();
-        }
-
-        async function saveProduct() {
-            const saveBtn = event.currentTarget;
-            saveBtn.disabled = true;
-            saveBtn.innerText = 'Uploading to Cloud...';
-
-            let videoUrl = document.getElementById('p_video_link').value;
-            const videoFile = document.getElementById('p_video_file').files[0];
-
-            // 1. Upload Video to Cloud if file exists
-            if (videoFile) {
-                const formData = new FormData();
-                formData.append('file', videoFile);
-                const uploadRes = await fetch(`${API}/upload`, { method: 'POST', body: formData });
-                const uploadData = await uploadRes.json();
-                if (uploadData.success) videoUrl = uploadData.url;
-            }
-
-            const b64 = (f) => new Promise(r => { const reader = new FileReader(); reader.readAsDataURL(f); reader.onload = () => r(reader.result); });
-            let img = document.getElementById('p_image').files[0] ? await b64(document.getElementById('p_image').files[0]) : '';
-            let docs = [];
-            for (let f of document.getElementById('p_docs').files) { docs.push({ name: f.name, data: await b64(f) }); }
-            
-            await fetch(`${API}/products`, {
-                method: 'POST', headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ title: document.getElementById('p_title').value, category: document.getElementById('p_category').value, scientificInfo: document.getElementById('p_info').value, videoUrl: videoUrl, image: img, documents: docs })
-            });
-            
-            saveBtn.disabled = false;
-            saveBtn.innerText = 'Save Product to catalog';
-            closeModal('productModal');
-            fetchProducts();
-        }
-
-        async function deleteProduct(id) {
-            if(!confirm('Delete?')) return;
-            await fetch(`${API}/products/${id}`, { method: 'DELETE' });
-            fetchProducts();
-        }
-        
         window.onload = initIcons;
     </script>
 </body>
