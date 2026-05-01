@@ -244,6 +244,7 @@ nav {
 .index-row:hover .hyperlink { color: var(--primary); border-bottom-color: var(--primary); }
 
 @media (max-width: 768px) {
+    .detail-mobile-stack { grid-template-columns: 1fr !important; gap: 1.5rem !important; }
     nav {
         padding: 1rem 5%;
         flex-direction: column;

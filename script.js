@@ -284,24 +284,41 @@ async function viewDetails(id) {
 
     const detailContent = document.getElementById('detailContent');
     detailContent.innerHTML = `
-        <div style="display: grid; grid-template-columns: 1fr 1.5fr; gap: 2.5rem;">
-            <div>
-                ${p.image ? `<img src="${p.image}" style="width:100%; border-radius:16px; border:1px solid var(--glass-border);">` : ''}
-                <div style="margin-top: 1.5rem;">
-                    <span class="badge">${p.category}</span>
-                    <h2 style="font-size: 2rem; margin-top: 0.5rem;">${p.title}</h2>
+        <div style="position: relative; padding-top: 1rem;">
+            <button class="btn btn-glass" style="position: absolute; right: -1rem; top: -1rem; border: none; z-index: 10;" onclick="closeModal('detailModal')">
+                <i data-lucide="x"></i>
+            </button>
+            
+            <div style="display: grid; grid-template-columns: 1fr 1.5fr; gap: 2.5rem;" class="detail-mobile-stack">
+                <div>
+                    ${p.image ? `<img src="${p.image}" style="width:100%; border-radius:16px; border:1px solid var(--glass-border);">` : ''}
+                    <div style="margin-top: 1.5rem;">
+                        <span class="badge">${p.category}</span>
+                        <h2 style="font-size: 2rem; margin-top: 0.5rem; line-height: 1.1;">${p.title}</h2>
+                    </div>
+                    ${videoHtml}
                 </div>
-                ${videoHtml}
+                <div>
+                    <h4 style="color: var(--primary); text-transform: uppercase; font-size: 0.8rem; margin-bottom: 1rem;">Scientific Overview</h4>
+                    <div class="ql-editor" style="color: var(--text-dim); padding: 0 !important; line-height: 1.8; font-size: 1.1rem;">${p.scientificInfo}</div>
+                    
+                    ${docsHtml}
+                </div>
             </div>
-            <div>
-                <h4 style="color: var(--primary); text-transform: uppercase; font-size: 0.8rem; margin-bottom: 1rem;">Scientific Overview</h4>
-                <div class="ql-editor" style="color: var(--text-dim); padding: 0 !important; line-height: 1.8; font-size: 1.1rem;">${p.scientificInfo}</div>
-                
-                ${docsHtml}
-                
-                <div style="margin-top: 2.5rem; text-align: right;">
-                    <button class="btn btn-primary" onclick="closeModal('detailModal')">Close View</button>
+
+            <!-- Standard Company Branding Footer -->
+            <div style="margin-top: 4rem; padding-top: 2rem; border-top: 1px solid var(--glass-border); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+                <div style="display: flex; gap: 2rem;">
+                    <div style="color: var(--text-dim); font-size: 0.85rem;">
+                        <i data-lucide="phone" style="width: 14px; color: var(--primary); vertical-align: middle; margin-right: 5px;"></i>
+                        <span id="modal_phone">${document.getElementById('display_contact').innerText.replace('📞 Contact: ', '')}</span>
+                    </div>
+                    <div style="color: var(--text-dim); font-size: 0.85rem;">
+                        <i data-lucide="globe" style="width: 14px; color: var(--primary); vertical-align: middle; margin-right: 5px;"></i>
+                        <span id="modal_web">${document.getElementById('display_website').innerText}</span>
+                    </div>
                 </div>
+                <button class="btn btn-primary" onclick="closeModal('detailModal')">Finish Reading</button>
             </div>
         </div>
     `;
