@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Emyris Admin | Central Hub</title>
+    <title>Emyris Admin | Command Center</title>
     <link rel="stylesheet" href="style.css">
     <link rel="icon" href="logo.png">
     <script src="https://unpkg.com/lucide@latest"></script>
@@ -19,13 +19,7 @@
         .tab-section { display: none; animation: fadeIn 0.4s ease-out; }
         .tab-section.active { display: block; }
         
-        /* Mobile adjustment for merged hub */
-        @media (max-width: 768px) {
-            .sidebar { width: 100%; height: auto; position: relative; border-right: none; border-bottom: 1px solid var(--glass-border); padding: 1rem; }
-            .main-content { margin-left: 0; padding: 1.5rem; }
-        }
-
-        .hub-card { background: var(--glass); padding: 2rem; border-radius: 20px; border: 1px solid var(--glass-border); margin-bottom: 2rem; }
+        .hub-card { background: var(--glass); padding: 3rem; border-radius: 24px; border: 1px solid var(--glass-border); box-shadow: var(--card-shadow); }
         
         .switch { position: relative; display: inline-block; width: 50px; height: 26px; }
         .switch input { opacity: 0; width: 0; height: 0; }
@@ -33,6 +27,11 @@
         .slider:before { position: absolute; content: ""; height: 18px; width: 18px; left: 4px; bottom: 4px; background-color: white; transition: .4s; border-radius: 50%; }
         input:checked + .slider { background-color: #22c55e; }
         input:checked + .slider:before { transform: translateX(24px); }
+
+        @media (max-width: 768px) {
+            .sidebar { width: 100%; height: auto; position: relative; border-right: none; padding: 1rem; }
+            .main-content { margin-left: 0; padding: 1.5rem; }
+        }
     </style>
 </head>
 <body>
@@ -40,10 +39,11 @@
     <aside class="sidebar" id="adminSidebar" style="display: none;">
         <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 3rem;">
             <img src="logo.png" id="sidebarLogo" style="height: 35px;">
-            <h2 style="font-size: 1.2rem; background: linear-gradient(45deg, var(--primary), var(--secondary)); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">EMYRIS HUB</h2>
+            <h2 style="font-size: 1.2rem; background: linear-gradient(45deg, var(--primary), var(--secondary)); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">EMYRIS ADMIN</h2>
         </div>
         
-        <a href="#" class="nav-link active" onclick="showTab('centralHub')"><i data-lucide="layout-dashboard"></i> Central Hub</a>
+        <a href="#" class="nav-link active" onclick="showTab('centralHub')"><i data-lucide="building"></i> Central Hub</a>
+        <a href="#" class="nav-link" onclick="showTab('productHub')"><i data-lucide="package"></i> Product Hub</a>
         <a href="#" class="nav-link" onclick="showTab('employees')"><i data-lucide="users"></i> Employee Hub</a>
         
         <div style="position: absolute; bottom: 2rem; left: 2rem; right: 2rem;">
@@ -54,7 +54,7 @@
     <main id="authScreen" class="auth-container">
         <div class="glass-panel auth-card animate-fade">
             <h1>Admin Access</h1>
-            <p style="color: var(--text-dim); margin-bottom: 2rem;">Secure Hub Login</p>
+            <p style="color: var(--text-dim); margin-bottom: 2rem;">Secure Management Login</p>
             <div class="input-group">
                 <label>Username</label>
                 <input type="text" id="username" placeholder="EMYRISLMS">
@@ -63,60 +63,69 @@
                 <label>Password</label>
                 <input type="password" id="password" placeholder="••••••••">
             </div>
-            <button class="btn btn-primary" style="width: 100%; justify-content: center;" onclick="handleLogin()">Access Hub</button>
+            <button class="btn btn-primary" style="width: 100%; justify-content: center;" onclick="handleLogin()">Access Dashboard</button>
         </div>
     </main>
 
     <main id="adminPortal" class="main-content" style="display: none;">
         
-        <!-- CENTRAL HUB (Admin + Products) -->
+        <!-- 1. CENTRAL HUB (Admin Strictly) -->
         <section id="centralHub" class="tab-section active">
             <div style="margin-bottom: 3rem;">
                 <h1 style="font-size: 2.5rem; margin-bottom: 0.5rem;">Central Hub</h1>
-                <p style="color: var(--text-dim);">Unifying Administrative and Product control</p>
+                <p style="color: var(--text-dim);">Company Branding & Identity Settings</p>
             </div>
 
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; align-items: start;">
-                <!-- Left: Branding & Identity -->
-                <div class="hub-card">
-                    <h3 style="margin-bottom: 1.5rem; color: var(--primary);">Corporate Identity</h3>
-                    <div style="display: flex; align-items: center; gap: 1.5rem; margin-bottom: 1.5rem;">
-                        <div id="logoPreviewContainer" style="width: 80px; height: 80px; border-radius: 12px; background: rgba(255,255,255,0.02); border: 1px dashed var(--glass-border); display: flex; align-items: center; justify-content: center; overflow: hidden;">
-                            <img id="c_logo_preview" src="" style="max-width: 100%; max-height: 100%; display: none;">
+            <div class="hub-card animate-fade">
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 3rem;">
+                    <div>
+                        <h3 style="margin-bottom: 2rem; color: var(--primary);">Brand Identity</h3>
+                        <div style="display: flex; align-items: center; gap: 2rem; margin-bottom: 2rem;">
+                            <div id="logoPreviewContainer" style="width: 120px; height: 120px; border-radius: 16px; background: rgba(255,255,255,0.02); border: 2px dashed var(--glass-border); display: flex; align-items: center; justify-content: center; overflow: hidden;">
+                                <img id="c_logo_preview" src="" style="max-width: 100%; max-height: 100%; display: none;">
+                            </div>
+                            <div style="flex: 1;">
+                                <label style="display: block; margin-bottom: 10px;">Update Logo</label>
+                                <input type="file" id="c_logo_file" accept="image/*" onchange="previewLogo(this)">
+                            </div>
                         </div>
-                        <div style="flex: 1;">
-                            <label style="font-size: 0.8rem; color: var(--text-dim);">Update Brand Logo</label>
-                            <input type="file" id="c_logo_file" accept="image/*" onchange="previewLogo(this)" style="font-size: 0.8rem;">
+                        <div class="input-group"><label>Website</label><input type="text" id="c_web" placeholder="https://emyrisbio.com"></div>
+                    </div>
+                    <div>
+                        <h3 style="margin-bottom: 2rem; color: var(--primary);">Contact Details</h3>
+                        <div class="input-group"><label>Office Address</label><textarea id="c_address" rows="3"></textarea></div>
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                            <div class="input-group"><label>Telephone</label><input type="text" id="c_phone"></div>
+                            <div class="input-group"><label>Toll Free</label><input type="text" id="c_tollfree"></div>
                         </div>
                     </div>
-                    <div class="input-group"><label>Address</label><textarea id="c_address" rows="2"></textarea></div>
-                    <div class="input-group"><label>Phone</label><input type="text" id="c_phone"></div>
-                    <div class="input-group"><label>Toll Free</label><input type="text" id="c_tollfree"></div>
-                    <div class="input-group"><label>Website</label><input type="text" id="c_web"></div>
-                    <button class="btn btn-primary" style="width: 100%; margin-top: 1rem;" onclick="saveCompany()">Update Branding</button>
                 </div>
-
-                <!-- Right: Product Controls -->
-                <div class="hub-card">
-                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
-                        <h3 style="color: var(--secondary);">Product Management</h3>
-                        <button class="btn btn-glass" style="padding: 8px 16px; font-size: 0.8rem;" onclick="openModal('productModal')">+ New Product</button>
-                    </div>
-                    <div id="adminProductList" style="max-height: 400px; overflow-y: auto; display: flex; flex-direction: column; gap: 10px;">
-                        <!-- Products listed as small rows -->
-                    </div>
+                <div style="margin-top: 3rem; border-top: 1px solid var(--glass-border); padding-top: 2rem; text-align: right;">
+                    <button class="btn btn-primary" style="padding: 15px 40px;" onclick="saveCompany()">Update Central Hub Settings</button>
                 </div>
             </div>
         </section>
 
-        <!-- EMPLOYEE HUB -->
+        <!-- 2. PRODUCT HUB -->
+        <section id="productHub" class="tab-section">
+            <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 3rem;">
+                <div>
+                    <h1 style="font-size: 2.5rem; margin-bottom: 0.5rem;">Product Hub</h1>
+                    <p style="color: var(--text-dim);">Manage your scientific catalog and multimedia vault</p>
+                </div>
+                <button class="btn btn-primary" onclick="openModal('productModal')"><i data-lucide="plus"></i> Add New Product</button>
+            </div>
+            <div id="adminProductGrid" class="dashboard-grid"></div>
+        </section>
+
+        <!-- 3. EMPLOYEE HUB -->
         <section id="employees" class="tab-section">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 3rem;">
                 <h1>Employee Hub</h1>
                 <button class="btn btn-primary" onclick="openModal('empModal')">+ Register Staff</button>
             </div>
             
-            <div class="glass-panel" style="overflow: hidden;">
+            <div class="glass-panel" style="overflow: hidden; border-radius: 20px;">
                 <table style="width: 100%; border-collapse: collapse; text-align: left;">
                     <thead style="background: rgba(255,255,255,0.05);">
                         <tr>
@@ -169,14 +178,20 @@
         function initIcons() { lucide.createIcons(); }
         function openModal(id) { document.getElementById(id).style.display = 'flex'; }
         function closeModal(id) { document.getElementById(id).style.display = 'none'; }
-        function logout() { window.location.href = '/'; }
+        function logout() { window.location.href = '/admin'; }
 
         function showTab(tabId) {
             document.querySelectorAll('.tab-section').forEach(s => s.classList.remove('active'));
             document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
             document.getElementById(tabId).classList.add('active');
-            event.currentTarget.classList.add('active');
-            if(tabId === 'centralHub') { fetchProducts(); fetchCompany(); }
+            
+            // Find the link that has the matching onclick and set it active
+            document.querySelectorAll('.nav-link').forEach(link => {
+                if(link.getAttribute('onclick').includes(tabId)) link.classList.add('active');
+            });
+
+            if(tabId === 'centralHub') fetchCompany();
+            if(tabId === 'productHub') fetchProducts();
             if(tabId === 'employees') fetchEmployees();
             initIcons();
         }
@@ -201,13 +216,13 @@
         async function fetchProducts() {
             const res = await fetch(`${API}/products`);
             const data = await res.json();
-            document.getElementById('adminProductList').innerHTML = data.products.map(p => `
-                <div style="background: rgba(255,255,255,0.02); padding: 12px 15px; border-radius: 12px; display: flex; justify-content: space-between; align-items: center; border: 1px solid var(--glass-border);">
-                    <div>
-                        <div style="font-weight: 600;">${p.title}</div>
-                        <div style="font-size: 0.7rem; color: var(--text-dim); text-transform: uppercase;">${p.category}</div>
+            document.getElementById('adminProductGrid').innerHTML = data.products.map(p => `
+                <div class="glass-panel product-card">
+                    <div class="product-content">
+                        <span class="badge">${p.category}</span>
+                        <h3>${p.title}</h3>
+                        <button class="btn btn-glass" style="margin-top: 1rem; color: #f43f5e;" onclick="deleteProduct('${p._id}')"><i data-lucide="trash"></i> Delete</button>
                     </div>
-                    <button class="btn btn-glass" style="padding: 5px; color: #f43f5e; border: none;" onclick="deleteProduct('${p._id}')"><i data-lucide="trash-2" style="width:16px;"></i></button>
                 </div>
             `).join('');
             initIcons();
@@ -249,7 +264,7 @@
             };
             if (tempLogoBase64) payload.logo = tempLogoBase64;
             await fetch(`${API}/company`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
-            alert('Hub Updated');
+            alert('Central Hub Updated Successfully');
             tempLogoBase64 = null;
             fetchCompany();
         }
