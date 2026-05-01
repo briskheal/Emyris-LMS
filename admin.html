@@ -342,6 +342,16 @@
                 </div>
 
                 <div class="input-group">
+                    <label>Product Title</label>
+                    <input type="text" id="p_title" placeholder="Enter Product Name">
+                </div>
+
+                <div class="input-group">
+                    <label style="color: var(--primary); font-weight: 700; margin-bottom: 0.5rem; display: block;">Portfolio Categorization</label>
+                    <select id="p_category_dropdown" style="width: 100%; padding: 12px; background: rgba(255,255,255,0.05); border: 1px solid var(--glass-border); border-radius: 12px; color: white; outline: none;"></select>
+                </div>
+
+                <div class="input-group">
                     <label>Packing Photo</label>
                     <div class="media-preview-box" id="p_image_preview_box">
                         <img id="p_image_preview" src="" style="display: none;">
@@ -634,9 +644,24 @@
 
         async function saveProduct() {
             const id = document.getElementById('p_id').value;
-            const saveBtn = document.querySelector('button[onclick="saveProduct()"]'); // Target any of the sync buttons
+            // Target the button that was actually clicked if possible, or fall back to the first sync button
+            const saveBtn = event ? event.currentTarget : document.querySelector('button[onclick="saveProduct()"]'); 
             const originalBtnHtml = saveBtn.innerHTML;
             
+            // Validate essential fields
+            const titleEl = document.getElementById('p_title');
+            const catEl = document.getElementById('p_category_dropdown');
+            
+            if (!titleEl || !catEl) {
+                alert('❌ Critical Error: Form fields missing. Please refresh the page.');
+                return;
+            }
+
+            if (!titleEl.value) {
+                alert('⚠️ Product Title is required');
+                return;
+            }
+
             saveBtn.disabled = true;
             saveBtn.innerHTML = '<i data-lucide="loader-2" class="animate-spin"></i> Syncing Assets...';
             initIcons();
@@ -654,7 +679,7 @@
                 ]);
 
                 const finalVideoUrl = videoUrl || document.getElementById('p_video_link').value;
-                const selectedCat = document.getElementById('p_category_dropdown').value;
+                const selectedCat = catEl.value;
 
                 // Clean up colors from HTML
                 const cleanHtml = quill.root.innerHTML.replace(/style="[^"]*?(?:color|background-color)[^"]*?"/gi, (match) => {
@@ -670,7 +695,7 @@
                 });
 
                 const payload = { 
-                    title: document.getElementById('p_title').value, 
+                    title: titleEl.value, 
                     category: selectedCat, 
                     scientificInfo: cleanHtml, 
                     videoUrl: finalVideoUrl, 
