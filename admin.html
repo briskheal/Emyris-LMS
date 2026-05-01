@@ -77,9 +77,15 @@
             
             <div class="glass-panel" style="padding: 3rem; max-width: 800px;">
                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem;">
-                    <div class="input-group" style="grid-column: span 2;">
-                        <label>Company Logo (URL or Base64)</label>
-                        <input type="text" id="c_logo" placeholder="Paste image data...">
+                    <div class="input-group" style="grid-column: span 2; display: flex; align-items: center; gap: 2rem;">
+                        <div id="logoPreviewContainer" style="width: 100px; height: 100px; border-radius: 12px; background: rgba(255,255,255,0.02); border: 1px dashed var(--glass-border); display: flex; align-items: center; justify-content: center; overflow: hidden;">
+                            <img id="c_logo_preview" src="" style="max-width: 100%; max-height: 100%; display: none;">
+                            <span id="noLogoText" style="font-size: 0.7rem; color: var(--text-dim);">No Logo</span>
+                        </div>
+                        <div style="flex: 1;">
+                            <label>Update Company Logo</label>
+                            <input type="file" id="c_logo_file" accept="image/*" onchange="previewLogo(this)">
+                        </div>
                     </div>
                     <div class="input-group" style="grid-column: span 2;">
                         <label>Registered Address</label>
@@ -211,27 +217,51 @@
         async function fetchCompany() {
             const res = await fetch(`${API}/company`);
             const data = await res.json();
-            document.getElementById('c_logo').value = data.logo || '';
             document.getElementById('c_address').value = data.address || '';
             document.getElementById('c_phone').value = data.phone || '';
             document.getElementById('c_web').value = data.website || '';
             document.getElementById('c_tollfree').value = data.tollFree || '';
+            
+            if (data.logo) {
+                document.getElementById('c_logo_preview').src = data.logo;
+                document.getElementById('c_logo_preview').style.display = 'block';
+                document.getElementById('noLogoText').style.display = 'none';
+            }
+        }
+
+        let tempLogoBase64 = null;
+        async function previewLogo(input) {
+            if (input.files && input.files[0]) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    tempLogoBase64 = e.target.result;
+                    document.getElementById('c_logo_preview').src = e.target.result;
+                    document.getElementById('c_logo_preview').style.display = 'block';
+                    document.getElementById('noLogoText').style.display = 'none';
+                }
+                reader.readAsDataURL(input.files[0]);
+            }
         }
 
         async function saveCompany() {
             const payload = {
-                logo: document.getElementById('c_logo').value,
                 address: document.getElementById('c_address').value,
                 phone: document.getElementById('c_phone').value,
                 website: document.getElementById('c_web').value,
                 tollFree: document.getElementById('c_tollfree').value
             };
+            
+            if (tempLogoBase64) {
+                payload.logo = tempLogoBase64;
+            }
+
             await fetch(`${API}/company`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(payload)
             });
             alert('Central Hub Updated');
+            tempLogoBase64 = null;
         }
 
         async function fetchEmployees() {
