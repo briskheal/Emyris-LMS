@@ -142,24 +142,26 @@
 
     <!-- Modals -->
     <div id="productModal" class="modal">
-        <div class="glass-panel modal-content">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
-                <h2 style="font-size: 2rem;">New Scientific Product</h2>
-                <button class="btn btn-glass" style="border: none; padding: 10px;" onclick="closeModal('productModal')"><i data-lucide="x"></i></button>
+        <div class="glass-panel modal-content animate-fade">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2.5rem;">
+                <h2 style="font-size: 2.5rem;">Add Scientific Product</h2>
+                <button class="btn btn-glass" style="border: none; padding: 15px;" onclick="closeModal('productModal')"><i data-lucide="x"></i></button>
             </div>
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-bottom: 2rem;">
-                <div class="input-group"><label>Title</label><input type="text" id="p_title"></div>
+            <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 1.5rem; margin-bottom: 2rem;">
+                <div class="input-group"><label>Product Title</label><input type="text" id="p_title" placeholder="e.g. Emyris-K"></div>
                 <div class="input-group"><label>Category</label><select id="p_category">
                     <option>Injectables</option><option>Enteral Nutrition</option><option>Nutraceuticals</option><option>Pharmaceuticals</option>
                 </select></div>
-                <div class="input-group" style="grid-column: span 2;"><label>Molecular Details</label><textarea id="p_info" rows="4"></textarea></div>
+                <div class="input-group"><label>YouTube / Video Link</label><input type="text" id="p_video" placeholder="Link here"></div>
                 <div class="input-group"><label>Packing Photo</label><input type="file" id="p_image"></div>
-                <div class="input-group"><label>Video Link</label><input type="text" id="p_video"></div>
-                <div class="input-group" style="grid-column: span 2;"><label>Journals (PDF)</label><input type="file" id="p_docs" multiple></div>
+                
+                <div class="input-group" style="grid-column: span 4;"><label>Scientific Composition / Clinical Details</label><textarea id="p_info" rows="6" placeholder="Enter molecular details..."></textarea></div>
+                
+                <div class="input-group" style="grid-column: span 4;"><label>Scientific Journals (Select Multiple PDFs)</label><input type="file" id="p_docs" multiple></div>
             </div>
-            <div style="display: flex; justify-content: flex-end; gap: 1rem;">
-                <button class="btn btn-glass" onclick="closeModal('productModal')">Discard</button>
-                <button class="btn btn-primary" onclick="saveProduct()">Add to Catalog</button>
+            <div style="display: flex; justify-content: flex-end; gap: 1.5rem; border-top: 1px solid var(--glass-border); padding-top: 2rem;">
+                <button class="btn btn-glass" style="padding: 15px 30px;" onclick="closeModal('productModal')">Discard Changes</button>
+                <button class="btn btn-primary" style="padding: 15px 60px; font-size: 1.1rem;" onclick="saveProduct()">Save Product to catalog</button>
             </div>
         </div>
     </div>
