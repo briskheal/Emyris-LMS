@@ -83,6 +83,33 @@
         .ql-fill { fill: #cbd5e1 !important; }
         .ql-picker { color: #cbd5e1 !important; }
         .ql-picker-options { background: #0f172a !important; border-color: var(--glass-border) !important; }
+        /* High-Density Grid Overrides */
+        #adminProductGrid { 
+            display: grid; 
+            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); 
+            gap: 1rem; 
+            padding: 1rem 0;
+        }
+        .compact-admin-card { 
+            padding: 1.2rem !important; 
+            border-radius: 12px !important;
+            transition: all 0.3s;
+        }
+        .compact-admin-card h3 { 
+            font-size: 1rem !important; 
+            margin-bottom: 0.8rem !important;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .compact-admin-card .badge {
+            font-size: 0.65rem !important;
+            padding: 2px 8px !important;
+        }
+        .compact-admin-card .btn {
+            padding: 6px 10px !important;
+            font-size: 0.75rem !important;
+        }
     </style>
 </head>
 <body>
@@ -401,13 +428,13 @@
             const res = await fetch(`${API}/products`);
             const data = await res.json();
             document.getElementById('adminProductGrid').innerHTML = data.products.map(p => `
-                <div class="glass-panel product-card">
-                    <div class="product-content">
+                <div class="glass-panel product-card compact-admin-card">
+                    <div class="product-content" style="padding: 0;">
                         <span class="badge">${p.category}</span>
-                        <h3>${p.title}</h3>
-                        <div style="display: flex; gap: 10px; margin-top: 1.5rem;">
-                            <button class="btn btn-glass" style="flex: 1;" onclick="editProduct('${p._id}')"><i data-lucide="edit-3"></i> Edit</button>
-                            <button class="btn btn-glass" style="color: #f43f5e;" onclick="deleteProduct('${p._id}')"><i data-lucide="trash"></i></button>
+                        <h3 title="${p.title}">${p.title}</h3>
+                        <div style="display: flex; gap: 8px;">
+                            <button class="btn btn-glass" style="flex: 1;" onclick="editProduct('${p._id}')"><i data-lucide="edit-3" style="width:14px;"></i> Edit</button>
+                            <button class="btn btn-glass" style="color: #f43f5e; padding: 6px !important;" onclick="deleteProduct('${p._id}')"><i data-lucide="trash" style="width:14px;"></i></button>
                         </div>
                     </div>
                 </div>
