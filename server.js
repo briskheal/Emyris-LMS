@@ -160,6 +160,13 @@ app.get('/api/employees', async (req, res) => {
     } catch (e) { res.status(500).json({ success: false }); }
 });
 
+app.patch('/api/employees/:id', async (req, res) => {
+    try {
+        await Employee.findByIdAndUpdate(req.params.id, req.body);
+        res.json({ success: true });
+    } catch (e) { res.status(500).json({ success: false }); }
+});
+
 app.patch('/api/employees/:id/status', async (req, res) => {
     try {
         const { active } = req.body;

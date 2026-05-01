@@ -134,6 +134,7 @@
                             <th>Login ID (Code)</th>
                             <th>Password</th>
                             <th>Status</th>
+                            <th>Actions</th>
                         </tr>
                     </thead>
                     <tbody id="empTableBody"></tbody>
@@ -371,7 +372,24 @@
                             <span class="slider"></span>
                         </label>
                     </td>
+                    <td>
+                        <button class="btn btn-glass" style="padding: 8px 12px; font-size: 0.8rem;" onclick="resetPassword('${e._id}')">
+                            <i data-lucide="key-round"></i> Reset
+                        </button>
+                    </td>
                 </tr>`).join(''); 
+            initIcons();
+        }
+
+        async function resetPassword(id) {
+            const newPass = Math.random().toString(36).slice(-8).toUpperCase();
+            if (!confirm(`Generate new password: ${newPass}?`)) return;
+            await fetch(`${API}/employees/${id}`, {
+                method: 'PATCH',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ password: newPass })
+            });
+            fetchEmployees();
         }
         async function saveEmployee() { await fetch(`${API}/employees`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ name: document.getElementById('e_name').value, empCode: document.getElementById('e_code').value, password: document.getElementById('e_pass').value }) }); closeModal('empModal'); fetchEmployees(); }
         async function toggleEmp(id, active) { await fetch(`${API}/employees/${id}/status`, { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ active }) }); fetchEmployees(); }
