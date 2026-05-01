@@ -19,6 +19,12 @@ async function fetchBranding() {
             document.getElementById('appLogoAuth').src = data.logo;
             document.getElementById('appLogoNav').src = data.logo;
         }
+        if (data.phone || data.tollFree) {
+            document.getElementById('display_contact').innerText = `📞 Contact: ${data.phone || data.tollFree}`;
+        }
+        if (data.website) {
+            document.getElementById('display_website').innerText = `🌐 ${data.website}`;
+        }
     } catch (e) { console.error('Branding fetch failed', e); }
 }
 
