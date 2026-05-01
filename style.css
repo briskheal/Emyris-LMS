@@ -233,6 +233,16 @@ nav {
 }
 
 /* Mobile Responsiveness */
+/* Scientific Index (List View) */
+.scientific-index { width: 100%; max-width: 1200px; margin: 0 auto; background: rgba(255,255,255,0.02); border-radius: 20px; border: 1px solid var(--glass-border); overflow: hidden; }
+.index-header { display: grid; grid-template-columns: 2fr 1fr 100px; padding: 1.5rem 2rem; background: rgba(255,255,255,0.05); color: var(--primary); font-weight: 700; text-transform: uppercase; font-size: 0.8rem; letter-spacing: 1px; border-bottom: 1px solid var(--glass-border); }
+.index-row { display: grid; grid-template-columns: 2fr 1fr 100px; padding: 1.2rem 2rem; border-bottom: 1px solid rgba(255,255,255,0.05); cursor: pointer; transition: all 0.3s; align-items: center; }
+.index-row:last-child { border-bottom: none; }
+.index-row:hover { background: rgba(255,255,255,0.05); transform: translateX(5px); }
+.product-name { display: flex; align-items: center; gap: 1rem; }
+.hyperlink { font-size: 1.1rem; color: white; font-weight: 500; text-decoration: none; border-bottom: 1px dashed rgba(255,255,255,0.2); }
+.index-row:hover .hyperlink { color: var(--primary); border-bottom-color: var(--primary); }
+
 @media (max-width: 768px) {
     nav {
         padding: 1rem 5%;

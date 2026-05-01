@@ -144,28 +144,48 @@ async function filterProducts(category) {
 
 function renderProducts(products, gridId, isAdmin) {
     const grid = document.getElementById(gridId);
-    grid.innerHTML = products.map(p => `
-        <div class="glass-panel product-card animate-fade">
-            ${p.image ? `<img src="${p.image}" class="product-image" alt="${p.title}">` : `<div style="height:200px; background: rgba(255,255,255,0.02); display:flex; align-items:center; justify-content:center; color:var(--text-dim)">No Image</div>`}
-            <div class="product-content">
-                <span class="badge">${p.category}</span>
-                <h3 style="margin-bottom: 0.5rem; font-size: 1.4rem;">${p.title}</h3>
-                <p style="color: var(--text-dim); font-size: 0.9rem; margin-bottom: 1.5rem; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">
-                    ${p.scientificInfo}
-                </p>
-                <div style="display: flex; gap: 0.5rem;">
-                    <button class="btn btn-glass" style="flex: 1;" onclick="viewDetails('${p._id}')">
-                        <i data-lucide="eye"></i> Details
-                    </button>
-                    ${isAdmin ? `
-                        <button class="btn btn-glass" style="color: var(--accent); border-color: rgba(244, 63, 94, 0.2);" onclick="deleteProduct('${p._id}')">
-                            <i data-lucide="trash-2"></i>
-                        </button>
-                    ` : ''}
+    
+    if (isAdmin) {
+        // Keep Admin Grid as is for management
+        grid.innerHTML = products.map(p => `
+            <div class="glass-panel product-card animate-fade">
+                ${p.image ? `<img src="${p.image}" class="product-image" alt="${p.title}">` : `<div style="height:200px; background: rgba(255,255,255,0.02); display:flex; align-items:center; justify-content:center; color:var(--text-dim)">No Image</div>`}
+                <div class="product-content">
+                    <span class="badge">${p.category}</span>
+                    <h3 style="margin-bottom: 0.5rem; font-size: 1.4rem;">${p.title}</h3>
+                    <div style="display: flex; gap: 0.5rem;">
+                        <button class="btn btn-glass" style="flex: 1;" onclick="viewDetails('${p._id}')"><i data-lucide="eye"></i> Details</button>
+                        <button class="btn btn-glass" style="color: var(--accent); border-color: rgba(244, 63, 94, 0.2);" onclick="deleteProduct('${p._id}')"><i data-lucide="trash-2"></i></button>
+                    </div>
                 </div>
             </div>
-        </div>
-    `).join('');
+        `).join('');
+    } else {
+        // USER PORTAL: High-Density Hyperlinked Index
+        grid.style.display = 'block'; // Change from grid to block for list
+        grid.innerHTML = `
+            <div class="scientific-index">
+                <div class="index-header">
+                    <span>Scientific Brand / Product</span>
+                    <span>Category</span>
+                    <span style="text-align: right;">Access</span>
+                </div>
+                ${products.map(p => `
+                    <div class="index-row animate-fade" onclick="viewDetails('${p._id}')">
+                        <div class="product-name">
+                            <i data-lucide="flask-conical" style="width: 16px; color: var(--primary);"></i>
+                            <span class="hyperlink">${p.title}</span>
+                        </div>
+                        <div class="product-cat">
+                            <span class="badge" style="font-size: 0.7rem; opacity: 0.8;">${p.category}</span>
+                        </div>
+                        <div style="text-align: right; color: var(--primary);">
+                            <i data-lucide="chevron-right"></i>
+                        </div>
+                    </div>
+                `).join('')}
+            </div>`;
+    }
     initIcons();
 }
 
