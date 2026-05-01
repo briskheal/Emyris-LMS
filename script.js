@@ -14,21 +14,19 @@ const API_URL = '/api';
 
 function setRole(role) {
     currentRole = role;
-    const empBtn = document.getElementById('roleEmp');
-    const adminBtn = document.getElementById('roleAdmin');
     const idLabel = document.getElementById('idLabel');
     const usernameInput = document.getElementById('username');
+    const authCard = document.querySelector('.auth-card');
+    const subtext = authCard.querySelector('p:last-child');
 
     if (role === 'admin') {
-        adminBtn.className = 'btn btn-primary';
-        empBtn.className = 'btn btn-glass';
         idLabel.innerText = 'Admin Username';
-        usernameInput.placeholder = 'e.g. ADMIN';
+        usernameInput.placeholder = 'e.g. EMYRISLMS';
+        subtext.innerHTML = `Administrative Mode. <a href="#" onclick="setRole('employee')" style="color: var(--secondary); text-decoration: none; font-weight: 600;">Back to Employee Login</a>`;
     } else {
-        empBtn.className = 'btn btn-primary';
-        adminBtn.className = 'btn btn-glass';
         idLabel.innerText = 'Employee Code';
-        usernameInput.placeholder = 'e.g. EMP001';
+        usernameInput.placeholder = 'e.g. user';
+        subtext.innerHTML = `Secure Access Only. <a href="#" onclick="setRole('admin')" style="color: var(--primary); text-decoration: none; font-weight: 600;">Administrator Portal</a>`;
     }
 }
 
