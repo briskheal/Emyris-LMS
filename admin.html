@@ -299,7 +299,7 @@
                             <th><i data-lucide="id-card" style="width: 14px; vertical-align: middle; margin-right: 5px;"></i> Login ID</th>
                             <th><i data-lucide="key" style="width: 14px; vertical-align: middle; margin-right: 5px;"></i> Password</th>
                             <th><i data-lucide="activity" style="width: 14px; vertical-align: middle; margin-right: 5px;"></i> Status</th>
-                            <th><i data-lucide="map-pin" style="width: 14px; vertical-align: middle; margin-right: 5px;"></i> Registered IP</th>
+                            <th><i data-lucide="monitor" style="width: 14px; vertical-align: middle; margin-right: 5px;"></i> Machine Registration</th>
                             <th><i data-lucide="settings-2" style="width: 14px; vertical-align: middle; margin-right: 5px;"></i> Actions</th>
                         </tr>
                     </thead>
@@ -320,7 +320,7 @@
                         <tr>
                             <th style="padding: 1rem 1.5rem;">Time</th>
                             <th>Employee</th>
-                            <th>IP Address</th>
+                            <th>Device ID</th>
                             <th>Status</th>
                         </tr>
                     </thead>
@@ -461,7 +461,7 @@
                 <div style="background: rgba(99, 102, 241, 0.05); border: 1px dashed var(--primary-glow); padding: 1.2rem; border-radius: 12px; margin-top: 0.5rem; margin-bottom: 1rem;">
                     <div style="display: flex; gap: 12px; align-items: flex-start;">
                         <i data-lucide="info" style="width: 20px; color: var(--primary); flex-shrink: 0; margin-top: 2px;"></i>
-                        <p style="font-size: 0.8rem; color: var(--text-dim); line-height: 1.4;">Staff members will be locked to their first login IP address for security. Administrators can reset this lock from the Employee Hub.</p>
+                        <p style="font-size: 0.8rem; color: var(--text-dim); line-height: 1.4;">Staff members will be locked to their first login device (Machine ID) for security. This allows switching between WiFi and Mobile networks on the same machine. Administrators can reset this lock from the Employee Hub.</p>
                     </div>
                 </div>
 
@@ -833,10 +833,10 @@
                         </div>
                     </td>
                     <td>
-                        <div style="display: flex; align-items: center; gap: 8px;">
-                            ${e.registeredIP ? 
-                                `<i data-lucide="lock" style="width: 12px; color: var(--primary);"></i> <span style="font-size: 0.85rem; font-family: monospace;">${e.registeredIP}</span>` : 
-                                `<i data-lucide="unlock" style="width: 12px; color: var(--text-dim);"></i> <span style="font-size: 0.8rem; color: var(--primary); font-style: italic;">Unbound</span>`
+                        <div style="display: flex; flex-direction: column; gap: 4px;">
+                            ${e.machineId ? 
+                                `<div style="display: flex; align-items: center; gap: 8px;"><i data-lucide="monitor" style="width: 12px; color: var(--primary);"></i> <span style="font-size: 0.75rem; font-family: monospace; color: #fff;">${e.machineId}</span></div>` : 
+                                `<div style="display: flex; align-items: center; gap: 8px;"><i data-lucide="unlock" style="width: 12px; color: var(--text-dim);"></i> <span style="font-size: 0.75rem; color: var(--primary); font-style: italic;">No Device Bound</span></div>`
                             }
                         </div>
                     </td>
@@ -848,8 +848,8 @@
                             <button class="btn btn-glass" style="padding: 6px 12px; font-size: 0.75rem; border-radius: 8px;" onclick="resetPassword('${e._id}')" title="Reset Password">
                                 <i data-lucide="refresh-cw" style="width:14px;"></i> Reset
                             </button>
-                            <button class="btn btn-glass" style="padding: 6px 12px; font-size: 0.75rem; border-radius: 8px; color: var(--accent);" onclick="resetIP('${e._id}')" title="Reset IP Lock">
-                                <i data-lucide="unlocked" style="width:14px;"></i> IP
+                            <button class="btn btn-glass" style="padding: 6px 12px; font-size: 0.75rem; border-radius: 8px; color: var(--accent);" onclick="resetLock('${e._id}')" title="Reset Security Lock">
+                                <i data-lucide="unlocked" style="width:14px;"></i> Lock
                             </button>
                         </div>
                     </td>
@@ -864,16 +864,16 @@
                 <tr style="border-bottom: 1px solid var(--glass-border);">
                     <td style="padding: 1rem 1.5rem; font-size: 0.8rem; color: var(--text-dim);">${new Date(l.timestamp).toLocaleString()}</td>
                     <td>${l.name || l.empCode}</td>
-                    <td><code>${l.ip}</code></td>
+                    <td><code style="font-size: 0.7rem; opacity: 0.7;">${l.machineId || 'N/A'}</code></td>
                     <td><span class="badge" style="background: ${l.status.includes('Blocked') ? 'var(--accent)' : (l.status === 'Success' ? '#22c55e' : 'rgba(255,255,255,0.1)')}">${l.status}</span></td>
                 </tr>
             `).join('');
             initIcons();
         }
 
-        async function resetIP(id) {
-            if (!confirm('Reset IP Lock for this employee? They will be locked to the next machine they use.')) return;
-            await fetch(`${API}/employees/${id}/reset-ip`, { method: 'PATCH' });
+        async function resetLock(id) {
+            if (!confirm('Reset Security Lock for this employee? They will be locked to the next device they use.')) return;
+            await fetch(`${API}/employees/${id}/reset-lock`, { method: 'PATCH' });
             fetchEmployees();
         }
 

@@ -10,6 +10,16 @@ let currentRole = 'employee';
 let loggedInUser = null;
 const API_URL = '/api';
 
+// --- MACHINE IDENTIFICATION ---
+function getMachineId() {
+    let machineId = localStorage.getItem('emyris_lms_machine_id');
+    if (!machineId) {
+        machineId = 'M-' + Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
+        localStorage.setItem('emyris_lms_machine_id', machineId);
+    }
+    return machineId;
+}
+
 // --- BRANDING ---
 async function fetchBranding() {
     try {
@@ -101,7 +111,12 @@ async function handleLogin() {
         const response = await fetch(`${API_URL}/auth/login`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ empCode, password, isAdmin: currentRole === 'admin' })
+            body: JSON.stringify({ 
+                empCode, 
+                password, 
+                isAdmin: currentRole === 'admin',
+                machineId: currentRole === 'admin' ? null : getMachineId()
+            })
         });
 
         const data = await response.json();
@@ -110,9 +125,9 @@ async function handleLogin() {
             loggedInUser = data;
             showPortal(data.role);
         } else {
-            if (data.securityCode === 'IP_MISMATCH') {
+            if (data.securityCode === 'IP_MISMATCH' || data.securityCode === 'DEVICE_MISMATCH') {
                 playBeep();
-                alert('🚨 Outside Company Circle. Access Denied');
+                alert(`🚨 ${data.message}`);
             } else {
                 alert(data.message || 'Login Failed');
             }
@@ -403,4 +418,10 @@ function toBase64(file) {
 window.onload = () => {
     initIcons();
     fetchBranding();
+    
+    // Display Machine ID on Auth Screen
+    const display = document.getElementById('machineIdDisplay');
+    if (display) {
+        display.innerText = getMachineId();
+    }
 };

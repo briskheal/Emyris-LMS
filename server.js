@@ -99,7 +99,7 @@ const EmployeeSchema = new mongoose.Schema({
     password: { type: String, required: true },
     name: String,
     active: { type: Boolean, default: true },
-    registeredIP: { type: String, default: null }, // First IP lock
+    machineId: { type: String, default: null }, // Device-based lock
     lastLogin: Date
 });
 
@@ -107,7 +107,8 @@ const LoginLogSchema = new mongoose.Schema({
     empCode: String,
     name: String,
     ip: String,
-    status: String, // 'Success', 'Blocked (IP)', 'Failed'
+    machineId: String,
+    status: String, // 'Success', 'Blocked (IP)', 'Blocked (Device)', 'Failed'
     timestamp: { type: Date, default: Date.now }
 });
 
@@ -156,27 +157,25 @@ app.post('/api/auth/login', async (req, res) => {
         if (emp) {
             if (!emp.active) return res.status(403).json({ success: false, message: 'Account Deactivated' });
 
-            // --- IP LOCKING LOGIC ---
-            if (!emp.registeredIP) {
-                // First time login - Record IP
-                emp.registeredIP = clientIP;
-                console.log(`[SECURITY] Registered first IP for ${emp.name}: ${clientIP}`);
-            } else if (emp.registeredIP !== clientIP) {
-                // IP Mismatch
-                console.warn(`[SECURITY] Access Denied for ${emp.name}. Registered: ${emp.registeredIP}, Current: ${clientIP}`);
-                
-                await LoginLog.create({ 
-                    empCode, 
-                    name: emp.name, 
-                    ip: clientIP, 
-                    status: 'Blocked (IP)' 
-                });
-
-                return res.status(403).json({ 
-                    success: false, 
-                    message: 'Outside Company Circle. Access Denied',
-                    securityCode: 'IP_MISMATCH'
-                });
+            // --- DEVICE LOCKING LOGIC ---
+            const { machineId } = req.body;
+            
+            if (machineId) {
+                if (!emp.machineId) {
+                    // Register first device
+                    emp.machineId = machineId;
+                    console.log(`[SECURITY] Registered first Machine ID for ${emp.name}: ${machineId}`);
+                } else if (emp.machineId !== machineId) {
+                    console.warn(`[SECURITY] Device Mismatch for ${emp.name}. Registered: ${emp.machineId}, Current: ${machineId}`);
+                    await LoginLog.create({ 
+                        empCode, name: emp.name, ip: clientIP, machineId, status: 'Blocked (Device)' 
+                    });
+                    return res.status(403).json({ 
+                        success: false, 
+                        message: 'Unauthorized Device. Please contact Admin to register this machine.',
+                        securityCode: 'DEVICE_MISMATCH'
+                    });
+                }
             }
 
             emp.lastLogin = new Date();
@@ -186,6 +185,7 @@ app.post('/api/auth/login', async (req, res) => {
                 empCode, 
                 name: emp.name, 
                 ip: clientIP, 
+                machineId: machineId || 'N/A',
                 status: 'Success' 
             });
 
@@ -282,9 +282,9 @@ app.patch('/api/employees/:id/status', async (req, res) => {
     } catch (e) { res.status(500).json({ success: false }); }
 });
 
-app.patch('/api/employees/:id/reset-ip', async (req, res) => {
+app.patch('/api/employees/:id/reset-lock', async (req, res) => {
     try {
-        await Employee.findByIdAndUpdate(req.params.id, { registeredIP: null });
+        await Employee.findByIdAndUpdate(req.params.id, { machineId: null });
         res.json({ success: true });
     } catch (e) { res.status(500).json({ success: false }); }
 });

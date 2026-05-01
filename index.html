@@ -48,9 +48,13 @@
                 Secure Access Only. <a href="#" onclick="setRole('admin')" style="color: var(--primary); text-decoration: none; font-weight: 600;">Administrator Portal</a>
             </p>
 
-            <div id="companyInfo" style="margin-top: 2rem; font-size: 0.75rem; color: var(--text-dim); display: flex; justify-content: center; gap: 1.5rem; border-top: 1px solid rgba(255,255,255,0.05); padding-top: 1rem;">
+            <div id="companyInfo" style="margin-top: 2rem; font-size: 0.75rem; color: var(--text-dim); display: flex; justify-content: center; gap: 1.5rem; border-top: 1px solid rgba(255,255,255,0.05); padding-top: 1rem; flex-wrap: wrap;">
                 <span id="display_contact"></span>
                 <span id="display_website"></span>
+                <div style="width: 100%; text-align: center; margin-top: 10px; opacity: 0.6;">
+                    <p style="font-size: 0.6rem; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 2px;">Machine Registration No</p>
+                    <code id="machineIdDisplay" style="font-size: 0.7rem; color: var(--primary);">Detecting...</code>
+                </div>
             </div>
         </div>
     </main>
