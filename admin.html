@@ -340,6 +340,9 @@
                         <button class="btn btn-glass" style="padding: 4px 10px; font-size: 0.75rem;" onclick="addFaqRow()"><i data-lucide="plus" style="width:14px;"></i> Add FAQ</button>
                     </div>
                     <div id="faqContainer"></div>
+                    <button class="btn btn-primary" style="width: 100%; justify-content: center; margin-top: 1.5rem;" onclick="saveProduct()">
+                        <i data-lucide="refresh-cw"></i> <span>Sync FAQ to Portal</span>
+                    </button>
                 </div>
             </div>
 
@@ -476,7 +479,11 @@
 
             document.getElementById('p_id').value = editData ? editData._id : '';
             document.getElementById('modalTitle').innerText = editData ? 'Edit Scientific Product' : 'Add Scientific Product';
-            document.getElementById('saveBtn').innerText = editData ? 'Update Product' : 'Save Product to catalog';
+            
+            const syncBtns = document.querySelectorAll('button[onclick="saveProduct()"]');
+            syncBtns.forEach(btn => {
+                btn.innerHTML = editData ? '<i data-lucide="refresh-cw"></i> Sync Updates to Portal' : '<i data-lucide="plus"></i> Add to Portal';
+            });
             
             document.getElementById('p_title').value = editData ? editData.title : '';
             document.getElementById('p_video_link').value = editData ? editData.videoUrl : '';
