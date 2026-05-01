@@ -190,8 +190,17 @@
                 <h2 style="font-size: 2rem;">Product Categorization</h2>
                 <button class="btn btn-glass" style="border: none;" onclick="closeModal('categoryHub')"><i data-lucide="x"></i></button>
             </div>
-            <p style="color: var(--text-dim); margin-bottom: 2rem;">Toggle categories to activate or deactivate them across the portal.</p>
-            <div id="categorySwitchBoard" style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem;">
+            
+            <div style="background: rgba(255,255,255,0.02); padding: 1.5rem; border-radius: 15px; margin-bottom: 2rem; display: flex; gap: 1rem; align-items: flex-end; border: 1px solid var(--glass-border);">
+                <div class="input-group" style="flex: 1; margin-bottom: 0;">
+                    <label>New Scientific Category Name</label>
+                    <input type="text" id="newCatName" placeholder="e.g. Oncology, Critical Care...">
+                </div>
+                <button class="btn btn-primary" onclick="addCategory()">Add Category</button>
+            </div>
+
+            <p style="color: var(--text-dim); margin-bottom: 1.5rem; font-size: 0.9rem;">Toggle active categories:</p>
+            <div id="categorySwitchBoard" style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; max-height: 300px; overflow-y: auto;">
                 <!-- Switches will be injected here -->
             </div>
             <div style="margin-top: 3rem; text-align: right;">
@@ -220,6 +229,18 @@
                     </label>
                 </div>
             `).join('');
+        }
+
+        async function addCategory() {
+            const name = document.getElementById('newCatName').value;
+            if (!name) return;
+            await fetch(`${API}/categories`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ name })
+            });
+            document.getElementById('newCatName').value = '';
+            openCategoryHub(); // Refresh the list
         }
 
         async function toggleCategory(id, active) {

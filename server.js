@@ -168,6 +168,14 @@ app.get('/api/categories', async (req, res) => {
     res.json(cats);
 });
 
+app.post('/api/categories', async (req, res) => {
+    try {
+        const { name } = req.body;
+        await Category.create({ name, active: true });
+        res.json({ success: true });
+    } catch (e) { res.status(500).json({ success: false }); }
+});
+
 app.patch('/api/categories/:id', async (req, res) => {
     await Category.findByIdAndUpdate(req.params.id, req.body);
     res.json({ success: true });
