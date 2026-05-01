@@ -56,12 +56,8 @@
             <p style="color: var(--text-dim); max-width: 600px; margin: 0 auto;">Select a category to explore clinical data, compositions, and indications.</p>
         </div>
 
-        <div class="filter-container">
-            <button class="btn btn-primary" onclick="filterProducts('All')">All Portfolio</button>
-            <button class="btn btn-glass" onclick="filterProducts('Injectables')">Injectables</button>
-            <button class="btn btn-glass" onclick="filterProducts('Enteral Nutrition')">Nutrition</button>
-            <button class="btn btn-glass" onclick="filterProducts('Nutraceuticals')">Nutraceuticals</button>
-            <button class="btn btn-glass" onclick="filterProducts('Pharmaceuticals')">Pharma</button>
+        <div class="filter-container" id="categoryFilter">
+            <!-- Dynamic Category Buttons will be injected here -->
         </div>
 
         <div id="empProductGrid" class="dashboard-grid"></div>

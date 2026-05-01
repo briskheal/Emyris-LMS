@@ -113,7 +113,10 @@
                     <h1 style="font-size: 2.5rem; margin-bottom: 0.5rem;">Product Hub</h1>
                     <p style="color: var(--text-dim);">Manage your scientific catalog and multimedia vault</p>
                 </div>
-                <button class="btn btn-primary" onclick="openModal('productModal')"><i data-lucide="plus"></i> Add New Product</button>
+                <div style="display: flex; gap: 1rem;">
+                    <button class="btn btn-glass" onclick="openCategoryHub()"><i data-lucide="layers"></i> Product Categorization</button>
+                    <button class="btn btn-primary" onclick="openModal('productModal')"><i data-lucide="plus"></i> Add New Product</button>
+                </div>
             </div>
             <div id="adminProductGrid" class="dashboard-grid"></div>
         </section>
@@ -181,6 +184,22 @@
         </div>
     </div>
 
+    <div id="categoryHub" class="modal">
+        <div class="glass-panel modal-content" style="max-width: 800px !important;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 3rem;">
+                <h2 style="font-size: 2rem;">Product Categorization</h2>
+                <button class="btn btn-glass" style="border: none;" onclick="closeModal('categoryHub')"><i data-lucide="x"></i></button>
+            </div>
+            <p style="color: var(--text-dim); margin-bottom: 2rem;">Toggle categories to activate or deactivate them across the portal.</p>
+            <div id="categorySwitchBoard" style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem;">
+                <!-- Switches will be injected here -->
+            </div>
+            <div style="margin-top: 3rem; text-align: right;">
+                <button class="btn btn-primary" onclick="closeModal('categoryHub')">Done</button>
+            </div>
+        </div>
+    </div>
+
     <script>
         const API = '/api';
         function initIcons() { lucide.createIcons(); }
@@ -188,7 +207,30 @@
         function closeModal(id) { document.getElementById(id).style.display = 'none'; }
         function logout() { window.location.href = '/admin'; }
 
-        function showTab(tabId) {
+        async function openCategoryHub() {
+            openModal('categoryHub');
+            const res = await fetch(`${API}/categories`);
+            const cats = await res.json();
+            document.getElementById('categorySwitchBoard').innerHTML = cats.map(c => `
+                <div class="glass-panel" style="padding: 1.5rem; display: flex; justify-content: space-between; align-items: center; background: rgba(255,255,255,0.02);">
+                    <span style="font-weight: 600;">${c.name}</span>
+                    <label class="switch">
+                        <input type="checkbox" ${c.active ? 'checked' : ''} onchange="toggleCategory('${c._id}', this.checked)">
+                        <span class="slider"></span>
+                    </label>
+                </div>
+            `).join('');
+        }
+
+        async function toggleCategory(id, active) {
+            await fetch(`${API}/categories/${id}`, {
+                method: 'PATCH',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ active })
+            });
+        }
+
+        async function showTab(tabId) {
             document.querySelectorAll('.tab-section').forEach(s => s.classList.remove('active'));
             document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
             document.getElementById(tabId).classList.add('active');
@@ -199,7 +241,14 @@
             });
 
             if(tabId === 'centralHub') fetchCompany();
-            if(tabId === 'productHub') fetchProducts();
+            if(tabId === 'productHub') {
+                fetchProducts();
+                // Fetch categories for the dropdown
+                const res = await fetch(`${API}/categories`);
+                const cats = await res.json();
+                const activeCats = cats.filter(c => c.active);
+                document.getElementById('p_category').innerHTML = activeCats.map(c => `<option value="${c.name}">${c.name}</option>`).join('');
+            }
             if(tabId === 'employees') fetchEmployees();
             initIcons();
         }

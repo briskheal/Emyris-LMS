@@ -25,6 +25,16 @@ async function fetchBranding() {
         if (data.website) {
             document.getElementById('display_website').innerText = `🌐 ${data.website}`;
         }
+
+        // Fetch and Render Categories
+        const catRes = await fetch(`${API_URL}/categories`);
+        const cats = await catRes.json();
+        const activeCats = cats.filter(c => c.active);
+        const filterDiv = document.getElementById('categoryFilter');
+        if (filterDiv) {
+            filterDiv.innerHTML = `<button class="btn btn-primary" onclick="filterProducts('All')">All Portfolio</button>` + 
+                activeCats.map(c => `<button class="btn btn-glass" onclick="filterProducts('${c.name}')">${c.name}</button>`).join('');
+        }
     } catch (e) { console.error('Branding fetch failed', e); }
 }
 

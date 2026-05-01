@@ -64,9 +64,15 @@ const CompanySchema = new mongoose.Schema({
     updatedAt: { type: Date, default: Date.now }
 });
 
+const CategorySchema = new mongoose.Schema({
+    name: { type: String, unique: true },
+    active: { type: Boolean, default: true }
+});
+
 const Product = mongoose.model('Product', ProductSchema);
 const Employee = mongoose.model('Employee', EmployeeSchema);
 const Company = mongoose.model('Company', CompanySchema);
+const Category = mongoose.model('Category', CategorySchema);
 
 // --- API ENDPOINTS ---
 
@@ -148,6 +154,22 @@ app.get('/api/company', async (req, res) => {
 
 app.post('/api/company', async (req, res) => {
     await Company.findOneAndUpdate({}, req.body, { upsert: true });
+    res.json({ success: true });
+});
+
+// Category Management
+app.get('/api/categories', async (req, res) => {
+    const defaultCats = ['Injectables', 'Enteral Nutrition', 'Nutraceuticals', 'Pharmaceuticals'];
+    let cats = await Category.find();
+    if (cats.length === 0) {
+        for (let name of defaultCats) await Category.create({ name });
+        cats = await Category.find();
+    }
+    res.json(cats);
+});
+
+app.patch('/api/categories/:id', async (req, res) => {
+    await Category.findByIdAndUpdate(req.params.id, req.body);
     res.json({ success: true });
 });
 
