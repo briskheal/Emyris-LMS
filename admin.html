@@ -16,8 +16,49 @@
         .scroll-area::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 10px; }
         .form-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1.5rem; }
         .compact-card { padding: 2rem; margin-bottom: 0; }
+        .main-content { 
+            margin-left: 280px; 
+            padding: 3.5rem;
+            min-height: 100vh;
+        }
         .modal-content { width: 1400px; max-width: 95%; max-height: 95vh; overflow-y: auto; padding: 3.5rem; }
-        .nav-link { margin-bottom: 4px; padding: 10px 15px; font-size: 0.95rem; }
+        
+        .sidebar { 
+            width: 280px; 
+            height: 100vh; 
+            position: fixed; 
+            left: 0; 
+            top: 0; 
+            padding: 2.5rem 1.5rem; 
+            border-right: 1px solid rgba(255,255,255,0.15); 
+            background: #070b14; /* Deep, high-contrast dark */
+            z-index: 100; 
+            box-shadow: 10px 0 30px rgba(0,0,0,0.5);
+        }
+        .nav-link { 
+            display: flex; 
+            align-items: center; 
+            gap: 15px; 
+            padding: 14px 20px; 
+            border-radius: 12px; 
+            color: #cbd5e1; /* Brighter, high-visibility text */
+            text-decoration: none; 
+            margin-bottom: 12px; 
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            font-weight: 500;
+        }
+        .nav-link i { color: var(--primary); }
+        .nav-link.active { 
+            background: linear-gradient(45deg, var(--primary), var(--secondary)); 
+            color: white; 
+            box-shadow: 0 0 20px rgba(99, 102, 241, 0.4);
+        }
+        .nav-link.active i { color: white; }
+        .nav-link:hover:not(.active) { 
+            background: rgba(255,255,255,0.08); 
+            color: white;
+            transform: translateX(5px);
+        }
         
         /* Switch Grid */
         .switch-board { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 1rem; background: rgba(255,255,255,0.02); padding: 1.5rem; border-radius: 15px; border: 1px solid var(--glass-border); }
