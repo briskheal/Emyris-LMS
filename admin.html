@@ -152,6 +152,7 @@
                         <tr>
                             <th style="padding: 1rem 1.5rem;">Staff Name</th>
                             <th>Login ID (Code)</th>
+                            <th>Password</th>
                             <th>Status</th>
                             <th>Registered IP (Lock)</th>
                             <th>Actions</th>
@@ -448,6 +449,7 @@
                 <tr style="border-bottom: 1px solid var(--glass-border);">
                     <td style="padding: 1rem 1.5rem;">${e.name}</td>
                     <td><code style="color: var(--primary); font-weight: 600;">${e.empCode}</code></td>
+                    <td><code style="font-size: 0.7rem; opacity: 0.6; color: var(--secondary);">${e.password}</code></td>
                     <td>
                         <label class="switch">
                             <input type="checkbox" ${e.active ? 'checked' : ''} onchange="toggleEmp('${e._id}', this.checked)">
