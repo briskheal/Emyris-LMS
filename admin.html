@@ -141,8 +141,8 @@
             <img src="logo.png" id="sidebarLogo" style="height: 30px;">
             <h2 style="font-size: 1.1rem; font-weight: 700; color: white;">EMYRIS ADMIN</h2>
         </div>
-        <a href="#" class="nav-link active" onclick="showTab('centralHub')"><i data-lucide="shield-check"></i> Central Hub</a>
-        <a href="#" class="nav-link" onclick="showTab('productHub')"><i data-lucide="package"></i> Product Hub</a>
+        <a href="#" class="nav-link" onclick="showTab('centralHub')"><i data-lucide="shield-check"></i> Central Hub</a>
+        <a href="#" class="nav-link active" onclick="showTab('productHub')"><i data-lucide="package"></i> Product Hub</a>
         <a href="#" class="nav-link" onclick="showTab('employees')"><i data-lucide="users"></i> Employee Hub</a>
         <a href="#" class="nav-link" onclick="showTab('securityLogs')"><i data-lucide="lock"></i> Security Logs</a>
         <div style="position: absolute; bottom: 1.5rem; left: 1rem; right: 1rem;"><button class="btn btn-glass" style="width: 100%; font-size: 0.8rem;" onclick="logout()"><i data-lucide="log-out"></i> Logout</button></div>
@@ -161,7 +161,7 @@
     <main id="adminPortal" class="main-content" style="display: none;">
         
         <!-- 1. CENTRAL HUB -->
-        <section id="centralHub" class="tab-section active">
+        <section id="centralHub" class="tab-section">
             <div style="margin-bottom: 1.5rem;"><h1 style="font-size: 2rem;">Central Hub</h1></div>
             <div class="glass-panel compact-card" style="flex: 1; display: flex; flex-direction: column;">
                 <div style="display: flex; gap: 3rem; align-items: center; margin-bottom: 2rem; background: rgba(255,255,255,0.02); padding: 1.5rem; border-radius: 15px;">
@@ -181,7 +181,7 @@
         </section>
 
         <!-- 2. PRODUCT HUB -->
-        <section id="productHub" class="tab-section">
+        <section id="productHub" class="tab-section active">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
                 <div><h1 style="font-size: 2rem;">Product Hub</h1><p style="color: var(--text-dim); font-size: 0.9rem;">Catalog Management</p></div>
                 <div style="display: flex; gap: 1rem;">
@@ -503,7 +503,7 @@
         async function handleLogin() {
             const res = await fetch(`${API}/auth/login`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ empCode: document.getElementById('username').value, password: document.getElementById('password').value, isAdmin: true }) });
             const data = await res.json();
-            if (data.success) { document.getElementById('authScreen').style.display = 'none'; document.getElementById('adminSidebar').style.display = 'block'; document.getElementById('adminPortal').style.display = 'block'; showTab('centralHub'); }
+            if (data.success) { document.getElementById('authScreen').style.display = 'none'; document.getElementById('adminSidebar').style.display = 'block'; document.getElementById('adminPortal').style.display = 'block'; showTab('productHub'); }
             else { alert('Access Denied'); }
         }
 
