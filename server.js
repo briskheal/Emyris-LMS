@@ -94,8 +94,10 @@ const Category = mongoose.model('Category', CategorySchema);
 
 // Auth
 app.post('/api/auth/login', async (req, res) => {
-    const { empCode, password, isAdmin } = req.body;
-    
+    let { empCode, password, isAdmin } = req.body;
+    if (empCode) empCode = empCode.trim();
+    if (password) password = password.trim();
+
     if (isAdmin) {
         if (empCode === 'EMYRISLMS' && password === 'EMYRIS_LMS') {
             return res.json({ success: true, role: 'admin' });
