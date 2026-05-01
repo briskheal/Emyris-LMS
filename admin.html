@@ -228,7 +228,7 @@
                     modules: {
                         toolbar: [
                             ['bold', 'italic', 'underline'],
-                            [{ 'align': [] }],
+                            [{ 'align': '' }, { 'align': 'center' }, { 'align': 'right' }, { 'align': 'justify' }],
                             [{ 'list': 'ordered'}, { 'list': 'bullet' }],
                             ['clean']
                         ]
@@ -242,6 +242,12 @@
         function logout() { window.location.href = '/admin'; }
 
         async function openProductModal(editData = null) {
+            // Ensure Modal is open so Quill can calculate dimensions
+            openModal('productModal');
+            
+            // Initialize or Refresh Icons
+            initIcons();
+
             document.getElementById('p_id').value = editData ? editData._id : '';
             document.getElementById('modalTitle').innerText = editData ? 'Edit Scientific Product' : 'Add Scientific Product';
             document.getElementById('saveBtn').innerText = editData ? 'Update Product' : 'Save Product to catalog';
@@ -249,7 +255,12 @@
             document.getElementById('p_title').value = editData ? editData.title : '';
             document.getElementById('p_video_link').value = editData ? editData.videoUrl : '';
             
-            if (quill) quill.root.innerHTML = editData ? editData.scientificInfo : '';
+            // Wait for Quill and set content
+            if (quill) {
+                quill.root.innerHTML = editData ? editData.scientificInfo : '';
+                // Fix: Force Quill to update its content view
+                quill.update();
+            }
             
             // Build Switches
             const res = await fetch(`${API}/categories`);
