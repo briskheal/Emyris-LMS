@@ -68,12 +68,13 @@
         .switch-item.active { border-color: var(--primary); background: rgba(99, 102, 241, 0.1); }
 
         /* Quill Dark Mode Overrides */
-        .ql-toolbar.ql-snow { background: rgba(255,255,255,0.05); border-color: var(--glass-border) !important; border-radius: 15px 15px 0 0; }
-        .ql-container.ql-snow { border-color: var(--glass-border) !important; font-family: 'Outfit', sans-serif; font-size: 1rem; }
-        .ql-editor { color: white; min-height: 200px; }
+        .ql-toolbar.ql-snow { background: rgba(255,255,255,0.03); border: none !important; border-bottom: 1px solid var(--glass-border) !important; padding: 1rem 3rem !important; }
+        .ql-container.ql-snow { border: none !important; font-family: 'Outfit', sans-serif; font-size: 1.1rem; }
+        .ql-editor { color: white; padding: 3rem !important; }
         .ql-stroke { stroke: #cbd5e1 !important; }
         .ql-fill { fill: #cbd5e1 !important; }
         .ql-picker { color: #cbd5e1 !important; }
+        .ql-picker-options { background: #0f172a !important; border-color: var(--glass-border) !important; }
     </style>
 </head>
 <body>
@@ -155,32 +156,36 @@
 
     <!-- Product Modal -->
     <div id="productModal" class="modal">
-        <div class="glass-panel modal-content animate-fade">
+        <div class="glass-panel modal-content animate-fade" style="width: 1500px !important; padding: 0; overflow: hidden; display: flex; flex-direction: row;">
             <input type="hidden" id="p_id">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2.5rem;">
-                <h2 id="modalTitle" style="font-size: 2.5rem;">Add Scientific Product</h2>
-                <button class="btn btn-glass" style="border: none; padding: 15px;" onclick="closeModal('productModal')"><i data-lucide="x"></i></button>
-            </div>
-            <div class="form-grid">
-                <div class="input-group" style="grid-column: span 2;"><label>Product Title</label><input type="text" id="p_title" placeholder="e.g. Emyris-K"></div>
-                <div class="input-group"><label>YouTube Link (Optional)</label><input type="text" id="p_video_link"></div>
-                <div class="input-group"><label>Upload Video/Audio File</label><input type="file" id="p_video_file" accept="video/*,audio/*"></div>
-                
-                <div class="input-group" style="grid-column: span 4;">
-                    <label style="font-size: 1.1rem; color: var(--primary); font-weight: 700; margin-bottom: 1rem; display: block;">Select Scientific Categories (Switch Board)</label>
-                    <div id="p_category_switches" class="switch-board"></div>
+            
+            <!-- LEFT PANEL: Settings & Switches -->
+            <div style="width: 500px; padding: 3rem; border-right: 1px solid var(--glass-border); display: flex; flex-direction: column; gap: 1.5rem; overflow-y: auto;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                    <h2 id="modalTitle" style="font-size: 1.8rem;">Edit Product</h2>
+                    <button class="btn btn-glass" style="border: none;" onclick="closeModal('productModal')"><i data-lucide="x"></i></button>
                 </div>
 
-                <div class="input-group" style="grid-column: span 4;">
-                    <label>Scientific Composition / Clinical Details (HTML Editor)</label>
-                    <div id="p_info_editor" style="height: 250px; background: rgba(255,255,255,0.02); color: white; border-radius: 0 0 15px 15px; border: 1px solid var(--glass-border);"></div>
+                <div class="input-group"><label>Product Title</label><input type="text" id="p_title"></div>
+                <div class="input-group"><label>YouTube / Cloud Link</label><input type="text" id="p_video_link"></div>
+                <div class="input-group"><label>Upload Media File</label><input type="file" id="p_video_file"></div>
+                
+                <div class="input-group">
+                    <label style="color: var(--primary); font-weight: 700; margin-bottom: 1rem; display: block;">Portfolio Categorization</label>
+                    <div id="p_category_switches" class="switch-board" style="display: flex; flex-direction: column; gap: 0.5rem; max-height: none;"></div>
                 </div>
-                <div class="input-group" style="grid-column: span 2;"><label>Packing Photo</label><input type="file" id="p_image"></div>
-                <div class="input-group" style="grid-column: span 2;"><label>Journals (Select Multiple PDFs)</label><input type="file" id="p_docs" multiple></div>
+
+                <div class="input-group"><label>Packing Photo</label><input type="file" id="p_image"></div>
+                <div class="input-group"><label>Journals (PDFs)</label><input type="file" id="p_docs" multiple></div>
             </div>
-            <div style="margin-top: 2rem; display: flex; justify-content: flex-end; gap: 1.5rem; border-top: 1px solid var(--glass-border); padding-top: 2rem;">
-                <button class="btn btn-glass" onclick="closeModal('productModal')">Discard Changes</button>
-                <button class="btn btn-primary" id="saveBtn" style="padding: 15px 60px;" onclick="saveProduct()">Save Product to catalog</button>
+
+            <!-- RIGHT PANEL: Full-Height Scientific Dossier Editor -->
+            <div style="flex: 1; display: flex; flex-direction: column; background: rgba(0,0,0,0.2);">
+                <div style="padding: 1.5rem 3rem; border-bottom: 1px solid var(--glass-border); display: flex; justify-content: space-between; align-items: center;">
+                    <span style="font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: var(--primary);">Scientific Composition & Clinical Dossier</span>
+                    <button class="btn btn-primary" id="saveBtn" onclick="saveProduct()">Sync to Portal</button>
+                </div>
+                <div id="p_info_editor" style="flex: 1; border: none !important; font-size: 1.1rem;"></div>
             </div>
         </div>
     </div>
@@ -223,6 +228,7 @@
                     modules: {
                         toolbar: [
                             ['bold', 'italic', 'underline'],
+                            [{ 'align': [] }],
                             [{ 'list': 'ordered'}, { 'list': 'bullet' }],
                             ['clean']
                         ]
