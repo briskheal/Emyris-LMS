@@ -31,7 +31,7 @@
             <p style="color: var(--text-dim); margin-bottom: 2rem;">Scientific Portal Login</p>
             
             <div class="input-group">
-                <label>Employee Code</label>
+                <label id="idLabel">Employee Code</label>
                 <input type="text" id="username" placeholder="e.g. user" autocomplete="off">
             </div>
             <div class="input-group">
@@ -39,11 +39,15 @@
                 <input type="password" id="password" placeholder="••••••••">
             </div>
 
-            <button class="btn btn-primary" style="width: 100%; justify-content: center; font-size: 1.1rem;" onclick="handleLogin()">
+            <button class="btn btn-primary" style="width: 100%; justify-content: center; font-size: 1.1rem; margin-bottom: 1.5rem;" onclick="handleLogin()">
                 Access Portal <i data-lucide="chevron-right"></i>
             </button>
 
-            <div id="companyInfo" style="margin-top: 1.5rem; font-size: 0.75rem; color: var(--text-dim); display: flex; justify-content: center; gap: 1.5rem; border-top: 1px solid rgba(255,255,255,0.05); padding-top: 1rem;">
+            <p id="roleSubtext" style="font-size: 0.85rem; color: var(--text-dim);">
+                Secure Access Only. <a href="#" onclick="setRole('admin')" style="color: var(--primary); text-decoration: none; font-weight: 600;">Administrator Portal</a>
+            </p>
+
+            <div id="companyInfo" style="margin-top: 2rem; font-size: 0.75rem; color: var(--text-dim); display: flex; justify-content: center; gap: 1.5rem; border-top: 1px solid rgba(255,255,255,0.05); padding-top: 1rem;">
                 <span id="display_contact"></span>
                 <span id="display_website"></span>
             </div>

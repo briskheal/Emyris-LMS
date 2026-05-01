@@ -44,8 +44,7 @@ function setRole(role) {
     currentRole = role;
     const idLabel = document.getElementById('idLabel');
     const usernameInput = document.getElementById('username');
-    const authCard = document.querySelector('.auth-card');
-    const subtext = authCard.querySelector('p:last-child');
+    const subtext = document.getElementById('roleSubtext');
 
     if (role === 'admin') {
         idLabel.innerText = 'Admin Username';
