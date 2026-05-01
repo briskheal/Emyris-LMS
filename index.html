@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Emyris Learning Management System - Scientific Knowledge Hub">
+    <title>Emyris LMS | Scientific Knowledge Hub</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="icon" href="logo.png">
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body>
+
+    <!-- Navigation (Hidden on Auth) -->
+    <nav id="mainNav" style="display: none;">
+        <div class="logo-area">
+            <img src="logo.png" alt="Logo" style="height: 40px;">
+            <h1 id="navTitle">EMYRIS LMS</h1>
+        </div>
+        <div style="display: flex; gap: 1rem; align-items: center;">
+            <span id="userInfo" style="font-weight: 600; color: var(--text-dim);"></span>
+            <button class="btn btn-glass" onclick="logout()">
+                <i data-lucide="log-out"></i> Logout
+            </button>
+        </div>
+    </nav>
+
+    <!-- 1. Authentication Screen -->
+    <main id="authScreen" class="auth-container">
+        <div class="glass-panel auth-card animate-fade">
+            <img src="logo.png" alt="Logo" style="height: 80px; margin-bottom: 1.5rem;">
+            <h1 style="margin-bottom: 0.5rem; font-size: 2.5rem; letter-spacing: -1px;">Emyris LMS</h1>
+            <p style="color: var(--text-dim); margin-bottom: 2rem;">Scientific Portal Login</p>
+            
+            <div style="display: flex; background: rgba(255,255,255,0.05); padding: 5px; border-radius: 14px; margin-bottom: 2rem;">
+                <button id="roleEmp" class="btn btn-primary" style="flex: 1; padding: 10px;" onclick="setRole('employee')">Employee</button>
+                <button id="roleAdmin" class="btn btn-glass" style="flex: 1; padding: 10px; border: none;" onclick="setRole('admin')">Admin</button>
+            </div>
+
+            <div class="input-group">
+                <label id="idLabel">Employee Code</label>
+                <input type="text" id="username" placeholder="Enter ID" autocomplete="off">
+            </div>
+            <div class="input-group">
+                <label>Security Key</label>
+                <input type="password" id="password" placeholder="••••••••">
+            </div>
+
+            <button class="btn btn-primary" style="width: 100%; justify-content: center; font-size: 1.1rem;" onclick="handleLogin()">
+                Access Portal <i data-lucide="chevron-right"></i>
+            </button>
+        </div>
+    </main>
+
+    <!-- 2. Admin Dashboard -->
+    <main id="adminPortal" style="display: none; padding: 2rem 5%;">
+        <header style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 3rem;">
+            <div>
+                <h1 style="font-size: 2.5rem; margin-bottom: 0.5rem;">Master Catalog</h1>
+                <p style="color: var(--text-dim);">Manage scientific data and product vault</p>
+            </div>
+            <button class="btn btn-primary" onclick="openModal('productModal')">
+                <i data-lucide="plus"></i> Add New Product
+            </button>
+        </header>
+
+        <div id="adminProductGrid" class="dashboard-grid">
+            <!-- Dynamic Cards -->
+        </div>
+    </main>
+
+    <!-- 3. Employee Portal -->
+    <main id="employeePortal" style="display: none; padding: 2rem 5%;">
+        <div style="margin-bottom: 3rem; text-align: center;">
+            <h1 style="font-size: 3rem; margin-bottom: 1rem;">Scientific Hub</h1>
+            <p style="color: var(--text-dim); max-width: 600px; margin: 0 auto;">Select a category to explore clinical data, compositions, and indications.</p>
+        </div>
+
+        <div style="display: flex; gap: 1rem; overflow-x: auto; padding-bottom: 2rem; justify-content: center;">
+            <button class="btn btn-primary" onclick="filterProducts('All')">All Portfolio</button>
+            <button class="btn btn-glass" onclick="filterProducts('Injectables')">Injectables</button>
+            <button class="btn btn-glass" onclick="filterProducts('Enteral Nutrition')">Nutrition</button>
+            <button class="btn btn-glass" onclick="filterProducts('Nutraceuticals')">Nutraceuticals</button>
+            <button class="btn btn-glass" onclick="filterProducts('Pharmaceuticals')">Pharma</button>
+        </div>
+
+        <div id="empProductGrid" class="dashboard-grid">
+            <!-- Dynamic Cards -->
+        </div>
+    </main>
+
+    <!-- Product Modal -->
+    <div id="productModal" class="modal">
+        <div class="glass-panel modal-content animate-fade">
+            <h2 style="font-size: 2rem; margin-bottom: 2rem;">Product Specifications</h2>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
+                <div class="input-group">
+                    <label>Product Title</label>
+                    <input type="text" id="p_title" placeholder="e.g. Emyris-K">
+                </div>
+                <div class="input-group">
+                    <label>Category</label>
+                    <select id="p_category">
+                        <option value="Injectables">Injectables</option>
+                        <option value="Enteral Nutrition">Enteral Nutrition</option>
+                        <option value="Nutraceuticals">Nutraceuticals</option>
+                        <option value="Pharmaceuticals">Pharmaceuticals</option>
+                    </select>
+                </div>
+                <div class="input-group" style="grid-column: span 2;">
+                    <label>Clinical Info / Composition</label>
+                    <textarea id="p_info" rows="4" placeholder="Enter molecular details..."></textarea>
+                </div>
+                <div class="input-group">
+                    <label>Product Image (Packing)</label>
+                    <input type="file" id="p_image" accept="image/*">
+                </div>
+                <div class="input-group">
+                    <label>Video Tutorial / Overview URL</label>
+                    <input type="text" id="p_video" placeholder="YouTube or Video Link">
+                </div>
+                <div class="input-group" style="grid-column: span 2;">
+                    <label>Scientific Journals / Contents (PDFs)</label>
+                    <input type="file" id="p_docs" accept=".pdf" multiple>
+                    <p style="font-size: 0.7rem; color: var(--text-dim); margin-top: 5px;">You can select multiple PDF files.</p>
+                </div>
+            </div>
+            <div style="display: flex; justify-content: flex-end; gap: 1rem; margin-top: 2rem;">
+                <button class="btn btn-glass" onclick="closeModal('productModal')">Cancel</button>
+                <button class="btn btn-primary" onclick="saveProduct()">Save to Vault</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Product Detail View -->
+    <div id="detailModal" class="modal">
+        <div class="glass-panel modal-content animate-fade" id="detailContent">
+            <!-- Injected by JS -->
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
