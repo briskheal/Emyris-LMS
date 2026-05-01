@@ -87,6 +87,7 @@
         <a href="#" class="nav-link active" onclick="showTab('centralHub')"><i data-lucide="shield-check"></i> Central Hub</a>
         <a href="#" class="nav-link" onclick="showTab('productHub')"><i data-lucide="package"></i> Product Hub</a>
         <a href="#" class="nav-link" onclick="showTab('employees')"><i data-lucide="users"></i> Employee Hub</a>
+        <a href="#" class="nav-link" onclick="showTab('securityLogs')"><i data-lucide="lock"></i> Security Logs</a>
         <div style="position: absolute; bottom: 1.5rem; left: 1rem; right: 1rem;"><button class="btn btn-glass" style="width: 100%; font-size: 0.8rem;" onclick="logout()"><i data-lucide="log-out"></i> Logout</button></div>
     </aside>
 
@@ -136,19 +137,40 @@
 
         <!-- 3. EMPLOYEE HUB -->
         <section id="employees" class="tab-section">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;"><h1>Employee Hub</h1><button class="btn btn-primary" onclick="openModal('empModal')">+ Register Staff</button></div>
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;"><h1>Employee Hub</h1><button class="btn btn-primary" onclick="openAddStaffModal()">+ Register Staff</button></div>
             <div class="glass-panel scroll-area" style="padding: 0;">
                 <table style="width: 100%; border-collapse: collapse; text-align: left;">
                     <thead style="background: rgba(255,255,255,0.05); position: sticky; top: 0; z-index: 10;">
                         <tr>
                             <th style="padding: 1rem 1.5rem;">Staff Name</th>
                             <th>Login ID (Code)</th>
-                            <th>Password</th>
                             <th>Status</th>
+                            <th>Registered IP (Lock)</th>
                             <th>Actions</th>
                         </tr>
                     </thead>
                     <tbody id="empTableBody"></tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- 4. SECURITY LOGS -->
+        <section id="securityLogs" class="tab-section">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+                <h1>Security & Access Logs</h1>
+                <button class="btn btn-glass" onclick="fetchLogs()"><i data-lucide="refresh-cw"></i> Refresh Logs</button>
+            </div>
+            <div class="glass-panel scroll-area" style="padding: 0;">
+                <table style="width: 100%; border-collapse: collapse; text-align: left;">
+                    <thead style="background: rgba(255,255,255,0.05); position: sticky; top: 0; z-index: 10;">
+                        <tr>
+                            <th style="padding: 1rem 1.5rem;">Time</th>
+                            <th>Employee</th>
+                            <th>IP Address</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody id="logTableBody"></tbody>
                 </table>
             </div>
         </section>
@@ -206,7 +228,8 @@
     <!-- Employee Modal -->
     <div id="empModal" class="modal">
         <div class="glass-panel modal-content" style="max-width: 600px !important;">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;"><h2>Register Staff</h2><button class="btn btn-glass" onclick="closeModal('empModal')"><i data-lucide="x"></i></button></div>
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;"><h2 id="empModalTitle">Register Staff</h2><button class="btn btn-glass" onclick="closeModal('empModal')"><i data-lucide="x"></i></button></div>
+            <input type="hidden" id="e_id">
             <div style="display: flex; flex-direction: column; gap: 1.5rem;">
                 <div class="input-group"><label>Full Name</label><input type="text" id="e_name"></div>
                 <div class="input-group"><label>Employee ID</label><input type="text" id="e_code"></div>
@@ -389,6 +412,7 @@
             if(tabId === 'centralHub') fetchCompany();
             if(tabId === 'productHub') fetchProducts();
             if(tabId === 'employees') fetchEmployees();
+            if(tabId === 'securityLogs') fetchLogs();
             initIcons();
         }
 
@@ -413,20 +437,80 @@
                 <tr style="border-bottom: 1px solid var(--glass-border);">
                     <td style="padding: 1rem 1.5rem;">${e.name}</td>
                     <td><code style="color: var(--primary); font-weight: 600;">${e.empCode}</code></td>
-                    <td><code style="color: var(--secondary);">${e.password}</code></td>
                     <td>
                         <label class="switch">
                             <input type="checkbox" ${e.active ? 'checked' : ''} onchange="toggleEmp('${e._id}', this.checked)">
                             <span class="slider"></span>
                         </label>
                     </td>
+                    <td><span style="font-size: 0.8rem; color: var(--text-dim);">${e.registeredIP || '<span style="color:var(--primary)">Not Locked Yet</span>'}</span></td>
                     <td>
-                        <button class="btn btn-glass" style="padding: 8px 12px; font-size: 0.8rem;" onclick="resetPassword('${e._id}')">
-                            <i data-lucide="key-round"></i> Reset
-                        </button>
+                        <div style="display: flex; gap: 8px;">
+                            <button class="btn btn-glass" style="padding: 8px 12px; font-size: 0.8rem;" onclick="editStaff('${e._id}', '${e.name}', '${e.empCode}')" title="Edit Staff">
+                                <i data-lucide="edit"></i> Edit
+                            </button>
+                            <button class="btn btn-glass" style="padding: 8px 12px; font-size: 0.8rem;" onclick="resetPassword('${e._id}')" title="Reset Password">
+                                <i data-lucide="key-round"></i> Pass Reset
+                            </button>
+                            <button class="btn btn-glass" style="padding: 8px 12px; font-size: 0.8rem; color: var(--accent);" onclick="resetIP('${e._id}')" title="Reset IP Lock">
+                                <i data-lucide="unlocked"></i> IP Reset
+                            </button>
+                        </div>
                     </td>
                 </tr>`).join(''); 
             initIcons();
+        }
+
+        async function fetchLogs() {
+            const res = await fetch(`${API}/admin/logs`);
+            const data = await res.json();
+            document.getElementById('logTableBody').innerHTML = data.logs.map(l => `
+                <tr style="border-bottom: 1px solid var(--glass-border);">
+                    <td style="padding: 1rem 1.5rem; font-size: 0.8rem; color: var(--text-dim);">${new Date(l.timestamp).toLocaleString()}</td>
+                    <td>${l.name || l.empCode}</td>
+                    <td><code>${l.ip}</code></td>
+                    <td><span class="badge" style="background: ${l.status.includes('Blocked') ? 'var(--accent)' : (l.status === 'Success' ? '#22c55e' : 'rgba(255,255,255,0.1)')}">${l.status}</span></td>
+                </tr>
+            `).join('');
+            initIcons();
+        }
+
+        async function resetIP(id) {
+            if (!confirm('Reset IP Lock for this employee? They will be locked to the next machine they use.')) return;
+            await fetch(`${API}/employees/${id}/reset-ip`, { method: 'PATCH' });
+            fetchEmployees();
+        }
+
+        function openAddStaffModal() {
+            document.getElementById('e_id').value = '';
+            document.getElementById('e_name').value = '';
+            document.getElementById('e_code').value = '';
+            document.getElementById('e_pass').value = '';
+            document.getElementById('empModalTitle').innerText = 'Register Staff';
+            openModal('empModal');
+        }
+
+        function editStaff(id, name, code) {
+            document.getElementById('e_id').value = id;
+            document.getElementById('e_name').value = name;
+            document.getElementById('e_code').value = code;
+            document.getElementById('empModalTitle').innerText = 'Edit Staff Details';
+            openModal('empModal');
+        }
+
+        async function saveEmployee() { 
+            const id = document.getElementById('e_id').value;
+            const payload = { 
+                name: document.getElementById('e_name').value, 
+                empCode: document.getElementById('e_code').value 
+            };
+            if (!id) payload.password = document.getElementById('e_pass').value;
+
+            const method = id ? 'PATCH' : 'POST';
+            const url = id ? `${API}/employees/${id}` : `${API}/employees`;
+            await fetch(url, { method, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) }); 
+            closeModal('empModal'); 
+            fetchEmployees(); 
         }
 
         async function resetPassword(id) {
@@ -439,7 +523,6 @@
             });
             fetchEmployees();
         }
-        async function saveEmployee() { await fetch(`${API}/employees`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ name: document.getElementById('e_name').value, empCode: document.getElementById('e_code').value, password: document.getElementById('e_pass').value }) }); closeModal('empModal'); fetchEmployees(); }
         async function toggleEmp(id, active) { await fetch(`${API}/employees/${id}/status`, { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ active }) }); fetchEmployees(); }
 
         window.onload = initIcons;

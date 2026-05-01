@@ -65,6 +65,27 @@ function closeModal(id) {
     document.getElementById(id).style.display = 'none';
 }
 
+function playBeep() {
+    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    
+    function beep(freq, duration, delay) {
+        setTimeout(() => {
+            const oscillator = audioCtx.createOscillator();
+            const gainNode = audioCtx.createGain();
+            oscillator.connect(gainNode);
+            gainNode.connect(audioCtx.destination);
+            oscillator.frequency.value = freq;
+            oscillator.type = 'square';
+            gainNode.gain.setValueAtTime(0.1, audioCtx.currentTime);
+            oscillator.start();
+            setTimeout(() => oscillator.stop(), duration);
+        }, delay);
+    }
+
+    beep(440, 150, 0);   // First beep
+    beep(440, 150, 300); // Second beep
+}
+
 // --- AUTHENTICATION ---
 
 async function handleLogin() {
@@ -89,7 +110,12 @@ async function handleLogin() {
             loggedInUser = data;
             showPortal(data.role);
         } else {
-            alert(data.message || 'Login Failed');
+            if (data.securityCode === 'IP_MISMATCH') {
+                playBeep();
+                alert('🚨 Outside Company Circle. Access Denied');
+            } else {
+                alert(data.message || 'Login Failed');
+            }
         }
     } catch (e) {
         console.error(e);

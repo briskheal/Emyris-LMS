@@ -30,17 +30,45 @@ app.use(cors());
 app.use(bodyParser.json({ limit: '50mb' }));
 app.use(express.static('.'));
 
+// Request Logger for Render Logs
+app.use((req, res, next) => {
+    console.log(`[${new Date().toISOString()}] ${req.method} ${req.url}`);
+    next();
+});
+
+// Health Check for Render
+app.get('/health', (req, res) => {
+    res.status(200).json({ status: 'healthy', database: mongoose.connection.readyState === 1 ? 'connected' : 'disconnected' });
+});
+
 // MongoDB Connection
 const mongoURI = process.env.MONGODB_URI || 'mongodb://127.0.0.1:27017/emyris_lms';
 
 mongoose.connect(mongoURI, {
     useNewUrlParser: true,
-    useUnifiedTopology: true
+    useUnifiedTopology: true,
+    serverSelectionTimeoutMS: 5000, // Timeout after 5s instead of 30s
+    socketTimeoutMS: 45000, // Close sockets after 45 seconds of inactivity
 }).then(() => {
     const isAtlas = mongoURI.includes('mongodb.net') || mongoURI.startsWith('mongodb+srv');
     console.log(`✅ Connected to Database: ${isAtlas ? 'Atlas (emyris_lms)' : 'Local'}`);
+    
+    // Run sanitization ONLY after connection is successful to prevent buffering timeouts
+    sanitizeData().catch(err => console.error('❌ Sanitization Error:', err));
 })
-  .catch(err => console.error('❌ DB Connection Error:', err));
+.catch(err => {
+    console.error('❌ DB Connection Error:', err);
+    console.log('💡 TIP: Check if your IP is whitelisted in MongoDB Atlas or if the URI is correct.');
+});
+
+// Better Connection Monitoring
+mongoose.connection.on('error', err => {
+    console.error('🔴 Mongoose Connection Error:', err);
+});
+
+mongoose.connection.on('disconnected', () => {
+    console.warn('🟡 Mongoose Disconnected. Attempting to reconnect...');
+});
 
 // --- SCHEMAS ---
 
@@ -68,7 +96,16 @@ const EmployeeSchema = new mongoose.Schema({
     password: { type: String, required: true },
     name: String,
     active: { type: Boolean, default: true },
+    registeredIP: { type: String, default: null }, // First IP lock
     lastLogin: Date
+});
+
+const LoginLogSchema = new mongoose.Schema({
+    empCode: String,
+    name: String,
+    ip: String,
+    status: String, // 'Success', 'Blocked (IP)', 'Failed'
+    timestamp: { type: Date, default: Date.now }
 });
 
 const CompanySchema = new mongoose.Schema({
@@ -85,10 +122,10 @@ const CategorySchema = new mongoose.Schema({
     active: { type: Boolean, default: true }
 });
 
-const Product = mongoose.model('Product', ProductSchema);
 const Employee = mongoose.model('Employee', EmployeeSchema);
 const Company = mongoose.model('Company', CompanySchema);
 const Category = mongoose.model('Category', CategorySchema);
+const LoginLog = mongoose.model('LoginLog', LoginLogSchema);
 
 // --- API ENDPOINTS ---
 
@@ -98,22 +135,63 @@ app.post('/api/auth/login', async (req, res) => {
     if (empCode) empCode = empCode.trim();
     if (password) password = password.trim();
 
-    console.log(`[AUTH] Login Attempt - Code: "${empCode}", Admin: ${isAdmin}`);
+    // Get Client IP (Handling Render/Proxy)
+    const clientIP = req.headers['x-forwarded-for']?.split(',')[0] || req.socket.remoteAddress;
+
+    console.log(`[AUTH] Login Attempt - Code: "${empCode}", Admin: ${isAdmin}, IP: ${clientIP}`);
 
     if (isAdmin) {
-        if (empCode === 'EMYRISLMS' && password === 'EMYRIS_LMS') {
+        const adminId = process.env.ADMIN_ID || 'EMYRISLMS';
+        const adminPass = process.env.ADMIN_PASS || 'EMYRIS_LMS';
+        
+        if (empCode === adminId && password === adminPass) {
             return res.json({ success: true, role: 'admin' });
         }
     } else {
         const emp = await Employee.findOne({ empCode, password });
         if (emp) {
-            console.log(`[AUTH] Success: Found user ${emp.name}`);
             if (!emp.active) return res.status(403).json({ success: false, message: 'Account Deactivated' });
+
+            // --- IP LOCKING LOGIC ---
+            if (!emp.registeredIP) {
+                // First time login - Record IP
+                emp.registeredIP = clientIP;
+                console.log(`[SECURITY] Registered first IP for ${emp.name}: ${clientIP}`);
+            } else if (emp.registeredIP !== clientIP) {
+                // IP Mismatch
+                console.warn(`[SECURITY] Access Denied for ${emp.name}. Registered: ${emp.registeredIP}, Current: ${clientIP}`);
+                
+                await LoginLog.create({ 
+                    empCode, 
+                    name: emp.name, 
+                    ip: clientIP, 
+                    status: 'Blocked (IP)' 
+                });
+
+                return res.status(403).json({ 
+                    success: false, 
+                    message: 'Outside Company Circle. Access Denied',
+                    securityCode: 'IP_MISMATCH'
+                });
+            }
+
             emp.lastLogin = new Date();
             await emp.save();
+
+            await LoginLog.create({ 
+                empCode, 
+                name: emp.name, 
+                ip: clientIP, 
+                status: 'Success' 
+            });
+
             return res.json({ success: true, role: 'employee', name: emp.name });
         } else {
-            console.log(`[AUTH] Failed: No match found for Code: "${empCode}" and Password: "${password}"`);
+            await LoginLog.create({ 
+                empCode, 
+                ip: clientIP, 
+                status: 'Failed' 
+            });
         }
     }
     res.status(401).json({ success: false, message: 'Invalid Credentials' });
@@ -176,7 +254,7 @@ const sanitizeData = async () => {
     }
     console.log('✨ Database Sanitized: All whitespace removed from credentials.');
 };
-sanitizeData();
+// sanitizeData(); // Moved to connection .then() block for stability
 
 app.get('/api/employees', async (req, res) => {
     try {
@@ -197,6 +275,20 @@ app.patch('/api/employees/:id/status', async (req, res) => {
         const { active } = req.body;
         await Employee.findByIdAndUpdate(req.params.id, { active });
         res.json({ success: true });
+    } catch (e) { res.status(500).json({ success: false }); }
+});
+
+app.patch('/api/employees/:id/reset-ip', async (req, res) => {
+    try {
+        await Employee.findByIdAndUpdate(req.params.id, { registeredIP: null });
+        res.json({ success: true });
+    } catch (e) { res.status(500).json({ success: false }); }
+});
+
+app.get('/api/admin/logs', async (req, res) => {
+    try {
+        const logs = await LoginLog.find().sort({ timestamp: -1 }).limit(100);
+        res.json({ success: true, logs });
     } catch (e) { res.status(500).json({ success: false }); }
 });
 
