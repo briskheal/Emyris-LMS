@@ -330,15 +330,15 @@ async function viewDetails(id) {
                     
                     ${p.faqs && p.faqs.length > 0 ? `
                         <div style="margin-top: 2.5rem; border-top: 1px solid var(--glass-border); padding-top: 1.5rem;">
-                            <h4 style="color: var(--primary); text-transform: uppercase; font-size: 0.8rem; margin-bottom: 1rem;">Clinical & Usage FAQs</h4>
-                            <div style="display: flex; flex-direction: column; gap: 1rem;">
+                            <h4 style="color: var(--primary); text-transform: uppercase; font-size: 0.8rem; margin-bottom: 1.2rem;">Clinical & Usage FAQs</h4>
+                            <div class="faq-accordion">
                                 ${p.faqs.map(faq => `
-                                    <div class="glass-panel" style="padding: 1rem; border-radius: 12px; background: rgba(255,255,255,0.01);">
-                                        <div style="font-weight: 600; color: white; margin-bottom: 5px; display: flex; gap: 10px; align-items: flex-start;">
-                                            <i data-lucide="help-circle" style="width: 16px; color: var(--primary); margin-top: 3px;"></i>
+                                    <div class="faq-item-ui">
+                                        <div class="faq-question-ui" onclick="toggleFaq(this)">
                                             <span>${faq.question}</span>
+                                            <i data-lucide="chevron-down"></i>
                                         </div>
-                                        <div style="font-size: 0.95rem; color: var(--text-dim); line-height: 1.5; padding-left: 26px;">
+                                        <div class="faq-answer-ui">
                                             ${faq.answer}
                                         </div>
                                     </div>
@@ -369,6 +369,17 @@ async function viewDetails(id) {
     `;
     openModal('detailModal');
     initIcons();
+}
+
+function toggleFaq(el) {
+    const item = el.parentElement;
+    const isActive = item.classList.contains('active');
+    
+    // Close other items
+    document.querySelectorAll('.faq-item-ui').forEach(i => i.classList.remove('active'));
+    
+    // Toggle current
+    if (!isActive) item.classList.add('active');
 }
 
 function downloadDoc(name, data) {

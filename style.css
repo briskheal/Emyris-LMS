@@ -315,3 +315,14 @@ nav {
 ::-webkit-scrollbar-thumb:hover {
     background: var(--primary);
 }
+
+/* FAQ Accordion */
+.faq-accordion { display: flex; flex-direction: column; gap: 0.8rem; }
+.faq-item-ui { background: rgba(255,255,255,0.02); border: 1px solid var(--glass-border); border-radius: 12px; overflow: hidden; transition: all 0.3s; }
+.faq-item-ui:hover { border-color: var(--primary); background: rgba(255,255,255,0.04); }
+.faq-question-ui { padding: 1.2rem; cursor: pointer; display: flex; justify-content: space-between; align-items: center; font-weight: 600; color: white; gap: 15px; }
+.faq-question-ui i { transition: transform 0.3s; color: var(--primary); opacity: 0.7; }
+.faq-answer-ui { max-height: 0; overflow: hidden; transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1); padding: 0 1.2rem; color: var(--text-dim); line-height: 1.6; font-size: 0.95rem; }
+.faq-item-ui.active .faq-answer-ui { max-height: 500px; padding-bottom: 1.2rem; }
+.faq-item-ui.active .faq-question-ui i { transform: rotate(180deg); opacity: 1; }
+.faq-item-ui.active { background: rgba(99, 102, 241, 0.05); border-color: var(--primary-glow); }
