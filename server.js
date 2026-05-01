@@ -51,11 +51,22 @@ const EmployeeSchema = new mongoose.Schema({
     empCode: { type: String, unique: true, required: true },
     password: { type: String, required: true },
     name: String,
+    active: { type: Boolean, default: true },
     lastLogin: Date
+});
+
+const CompanySchema = new mongoose.Schema({
+    logo: String,
+    address: String,
+    phone: String,
+    website: String,
+    tollFree: String,
+    updatedAt: { type: Date, default: Date.now }
 });
 
 const Product = mongoose.model('Product', ProductSchema);
 const Employee = mongoose.model('Employee', EmployeeSchema);
+const Company = mongoose.model('Company', CompanySchema);
 
 // --- API ENDPOINTS ---
 
@@ -68,13 +79,9 @@ app.post('/api/auth/login', async (req, res) => {
             return res.json({ success: true, role: 'admin' });
         }
     } else {
-        // Hardcoded Employee Bypass
-        if (empCode === 'user' && password === 'EMYRISLMS') {
-            return res.json({ success: true, role: 'employee', name: 'Emyris Staff' });
-        }
-
         const emp = await Employee.findOne({ empCode, password });
         if (emp) {
+            if (!emp.active) return res.status(403).json({ success: false, message: 'Account Deactivated' });
             emp.lastLogin = new Date();
             await emp.save();
             return res.json({ success: true, role: 'employee', name: emp.name });
@@ -122,6 +129,26 @@ app.get('/api/employees', async (req, res) => {
         const employees = await Employee.find().sort({ empCode: 1 });
         res.json({ success: true, employees });
     } catch (e) { res.status(500).json({ success: false }); }
+});
+
+app.patch('/api/employees/:id/status', async (req, res) => {
+    try {
+        const { active } = req.body;
+        await Employee.findByIdAndUpdate(req.params.id, { active });
+        res.json({ success: true });
+    } catch (e) { res.status(500).json({ success: false }); }
+});
+
+// Company Settings
+app.get('/api/company', async (req, res) => {
+    let company = await Company.findOne();
+    if (!company) company = await Company.create({ address: '' });
+    res.json(company);
+});
+
+app.post('/api/company', async (req, res) => {
+    await Company.findOneAndUpdate({}, req.body, { upsert: true });
+    res.json({ success: true });
 });
 
 // Serve Frontend
