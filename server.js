@@ -68,6 +68,11 @@ app.post('/api/auth/login', async (req, res) => {
             return res.json({ success: true, role: 'admin' });
         }
     } else {
+        // Hardcoded Employee Bypass
+        if (empCode === 'user' && password === 'EMYRISLMS') {
+            return res.json({ success: true, role: 'employee', name: 'Emyris Staff' });
+        }
+
         const emp = await Employee.findOne({ empCode, password });
         if (emp) {
             emp.lastLogin = new Date();
