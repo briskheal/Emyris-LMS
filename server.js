@@ -154,11 +154,29 @@ app.delete('/api/products/:id', async (req, res) => {
 // Admin: Add Employee
 app.post('/api/employees', async (req, res) => {
     try {
-        const emp = new Employee(req.body);
+        let { name, empCode, password } = req.body;
+        const emp = new Employee({ 
+            name, 
+            empCode: empCode ? empCode.trim() : '', 
+            password: password ? password.trim() : '' 
+        });
         await emp.save();
         res.json({ success: true });
     } catch (e) { res.status(500).json({ success: false, message: e.message }); }
 });
+
+// Data Sanitizer (Runs once on startup)
+const sanitizeData = async () => {
+    const emps = await Employee.find();
+    for (let e of emps) {
+        let changed = false;
+        if (e.empCode && e.empCode !== e.empCode.trim()) { e.empCode = e.empCode.trim(); changed = true; }
+        if (e.password && e.password !== e.password.trim()) { e.password = e.password.trim(); changed = true; }
+        if (changed) await e.save();
+    }
+    console.log('✨ Database Sanitized: All whitespace removed from credentials.');
+};
+sanitizeData();
 
 app.get('/api/employees', async (req, res) => {
     try {
