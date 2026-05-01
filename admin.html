@@ -3,12 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Emyris Admin | Central Command</title>
+    <title>Emyris Admin | Central Hub</title>
     <link rel="stylesheet" href="style.css">
     <link rel="icon" href="logo.png">
     <script src="https://unpkg.com/lucide@latest"></script>
     <style>
-        .sidebar { width: 280px; height: 100vh; position: fixed; left: 0; top: 0; padding: 2rem; border-right: 1px solid var(--glass-border); }
+        .sidebar { width: 280px; height: 100vh; position: fixed; left: 0; top: 0; padding: 2rem; border-right: 1px solid var(--glass-border); background: rgba(15, 23, 42, 0.95); z-index: 100; }
         .main-content { margin-left: 280px; padding: 3rem; }
         .nav-link { 
             display: flex; align-items: center; gap: 12px; padding: 12px 20px; 
@@ -18,6 +18,15 @@
         .nav-link:hover:not(.active) { background: rgba(255,255,255,0.05); color: white; }
         .tab-section { display: none; animation: fadeIn 0.4s ease-out; }
         .tab-section.active { display: block; }
+        
+        /* Mobile adjustment for merged hub */
+        @media (max-width: 768px) {
+            .sidebar { width: 100%; height: auto; position: relative; border-right: none; border-bottom: 1px solid var(--glass-border); padding: 1rem; }
+            .main-content { margin-left: 0; padding: 1.5rem; }
+        }
+
+        .hub-card { background: var(--glass); padding: 2rem; border-radius: 20px; border: 1px solid var(--glass-border); margin-bottom: 2rem; }
+        
         .switch { position: relative; display: inline-block; width: 50px; height: 26px; }
         .switch input { opacity: 0; width: 0; height: 0; }
         .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #334155; transition: .4s; border-radius: 34px; }
@@ -28,14 +37,13 @@
 </head>
 <body>
 
-    <aside class="sidebar glass-panel" id="adminSidebar" style="display: none;">
+    <aside class="sidebar" id="adminSidebar" style="display: none;">
         <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 3rem;">
-            <img src="logo.png" style="height: 35px;">
-            <h2 style="font-size: 1.2rem; background: linear-gradient(45deg, var(--primary), var(--secondary)); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">EMYRIS ADMIN</h2>
+            <img src="logo.png" id="sidebarLogo" style="height: 35px;">
+            <h2 style="font-size: 1.2rem; background: linear-gradient(45deg, var(--primary), var(--secondary)); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">EMYRIS HUB</h2>
         </div>
         
-        <a href="#" class="nav-link active" onclick="showTab('vault')"><i data-lucide="package"></i> Product Vault</a>
-        <a href="#" class="nav-link" onclick="showTab('hub')"><i data-lucide="building"></i> Central Hub</a>
+        <a href="#" class="nav-link active" onclick="showTab('centralHub')"><i data-lucide="layout-dashboard"></i> Central Hub</a>
         <a href="#" class="nav-link" onclick="showTab('employees')"><i data-lucide="users"></i> Employee Hub</a>
         
         <div style="position: absolute; bottom: 2rem; left: 2rem; right: 2rem;">
@@ -45,8 +53,8 @@
 
     <main id="authScreen" class="auth-container">
         <div class="glass-panel auth-card animate-fade">
-            <h1>Admin Login</h1>
-            <p style="color: var(--text-dim); margin-bottom: 2rem;">Secure Access Only</p>
+            <h1>Admin Access</h1>
+            <p style="color: var(--text-dim); margin-bottom: 2rem;">Secure Hub Login</p>
             <div class="input-group">
                 <label>Username</label>
                 <input type="text" id="username" placeholder="EMYRISLMS">
@@ -55,60 +63,53 @@
                 <label>Password</label>
                 <input type="password" id="password" placeholder="••••••••">
             </div>
-            <button class="btn btn-primary" style="width: 100%; justify-content: center;" onclick="handleLogin()">Enter Dashboard</button>
+            <button class="btn btn-primary" style="width: 100%; justify-content: center;" onclick="handleLogin()">Access Hub</button>
         </div>
     </main>
 
     <main id="adminPortal" class="main-content" style="display: none;">
         
-        <!-- 1. PRODUCT VAULT -->
-        <section id="vault" class="tab-section active">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 3rem;">
-                <h1>Product Vault</h1>
-                <button class="btn btn-primary" onclick="openModal('productModal')">+ Add Product</button>
+        <!-- CENTRAL HUB (Admin + Products) -->
+        <section id="centralHub" class="tab-section active">
+            <div style="margin-bottom: 3rem;">
+                <h1 style="font-size: 2.5rem; margin-bottom: 0.5rem;">Central Hub</h1>
+                <p style="color: var(--text-dim);">Unifying Administrative and Product control</p>
             </div>
-            <div id="adminProductGrid" class="dashboard-grid"></div>
-        </section>
 
-        <!-- 2. CENTRAL HUB -->
-        <section id="hub" class="tab-section">
-            <h1>Admin Central Hub</h1>
-            <p style="color: var(--text-dim); margin-bottom: 2rem;">Update company identity and contact details</p>
-            
-            <div class="glass-panel" style="padding: 3rem; max-width: 800px;">
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem;">
-                    <div class="input-group" style="grid-column: span 2; display: flex; align-items: center; gap: 2rem;">
-                        <div id="logoPreviewContainer" style="width: 100px; height: 100px; border-radius: 12px; background: rgba(255,255,255,0.02); border: 1px dashed var(--glass-border); display: flex; align-items: center; justify-content: center; overflow: hidden;">
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; align-items: start;">
+                <!-- Left: Branding & Identity -->
+                <div class="hub-card">
+                    <h3 style="margin-bottom: 1.5rem; color: var(--primary);">Corporate Identity</h3>
+                    <div style="display: flex; align-items: center; gap: 1.5rem; margin-bottom: 1.5rem;">
+                        <div id="logoPreviewContainer" style="width: 80px; height: 80px; border-radius: 12px; background: rgba(255,255,255,0.02); border: 1px dashed var(--glass-border); display: flex; align-items: center; justify-content: center; overflow: hidden;">
                             <img id="c_logo_preview" src="" style="max-width: 100%; max-height: 100%; display: none;">
-                            <span id="noLogoText" style="font-size: 0.7rem; color: var(--text-dim);">No Logo</span>
                         </div>
                         <div style="flex: 1;">
-                            <label>Update Company Logo</label>
-                            <input type="file" id="c_logo_file" accept="image/*" onchange="previewLogo(this)">
+                            <label style="font-size: 0.8rem; color: var(--text-dim);">Update Brand Logo</label>
+                            <input type="file" id="c_logo_file" accept="image/*" onchange="previewLogo(this)" style="font-size: 0.8rem;">
                         </div>
                     </div>
-                    <div class="input-group" style="grid-column: span 2;">
-                        <label>Registered Address</label>
-                        <textarea id="c_address" rows="3"></textarea>
+                    <div class="input-group"><label>Address</label><textarea id="c_address" rows="2"></textarea></div>
+                    <div class="input-group"><label>Phone</label><input type="text" id="c_phone"></div>
+                    <div class="input-group"><label>Toll Free</label><input type="text" id="c_tollfree"></div>
+                    <div class="input-group"><label>Website</label><input type="text" id="c_web"></div>
+                    <button class="btn btn-primary" style="width: 100%; margin-top: 1rem;" onclick="saveCompany()">Update Branding</button>
+                </div>
+
+                <!-- Right: Product Controls -->
+                <div class="hub-card">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+                        <h3 style="color: var(--secondary);">Product Management</h3>
+                        <button class="btn btn-glass" style="padding: 8px 16px; font-size: 0.8rem;" onclick="openModal('productModal')">+ New Product</button>
                     </div>
-                    <div class="input-group">
-                        <label>Telephone</label>
-                        <input type="text" id="c_phone">
-                    </div>
-                    <div class="input-group">
-                        <label>Toll Free No.</label>
-                        <input type="text" id="c_tollfree">
-                    </div>
-                    <div class="input-group">
-                        <label>Website</label>
-                        <input type="text" id="c_web">
+                    <div id="adminProductList" style="max-height: 400px; overflow-y: auto; display: flex; flex-direction: column; gap: 10px;">
+                        <!-- Products listed as small rows -->
                     </div>
                 </div>
-                <button class="btn btn-primary" style="margin-top: 2rem;" onclick="saveCompany()">Update Central Hub</button>
             </div>
         </section>
 
-        <!-- 3. EMPLOYEE HUB -->
+        <!-- EMPLOYEE HUB -->
         <section id="employees" class="tab-section">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 3rem;">
                 <h1>Employee Hub</h1>
@@ -121,7 +122,6 @@
                         <tr>
                             <th style="padding: 1.5rem;">Employee Name</th>
                             <th>ID / Code</th>
-                            <th>Password</th>
                             <th>Access Status</th>
                         </tr>
                     </thead>
@@ -134,31 +134,31 @@
     <!-- Modals -->
     <div id="productModal" class="modal">
         <div class="glass-panel modal-content">
-            <h2>Add Product</h2>
+            <h2>New Scientific Product</h2>
             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin: 2rem 0;">
                 <div class="input-group"><label>Title</label><input type="text" id="p_title"></div>
                 <div class="input-group"><label>Category</label><select id="p_category">
                     <option>Injectables</option><option>Enteral Nutrition</option><option>Nutraceuticals</option><option>Pharmaceuticals</option>
                 </select></div>
-                <div class="input-group" style="grid-column: span 2;"><label>Scientific Info</label><textarea id="p_info" rows="4"></textarea></div>
-                <div class="input-group"><label>Photo (Packing)</label><input type="file" id="p_image"></div>
-                <div class="input-group"><label>Video URL</label><input type="text" id="p_video"></div>
+                <div class="input-group" style="grid-column: span 2;"><label>Molecular Details</label><textarea id="p_info" rows="4"></textarea></div>
+                <div class="input-group"><label>Packing Photo</label><input type="file" id="p_image"></div>
+                <div class="input-group"><label>Video Link</label><input type="text" id="p_video"></div>
                 <div class="input-group" style="grid-column: span 2;"><label>Journals (PDF)</label><input type="file" id="p_docs" multiple></div>
             </div>
             <div style="display: flex; justify-content: flex-end; gap: 1rem;">
-                <button class="btn btn-glass" onclick="closeModal('productModal')">Cancel</button>
-                <button class="btn btn-primary" onclick="saveProduct()">Save Product</button>
+                <button class="btn btn-glass" onclick="closeModal('productModal')">Discard</button>
+                <button class="btn btn-primary" onclick="saveProduct()">Add to Catalog</button>
             </div>
         </div>
     </div>
 
     <div id="empModal" class="modal">
         <div class="glass-panel modal-content" style="max-width: 500px;">
-            <h2>Register New Employee</h2>
+            <h2>Register Staff</h2>
             <div style="margin: 2rem 0;">
                 <div class="input-group"><label>Full Name</label><input type="text" id="e_name"></div>
-                <div class="input-group"><label>Employee ID / Code</label><input type="text" id="e_code"></div>
-                <div class="input-group"><label>Initial Password</label><input type="text" id="e_pass"></div>
+                <div class="input-group"><label>Employee ID</label><input type="text" id="e_code"></div>
+                <div class="input-group"><label>Password</label><input type="text" id="e_pass"></div>
             </div>
             <button class="btn btn-primary" style="width: 100%; justify-content: center;" onclick="saveEmployee()">Activate Account</button>
         </div>
@@ -176,8 +176,7 @@
             document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
             document.getElementById(tabId).classList.add('active');
             event.currentTarget.classList.add('active');
-            if(tabId === 'vault') fetchProducts();
-            if(tabId === 'hub') fetchCompany();
+            if(tabId === 'centralHub') { fetchProducts(); fetchCompany(); }
             if(tabId === 'employees') fetchEmployees();
             initIcons();
         }
@@ -195,20 +194,20 @@
                 document.getElementById('authScreen').style.display = 'none';
                 document.getElementById('adminSidebar').style.display = 'block';
                 document.getElementById('adminPortal').style.display = 'block';
-                showTab('vault');
+                showTab('centralHub');
             } else { alert('Access Denied'); }
         }
 
         async function fetchProducts() {
             const res = await fetch(`${API}/products`);
             const data = await res.json();
-            document.getElementById('adminProductGrid').innerHTML = data.products.map(p => `
-                <div class="glass-panel product-card">
-                    <div class="product-content">
-                        <span class="badge">${p.category}</span>
-                        <h3>${p.title}</h3>
-                        <button class="btn btn-glass" style="margin-top: 1rem; color: #f43f5e;" onclick="deleteProduct('${p._id}')"><i data-lucide="trash"></i> Delete</button>
+            document.getElementById('adminProductList').innerHTML = data.products.map(p => `
+                <div style="background: rgba(255,255,255,0.02); padding: 12px 15px; border-radius: 12px; display: flex; justify-content: space-between; align-items: center; border: 1px solid var(--glass-border);">
+                    <div>
+                        <div style="font-weight: 600;">${p.title}</div>
+                        <div style="font-size: 0.7rem; color: var(--text-dim); text-transform: uppercase;">${p.category}</div>
                     </div>
+                    <button class="btn btn-glass" style="padding: 5px; color: #f43f5e; border: none;" onclick="deleteProduct('${p._id}')"><i data-lucide="trash-2" style="width:16px;"></i></button>
                 </div>
             `).join('');
             initIcons();
@@ -221,11 +220,10 @@
             document.getElementById('c_phone').value = data.phone || '';
             document.getElementById('c_web').value = data.website || '';
             document.getElementById('c_tollfree').value = data.tollFree || '';
-            
             if (data.logo) {
                 document.getElementById('c_logo_preview').src = data.logo;
                 document.getElementById('c_logo_preview').style.display = 'block';
-                document.getElementById('noLogoText').style.display = 'none';
+                document.getElementById('sidebarLogo').src = data.logo;
             }
         }
 
@@ -233,11 +231,10 @@
         async function previewLogo(input) {
             if (input.files && input.files[0]) {
                 const reader = new FileReader();
-                reader.onload = function(e) {
+                reader.onload = (e) => {
                     tempLogoBase64 = e.target.result;
                     document.getElementById('c_logo_preview').src = e.target.result;
                     document.getElementById('c_logo_preview').style.display = 'block';
-                    document.getElementById('noLogoText').style.display = 'none';
                 }
                 reader.readAsDataURL(input.files[0]);
             }
@@ -250,18 +247,11 @@
                 website: document.getElementById('c_web').value,
                 tollFree: document.getElementById('c_tollfree').value
             };
-            
-            if (tempLogoBase64) {
-                payload.logo = tempLogoBase64;
-            }
-
-            await fetch(`${API}/company`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(payload)
-            });
-            alert('Central Hub Updated');
+            if (tempLogoBase64) payload.logo = tempLogoBase64;
+            await fetch(`${API}/company`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
+            alert('Hub Updated');
             tempLogoBase64 = null;
+            fetchCompany();
         }
 
         async function fetchEmployees() {
@@ -271,60 +261,38 @@
                 <tr style="border-bottom: 1px solid var(--glass-border);">
                     <td style="padding: 1.5rem;">${e.name}</td>
                     <td>${e.empCode}</td>
-                    <td>${e.password}</td>
                     <td>
                         <label class="switch">
                             <input type="checkbox" ${e.active ? 'checked' : ''} onchange="toggleEmp('${e._id}', this.checked)">
                             <span class="slider"></span>
                         </label>
-                        <span style="margin-left: 10px; color: ${e.active ? '#22c55e' : '#f43f5e'}">${e.active ? 'ACTIVE' : 'DEACTIVATED'}</span>
                     </td>
                 </tr>
             `).join('');
         }
 
         async function saveEmployee() {
-            const payload = { 
-                name: document.getElementById('e_name').value,
-                empCode: document.getElementById('e_code').value,
-                password: document.getElementById('e_pass').value
-            };
             await fetch(`${API}/employees`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(payload)
+                method: 'POST', headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ name: document.getElementById('e_name').value, empCode: document.getElementById('e_code').value, password: document.getElementById('e_pass').value })
             });
             closeModal('empModal');
             fetchEmployees();
         }
 
         async function toggleEmp(id, active) {
-            await fetch(`${API}/employees/${id}/status`, {
-                method: 'PATCH',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ active })
-            });
+            await fetch(`${API}/employees/${id}/status`, { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ active }) });
             fetchEmployees();
         }
 
         async function saveProduct() {
-            const p_title = document.getElementById('p_title').value;
-            const p_category = document.getElementById('p_category').value;
-            const p_info = document.getElementById('p_info').value;
-            const p_video = document.getElementById('p_video').value;
-            const imgFile = document.getElementById('p_image').files[0];
-            const docFiles = document.getElementById('p_docs').files;
-            
             const b64 = (f) => new Promise(r => { const reader = new FileReader(); reader.readAsDataURL(f); reader.onload = () => r(reader.result); });
-            
-            let img = imgFile ? await b64(imgFile) : '';
+            let img = document.getElementById('p_image').files[0] ? await b64(document.getElementById('p_image').files[0]) : '';
             let docs = [];
-            for (let f of docFiles) { docs.push({ name: f.name, data: await b64(f) }); }
-
+            for (let f of document.getElementById('p_docs').files) { docs.push({ name: f.name, data: await b64(f) }); }
             await fetch(`${API}/products`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ title: p_title, category: p_category, scientificInfo: p_info, videoUrl: p_video, image: img, documents: docs })
+                method: 'POST', headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ title: document.getElementById('p_title').value, category: document.getElementById('p_category').value, scientificInfo: document.getElementById('p_info').value, videoUrl: document.getElementById('p_video').value, image: img, documents: docs })
             });
             closeModal('productModal');
             fetchProducts();
