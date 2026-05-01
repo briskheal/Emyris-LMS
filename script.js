@@ -327,29 +327,28 @@ async function viewDetails(id) {
                 <div>
                     <h4 style="color: var(--primary); text-transform: uppercase; font-size: 0.8rem; margin-bottom: 1rem;">Scientific Overview</h4>
                     <div class="ql-editor" style="color: var(--text-dim); padding: 0 !important; line-height: 1.8; font-size: 1.1rem;">${p.scientificInfo}</div>
-                    
-                    ${p.faqs && p.faqs.length > 0 ? `
-                        <div style="margin-top: 2.5rem; border-top: 1px solid var(--glass-border); padding-top: 1.5rem;">
-                            <h4 style="color: var(--primary); text-transform: uppercase; font-size: 0.8rem; margin-bottom: 1.2rem;">Clinical & Usage FAQs</h4>
-                            <div class="faq-accordion">
-                                ${p.faqs.map(faq => `
-                                    <div class="faq-item-ui">
-                                        <div class="faq-question-ui" onclick="toggleFaq(this)">
-                                            <span>${faq.question}</span>
-                                            <i data-lucide="chevron-down"></i>
-                                        </div>
-                                        <div class="faq-answer-ui">
-                                            ${faq.answer}
-                                        </div>
-                                    </div>
-                                `).join('')}
-                            </div>
-                        </div>
-                    ` : ''}
-
                     ${docsHtml}
                 </div>
             </div>
+
+            ${p.faqs && p.faqs.length > 0 ? `
+                <div style="margin-top: 3rem; border-top: 1px solid var(--glass-border); padding-top: 2rem;">
+                    <h4 style="color: var(--primary); text-transform: uppercase; font-size: 0.8rem; margin-bottom: 1.2rem;">Clinical & Usage FAQs</h4>
+                    <div class="faq-accordion">
+                        ${p.faqs.map(faq => `
+                            <div class="faq-item-ui">
+                                <div class="faq-question-ui" onclick="toggleFaq(this)">
+                                    <span>${faq.question}</span>
+                                    <i data-lucide="chevron-down"></i>
+                                </div>
+                                <div class="faq-answer-ui">
+                                    ${faq.answer}
+                                </div>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+            ` : ''}
 
             <!-- Standard Company Branding Footer -->
             <div style="margin-top: 4rem; padding-top: 2rem; border-top: 1px solid var(--glass-border); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
