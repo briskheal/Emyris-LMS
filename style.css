@@ -145,6 +145,11 @@ nav {
     background: rgba(255, 255, 255, 0.1);
 }
 
+.input-group select option {
+    background-color: #1e293b;
+    color: white;
+}
+
 /* Dashboard Grid */
 .dashboard-grid {
     display: grid;
