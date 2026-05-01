@@ -128,7 +128,14 @@
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;"><h1>Employee Hub</h1><button class="btn btn-primary" onclick="openModal('empModal')">+ Register Staff</button></div>
             <div class="glass-panel scroll-area" style="padding: 0;">
                 <table style="width: 100%; border-collapse: collapse; text-align: left;">
-                    <thead style="background: rgba(255,255,255,0.05); position: sticky; top: 0; z-index: 10;"><tr><th style="padding: 1rem 1.5rem;">Staff Name</th><th>Login ID</th><th>Status</th></tr></thead>
+                    <thead style="background: rgba(255,255,255,0.05); position: sticky; top: 0; z-index: 10;">
+                        <tr>
+                            <th style="padding: 1rem 1.5rem;">Staff Name</th>
+                            <th>Login ID (Code)</th>
+                            <th>Password</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
                     <tbody id="empTableBody"></tbody>
                 </table>
             </div>
@@ -350,7 +357,22 @@
         function previewLogo(input) { if (input.files && input.files[0]) { const reader = new FileReader(); reader.onload = (e) => { tempLogoBase64 = e.target.result; document.getElementById('c_logo_preview').src = e.target.result; document.getElementById('c_logo_preview').style.display = 'block'; }; reader.readAsDataURL(input.files[0]); } }
         async function saveCompany() { const payload = { address: document.getElementById('c_address').value, phone: document.getElementById('c_phone').value, website: document.getElementById('c_web').value, tollFree: document.getElementById('c_tollfree').value }; if (tempLogoBase64) payload.logo = tempLogoBase64; await fetch(`${API}/company`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) }); alert('Branding Updated'); fetchCompany(); }
 
-        async function fetchEmployees() { const res = await fetch(`${API}/employees`); const data = await res.json(); document.getElementById('empTableBody').innerHTML = data.employees.map(e => `<tr style="border-bottom: 1px solid var(--glass-border);"><td style="padding: 1rem 1.5rem;">${e.name}</td><td>${e.empCode}</td><td><label class="switch"><input type="checkbox" ${e.active ? 'checked' : ''} onchange="toggleEmp('${e._id}', this.checked)"><span class="slider"></span></label></td></tr>`).join(''); }
+        async function fetchEmployees() { 
+            const res = await fetch(`${API}/employees`); 
+            const data = await res.json(); 
+            document.getElementById('empTableBody').innerHTML = data.employees.map(e => `
+                <tr style="border-bottom: 1px solid var(--glass-border);">
+                    <td style="padding: 1rem 1.5rem;">${e.name}</td>
+                    <td><code style="color: var(--primary); font-weight: 600;">${e.empCode}</code></td>
+                    <td><code style="color: var(--secondary);">${e.password}</code></td>
+                    <td>
+                        <label class="switch">
+                            <input type="checkbox" ${e.active ? 'checked' : ''} onchange="toggleEmp('${e._id}', this.checked)">
+                            <span class="slider"></span>
+                        </label>
+                    </td>
+                </tr>`).join(''); 
+        }
         async function saveEmployee() { await fetch(`${API}/employees`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ name: document.getElementById('e_name').value, empCode: document.getElementById('e_code').value, password: document.getElementById('e_pass').value }) }); closeModal('empModal'); fetchEmployees(); }
         async function toggleEmp(id, active) { await fetch(`${API}/employees/${id}/status`, { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ active }) }); fetchEmployees(); }
 
