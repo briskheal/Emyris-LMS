@@ -155,7 +155,8 @@
                 <div class="input-group"><label>Category</label><select id="p_category">
                     <option>Injectables</option><option>Enteral Nutrition</option><option>Nutraceuticals</option><option>Pharmaceuticals</option>
                 </select></div>
-                <div class="input-group"><label>YouTube / Video Link</label><input type="text" id="p_video" placeholder="Link here"></div>
+                <div class="input-group"><label>YouTube Link (Optional)</label><input type="text" id="p_video_link" placeholder="Paste link..."></div>
+                <div class="input-group"><label>Upload Video/Audio File</label><input type="file" id="p_video_file" accept="video/*,audio/*"></div>
                 <div class="input-group"><label>Packing Photo</label><input type="file" id="p_image"></div>
                 
                 <div class="input-group" style="grid-column: span 4;"><label>Scientific Composition / Clinical Details</label><textarea id="p_info" rows="6" placeholder="Enter molecular details..."></textarea></div>
@@ -379,14 +380,34 @@
         }
 
         async function saveProduct() {
+            const saveBtn = event.currentTarget;
+            saveBtn.disabled = true;
+            saveBtn.innerText = 'Uploading to Cloud...';
+
+            let videoUrl = document.getElementById('p_video_link').value;
+            const videoFile = document.getElementById('p_video_file').files[0];
+
+            // 1. Upload Video to Cloud if file exists
+            if (videoFile) {
+                const formData = new FormData();
+                formData.append('file', videoFile);
+                const uploadRes = await fetch(`${API}/upload`, { method: 'POST', body: formData });
+                const uploadData = await uploadRes.json();
+                if (uploadData.success) videoUrl = uploadData.url;
+            }
+
             const b64 = (f) => new Promise(r => { const reader = new FileReader(); reader.readAsDataURL(f); reader.onload = () => r(reader.result); });
             let img = document.getElementById('p_image').files[0] ? await b64(document.getElementById('p_image').files[0]) : '';
             let docs = [];
             for (let f of document.getElementById('p_docs').files) { docs.push({ name: f.name, data: await b64(f) }); }
+            
             await fetch(`${API}/products`, {
                 method: 'POST', headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ title: document.getElementById('p_title').value, category: document.getElementById('p_category').value, scientificInfo: document.getElementById('p_info').value, videoUrl: document.getElementById('p_video').value, image: img, documents: docs })
+                body: JSON.stringify({ title: document.getElementById('p_title').value, category: document.getElementById('p_category').value, scientificInfo: document.getElementById('p_info').value, videoUrl: videoUrl, image: img, documents: docs })
             });
+            
+            saveBtn.disabled = false;
+            saveBtn.innerText = 'Save Product to catalog';
             closeModal('productModal');
             fetchProducts();
         }

@@ -4,7 +4,23 @@ const bodyParser = require('body-parser');
 const cors = require('cors');
 const multer = require('multer');
 const path = require('path');
+const cloudinary = require('cloudinary').v2;
+const { CloudinaryStorage } = require('multer-storage-cloudinary');
 require('dotenv').config();
+
+// --- CLOUD CONFIG ---
+cloudinary.config({
+    cloudinary_url: process.env.CLOUDINARY_URL
+});
+
+const storage = new CloudinaryStorage({
+    cloudinary: cloudinary,
+    params: {
+        folder: 'emyris_lms',
+        resource_type: 'auto'
+    }
+});
+const upload = multer({ storage: storage });
 
 const app = express();
 const PORT = process.env.PORT || 5001; 
@@ -166,6 +182,13 @@ app.get('/api/categories', async (req, res) => {
         cats = await Category.find();
     }
     res.json(cats);
+});
+
+// Cloud Upload Endpoint
+app.post('/api/upload', upload.single('file'), (req, res) => {
+    try {
+        res.json({ success: true, url: req.file.path });
+    } catch (e) { res.status(500).json({ success: false }); }
 });
 
 app.post('/api/categories', async (req, res) => {
