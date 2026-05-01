@@ -76,7 +76,6 @@ const ProductSchema = new mongoose.Schema({
     title: { type: String, required: true },
     category: { 
         type: String, 
-        enum: ['Injectables', 'Enteral Nutrition', 'Nutraceuticals', 'Pharmaceuticals'],
         required: true 
     },
     scientificInfo: String,
