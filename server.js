@@ -98,6 +98,8 @@ app.post('/api/auth/login', async (req, res) => {
     if (empCode) empCode = empCode.trim();
     if (password) password = password.trim();
 
+    console.log(`[AUTH] Login Attempt - Code: "${empCode}", Admin: ${isAdmin}`);
+
     if (isAdmin) {
         if (empCode === 'EMYRISLMS' && password === 'EMYRIS_LMS') {
             return res.json({ success: true, role: 'admin' });
@@ -105,10 +107,13 @@ app.post('/api/auth/login', async (req, res) => {
     } else {
         const emp = await Employee.findOne({ empCode, password });
         if (emp) {
+            console.log(`[AUTH] Success: Found user ${emp.name}`);
             if (!emp.active) return res.status(403).json({ success: false, message: 'Account Deactivated' });
             emp.lastLogin = new Date();
             await emp.save();
             return res.json({ success: true, role: 'employee', name: emp.name });
+        } else {
+            console.log(`[AUTH] Failed: No match found for Code: "${empCode}" and Password: "${password}"`);
         }
     }
     res.status(401).json({ success: false, message: 'Invalid Credentials' });
