@@ -623,58 +623,81 @@
             initIcons();
         }
 
+        async function uploadFile(file) {
+            if (!file) return null;
+            const formData = new FormData();
+            formData.append('file', file);
+            const res = await fetch(`${API}/upload`, { method: 'POST', body: formData });
+            const data = await res.json();
+            return data.success ? data.url : null;
+        }
+
         async function saveProduct() {
             const id = document.getElementById('p_id').value;
-            const saveBtn = document.getElementById('saveBtn');
-            saveBtn.disabled = true;
-            saveBtn.innerText = 'Syncing...';
-
-            let videoUrl = document.getElementById('p_video_link').value;
-            const videoFile = document.getElementById('p_video_file').files[0];
-            if (videoFile) {
-                const formData = new FormData();
-                formData.append('file', videoFile);
-                const uploadRes = await fetch(`${API}/upload`, { method: 'POST', body: formData });
-                const uploadData = await uploadRes.json();
-                if (uploadData.success) videoUrl = uploadData.url;
-            }
-
-            const selectedCat = document.getElementById('p_category_dropdown').value;
-            const b64 = (f) => new Promise(r => { const reader = new FileReader(); reader.readAsDataURL(f); reader.onload = () => r(reader.result); });
-            let img = document.getElementById('p_image').files[0] ? await b64(document.getElementById('p_image').files[0]) : null;
-            let docs = [];
-            for (let f of document.getElementById('p_docs').files) { docs.push({ name: f.name, data: await b64(f) }); }
-
-            // Extract FAQs
-            const faqs = [];
-            document.querySelectorAll('.faq-item').forEach(item => {
-                const q = item.querySelector('.faq-q').value;
-                const a = item.querySelector('.faq-a').value;
-                if (q && a) faqs.push({ question: q, answer: a });
-            });
-
-            // Clean up colors from HTML before saving to ensure easy copying
-            const cleanHtml = quill.root.innerHTML.replace(/style="[^"]*?(?:color|background-color)[^"]*?"/gi, (match) => {
-                return match.replace(/color:[^;]+;?/gi, '').replace(/background-color:[^;]+;?/gi, '');
-            });
-
-            const payload = { title: document.getElementById('p_title').value, category: selectedCat, scientificInfo: cleanHtml, videoUrl: videoUrl, faqs: faqs };
-            if (img) payload.image = img;
-            if (docs.length > 0) payload.documents = docs;
-
-            const method = id ? 'PATCH' : 'POST';
-            const url = id ? `${API}/products/${id}` : `${API}/products`;
-            const response = await fetch(url, { method, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
+            const saveBtn = document.querySelector('button[onclick="saveProduct()"]'); // Target any of the sync buttons
+            const originalBtnHtml = saveBtn.innerHTML;
             
-            const result = await response.json();
-            if (result.success) {
+            saveBtn.disabled = true;
+            saveBtn.innerHTML = '<i data-lucide="loader-2" class="animate-spin"></i> Syncing Assets...';
+            initIcons();
+
+            // Parallel Asset Uploads
+            const videoFile = document.getElementById('p_video_file').files[0];
+            const imageFile = document.getElementById('p_image').files[0];
+            const docFiles = Array.from(document.getElementById('p_docs').files);
+
+            try {
+                const [videoUrl, imageUrl, ...uploadedDocs] = await Promise.all([
+                    uploadFile(videoFile),
+                    uploadFile(imageFile),
+                    ...docFiles.map(async f => ({ name: f.name, data: await uploadFile(f) }))
+                ]);
+
+                const finalVideoUrl = videoUrl || document.getElementById('p_video_link').value;
+                const selectedCat = document.getElementById('p_category_dropdown').value;
+
+                // Clean up colors from HTML
+                const cleanHtml = quill.root.innerHTML.replace(/style="[^"]*?(?:color|background-color)[^"]*?"/gi, (match) => {
+                    return match.replace(/color:[^;]+;?/gi, '').replace(/background-color:[^;]+;?/gi, '');
+                });
+
+                // Extract FAQs
+                const faqs = [];
+                document.querySelectorAll('.faq-item').forEach(item => {
+                    const q = item.querySelector('.faq-q').value;
+                    const a = item.querySelector('.faq-a').value;
+                    if (q && a) faqs.push({ question: q, answer: a });
+                });
+
+                const payload = { 
+                    title: document.getElementById('p_title').value, 
+                    category: selectedCat, 
+                    scientificInfo: cleanHtml, 
+                    videoUrl: finalVideoUrl, 
+                    faqs: faqs 
+                };
+
+                if (imageUrl) payload.image = imageUrl;
+                if (uploadedDocs.length > 0) payload.documents = uploadedDocs;
+
+                const method = id ? 'PATCH' : 'POST';
+                const url = id ? `${API}/products/${id}` : `${API}/products`;
+                const response = await fetch(url, { method, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
+                
+                const result = await response.json();
+                if (result.success) {
+                    closeModal('productModal');
+                    fetchProducts();
+                } else {
+                    throw new Error(result.message || 'Save Failed');
+                }
+            } catch (err) {
+                console.error(err);
+                alert('❌ Sync Failed: ' + err.message);
+            } finally {
                 saveBtn.disabled = false;
-                closeModal('productModal');
-                fetchProducts();
-            } else {
-                saveBtn.disabled = false;
-                saveBtn.innerText = 'Retry Sync';
-                alert('❌ Save Failed: ' + (result.message || 'Unknown Error'));
+                saveBtn.innerHTML = originalBtnHtml;
+                initIcons();
             }
         }
 
