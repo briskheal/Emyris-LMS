@@ -193,8 +193,8 @@
                 <div class="input-group"><label>Upload Media File</label><input type="file" id="p_video_file"></div>
                 
                 <div class="input-group">
-                    <label style="color: var(--primary); font-weight: 700; margin-bottom: 1rem; display: block;">Portfolio Categorization</label>
-                    <div id="p_category_switches" class="switch-board" style="display: flex; flex-direction: column; gap: 0.5rem; max-height: none;"></div>
+                    <label style="color: var(--primary); font-weight: 700; margin-bottom: 0.5rem; display: block;">Portfolio Categorization</label>
+                    <select id="p_category_dropdown" style="width: 100%; padding: 12px; background: rgba(255,255,255,0.05); border: 1px solid var(--glass-border); border-radius: 12px; color: white; outline: none;"></select>
                 </div>
 
                 <div class="input-group"><label>Packing Photo</label><input type="file" id="p_image"></div>
@@ -285,19 +285,13 @@
                 quill.update();
             }
             
-            // Build Switches
+            // Build Dropdown
             const res = await fetch(`${API}/categories`);
             const cats = await res.json();
             const activeCats = cats.filter(c => c.active);
-            document.getElementById('p_category_switches').innerHTML = activeCats.map(c => `
-                <div class="switch-item ${editData && editData.category === c.name ? 'active' : ''}">
-                    <span>${c.name}</span>
-                    <label class="switch">
-                        <input type="radio" name="p_cat_radio" value="${c.name}" ${editData && editData.category === c.name ? 'checked' : ''} onchange="this.parentElement.parentElement.parentElement.querySelectorAll('.switch-item').forEach(i => i.classList.remove('active')); this.parentElement.parentElement.classList.add('active')">
-                        <span class="slider"></span>
-                    </label>
-                </div>
-            `).join('');
+            const dropdown = document.getElementById('p_category_dropdown');
+            dropdown.innerHTML = `<option value="">-- Select Category --</option>` + 
+                activeCats.map(c => `<option value="${c.name}" ${editData && editData.category === c.name ? 'selected' : ''}>${c.name}</option>`).join('');
             
             openModal('productModal');
             initIcons();
@@ -347,7 +341,7 @@
                 if (uploadData.success) videoUrl = uploadData.url;
             }
 
-            const selectedCat = document.querySelector('input[name="p_cat_radio"]:checked')?.value || '';
+            const selectedCat = document.getElementById('p_category_dropdown').value;
             const b64 = (f) => new Promise(r => { const reader = new FileReader(); reader.readAsDataURL(f); reader.onload = () => r(reader.result); });
             let img = document.getElementById('p_image').files[0] ? await b64(document.getElementById('p_image').files[0]) : null;
             let docs = [];
