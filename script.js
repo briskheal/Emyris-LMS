@@ -281,9 +281,9 @@ async function deleteProduct(id) {
 }
 
 async function viewDetails(id) {
-    const res = await fetch(`${API_URL}/products`);
+    const res = await fetch(`${API_URL}/products/${id}`);
     const data = await res.json();
-    const p = data.products.find(x => x._id === id);
+    const p = data.product;
 
     let videoHtml = '';
     if (p.videoUrl) {

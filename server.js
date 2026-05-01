@@ -201,6 +201,13 @@ app.post('/api/auth/login', async (req, res) => {
     res.status(401).json({ success: false, message: 'Invalid Credentials' });
 });
 
+app.get('/api/products/:id', async (req, res) => {
+    try {
+        const product = await Product.findById(req.params.id);
+        res.json({ success: true, product });
+    } catch (e) { res.status(500).json({ success: false }); }
+});
+
 // Products
 app.get('/api/products', async (req, res) => {
     try {

@@ -512,57 +512,47 @@
         function logout() { window.location.href = '/admin'; }
 
         async function openProductModal(editData = null) {
-            // Ensure Modal is open so Quill can calculate dimensions
-            openModal('productModal');
-            
-            // Initialize or Refresh Icons
-            initIcons();
+            // 1. Reset all fields to clean state
+            document.getElementById('p_id').value = '';
+            document.getElementById('p_title').value = '';
+            document.getElementById('p_video_link').value = '';
+            document.getElementById('p_video_file').value = '';
+            document.getElementById('p_docs').value = '';
+            document.getElementById('faqContainer').innerHTML = '';
+            if (quill) quill.root.innerHTML = '';
 
-            document.getElementById('p_id').value = editData ? editData._id : '';
+            // Reset Previews
+            const imgPreview = document.getElementById('p_image_preview');
+            const imgPlaceholder = document.getElementById('p_image_placeholder');
+            imgPreview.style.display = 'none';
+            imgPlaceholder.style.display = 'block';
+            document.getElementById('p_video_status').style.display = 'none';
+
+            // 2. Populate if Editing
+            if (editData) {
+                document.getElementById('p_id').value = editData._id;
+                document.getElementById('p_title').value = editData.title || '';
+                document.getElementById('p_video_link').value = editData.videoUrl || '';
+                
+                if (editData.image) {
+                    imgPreview.src = editData.image;
+                    imgPreview.style.display = 'block';
+                    imgPlaceholder.style.display = 'none';
+                }
+                if (editData.videoUrl) document.getElementById('p_video_status').style.display = 'block';
+                if (editData.faqs) editData.faqs.forEach(f => addFaqRow(f.question, f.answer));
+                if (quill) {
+                    quill.root.innerHTML = editData.scientificInfo || '';
+                    quill.update();
+                }
+            }
+
             document.getElementById('modalTitle').innerText = editData ? 'Edit Scientific Product' : 'Add Scientific Product';
-            
             const syncBtns = document.querySelectorAll('button[onclick="saveProduct()"]');
             syncBtns.forEach(btn => {
                 btn.innerHTML = editData ? '<i data-lucide="refresh-cw"></i> Sync Updates to Portal' : '<i data-lucide="plus"></i> Add to Portal';
             });
-            
-            document.getElementById('p_title').value = editData ? editData.title : '';
-            document.getElementById('p_video_link').value = editData ? editData.videoUrl : '';
-            
-            // Photo Preview
-            const imgPreview = document.getElementById('p_image_preview');
-            const imgPlaceholder = document.getElementById('p_image_placeholder');
-            if (editData && editData.image) {
-                imgPreview.src = editData.image;
-                imgPreview.style.display = 'block';
-                imgPlaceholder.style.display = 'none';
-            } else {
-                imgPreview.style.display = 'none';
-                imgPlaceholder.style.display = 'block';
-            }
 
-            // Video Status
-            const videoStatus = document.getElementById('p_video_status');
-            if (editData && editData.videoUrl) {
-                videoStatus.style.display = 'block';
-            } else {
-                videoStatus.style.display = 'none';
-            }
-            
-            // Render FAQs
-            const faqContainer = document.getElementById('faqContainer');
-            faqContainer.innerHTML = '';
-            if (editData && editData.faqs) {
-                editData.faqs.forEach(f => addFaqRow(f.question, f.answer));
-            }
-            
-            // Wait for Quill and set content
-            if (quill) {
-                quill.root.innerHTML = editData ? editData.scientificInfo : '';
-                // Fix: Force Quill to update its content view
-                quill.update();
-            }
-            
             // Build Dropdown
             const res = await fetch(`${API}/categories`);
             const cats = await res.json();
@@ -570,7 +560,7 @@
             const dropdown = document.getElementById('p_category_dropdown');
             dropdown.innerHTML = `<option value="">-- Select Category --</option>` + 
                 activeCats.map(c => `<option value="${c.name}" ${editData && editData.category === c.name ? 'selected' : ''}>${c.name}</option>`).join('');
-            
+
             openModal('productModal');
             initIcons();
         }
@@ -768,10 +758,9 @@
         }
 
         async function editProduct(id) {
-            const res = await fetch(`${API}/products`);
+            const res = await fetch(`${API}/products/${id}`);
             const data = await res.json();
-            const p = data.products.find(x => x._id === id);
-            openProductModal(p);
+            openProductModal(data.product);
         }
 
         async function deleteProduct(id) {
