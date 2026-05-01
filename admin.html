@@ -359,11 +359,18 @@
 
             const method = id ? 'PATCH' : 'POST';
             const url = id ? `${API}/products/${id}` : `${API}/products`;
-            await fetch(url, { method, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
+            const response = await fetch(url, { method, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
             
-            saveBtn.disabled = false;
-            closeModal('productModal');
-            fetchProducts();
+            const result = await response.json();
+            if (result.success) {
+                saveBtn.disabled = false;
+                closeModal('productModal');
+                fetchProducts();
+            } else {
+                saveBtn.disabled = false;
+                saveBtn.innerText = 'Retry Sync';
+                alert('❌ Save Failed: ' + (result.message || 'Unknown Error'));
+            }
         }
 
         async function fetchProducts() {
