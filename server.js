@@ -121,6 +121,7 @@ const CategorySchema = new mongoose.Schema({
     active: { type: Boolean, default: true }
 });
 
+const Product = mongoose.model('Product', ProductSchema);
 const Employee = mongoose.model('Employee', EmployeeSchema);
 const Company = mongoose.model('Company', CompanySchema);
 const Category = mongoose.model('Category', CategorySchema);

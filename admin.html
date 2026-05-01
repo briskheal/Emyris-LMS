@@ -257,6 +257,7 @@
         function initIcons() { 
             lucide.createIcons(); 
             if (!quill) {
+                // Add matcher to strip colors/backgrounds on paste
                 quill = new Quill('#p_info_editor', {
                     theme: 'snow',
                     modules: {
@@ -265,7 +266,20 @@
                             [{ 'align': '' }, { 'align': 'center' }, { 'align': 'right' }, { 'align': 'justify' }],
                             [{ 'list': 'ordered'}, { 'list': 'bullet' }],
                             ['clean']
-                        ]
+                        ],
+                        clipboard: {
+                            matchers: [
+                                [Node.ELEMENT_NODE, function(node, delta) {
+                                    delta.ops.forEach(op => {
+                                        if (op.attributes) {
+                                            delete op.attributes.color;
+                                            delete op.attributes.background;
+                                        }
+                                    });
+                                    return delta;
+                                }]
+                            ]
+                        }
                     }
                 });
             }
@@ -358,7 +372,12 @@
             let docs = [];
             for (let f of document.getElementById('p_docs').files) { docs.push({ name: f.name, data: await b64(f) }); }
 
-            const payload = { title: document.getElementById('p_title').value, category: selectedCat, scientificInfo: quill.root.innerHTML, videoUrl: videoUrl };
+            // Clean up colors from HTML before saving to ensure easy copying
+            const cleanHtml = quill.root.innerHTML.replace(/style="[^"]*?(?:color|background-color)[^"]*?"/gi, (match) => {
+                return match.replace(/color:[^;]+;?/gi, '').replace(/background-color:[^;]+;?/gi, '');
+            });
+
+            const payload = { title: document.getElementById('p_title').value, category: selectedCat, scientificInfo: cleanHtml, videoUrl: videoUrl };
             if (img) payload.image = img;
             if (docs.length > 0) payload.documents = docs;
 
