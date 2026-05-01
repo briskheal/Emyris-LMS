@@ -83,32 +83,54 @@
         .ql-fill { fill: #cbd5e1 !important; }
         .ql-picker { color: #cbd5e1 !important; }
         .ql-picker-options { background: #0f172a !important; border-color: var(--glass-border) !important; }
-        /* High-Density Grid Overrides */
-        #adminProductGrid { 
-            display: grid; 
-            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); 
-            gap: 1rem; 
-            padding: 1rem 0;
+        /* Grouped Category Card Styles */
+        .category-group-card {
+            background: rgba(255,255,255,0.02);
+            border: 1px solid var(--glass-border);
+            border-radius: 20px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
         }
-        .compact-admin-card { 
-            padding: 1.2rem !important; 
-            border-radius: 12px !important;
+        .category-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.2rem;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+            padding-bottom: 0.8rem;
+        }
+        .category-header h2 {
+            font-size: 1.2rem;
+            color: var(--primary);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        .product-mini-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 0.8rem;
+        }
+        .product-mini-item {
+            background: rgba(255,255,255,0.03);
+            border: 1px solid var(--glass-border);
+            padding: 10px 15px;
+            border-radius: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
             transition: all 0.3s;
         }
-        .compact-admin-card h3 { 
-            font-size: 1rem !important; 
-            margin-bottom: 0.8rem !important;
+        .product-mini-item:hover {
+            background: rgba(255,255,255,0.08);
+            transform: translateX(3px);
+        }
+        .product-mini-item span {
+            font-weight: 500;
+            font-size: 0.95rem;
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
-        }
-        .compact-admin-card .badge {
-            font-size: 0.65rem !important;
-            padding: 2px 8px !important;
-        }
-        .compact-admin-card .btn {
-            padding: 6px 10px !important;
-            font-size: 0.75rem !important;
+            max-width: 60%;
         }
     </style>
 </head>
@@ -427,18 +449,41 @@
         async function fetchProducts() {
             const res = await fetch(`${API}/products`);
             const data = await res.json();
-            document.getElementById('adminProductGrid').innerHTML = data.products.map(p => `
-                <div class="glass-panel product-card compact-admin-card">
-                    <div class="product-content" style="padding: 0;">
-                        <span class="badge">${p.category}</span>
-                        <h3 title="${p.title}">${p.title}</h3>
-                        <div style="display: flex; gap: 8px;">
-                            <button class="btn btn-glass" style="flex: 1;" onclick="editProduct('${p._id}')"><i data-lucide="edit-3" style="width:14px;"></i> Edit</button>
-                            <button class="btn btn-glass" style="color: #f43f5e; padding: 6px !important;" onclick="deleteProduct('${p._id}')"><i data-lucide="trash" style="width:14px;"></i></button>
-                        </div>
+            
+            // Group products by category
+            const groups = data.products.reduce((acc, p) => {
+                if (!acc[p.category]) acc[p.category] = [];
+                acc[p.category].push(p);
+                return acc;
+            }, {});
+
+            const grid = document.getElementById('adminProductGrid');
+            grid.style.display = 'block'; // List style
+            
+            grid.innerHTML = Object.keys(groups).sort().map(cat => `
+                <div class="category-group-card animate-fade">
+                    <div class="category-header">
+                        <h2><i data-lucide="layers" style="width:18px; vertical-align:middle; margin-right:8px;"></i> ${cat}</h2>
+                        <span class="badge" style="background: rgba(255,255,255,0.1); color: var(--text-dim);">${groups[cat].length} Products</span>
+                    </div>
+                    <div class="product-mini-list">
+                        ${groups[cat].map(p => `
+                            <div class="product-mini-item">
+                                <span title="${p.title}">${p.title}</span>
+                                <div style="display: flex; gap: 5px;">
+                                    <button class="btn btn-glass" style="padding: 4px 8px !important;" onclick="editProduct('${p._id}')" title="Edit"><i data-lucide="edit-3" style="width:14px;"></i></button>
+                                    <button class="btn btn-glass" style="padding: 4px 8px !important; color: var(--accent);" onclick="deleteProduct('${p._id}')" title="Delete"><i data-lucide="trash" style="width:14px;"></i></button>
+                                </div>
+                            </div>
+                        `).join('')}
                     </div>
                 </div>
             `).join('');
+            
+            if (Object.keys(groups).length === 0) {
+                grid.innerHTML = `<div style="text-align:center; padding: 5rem; color: var(--text-dim);">No products found. Start by adding one!</div>`;
+            }
+
             initIcons();
         }
 
