@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Emyris LMS | Admin Dashboard</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="icon" href="logo.png">
+    <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body>
+
+    <nav id="mainNav" style="display: none;">
+        <div class="logo-area">
+            <img src="logo.png" alt="Logo" style="height: 40px;">
+            <h1>EMYRIS ADMIN</h1>
+        </div>
+        <div style="display: flex; gap: 1rem; align-items: center;">
+            <button class="btn btn-glass" onclick="logout()">
+                <i data-lucide="log-out"></i> Exit Admin
+            </button>
+        </div>
+    </nav>
+
+    <main id="authScreen" class="auth-container">
+        <div class="glass-panel auth-card animate-fade" style="border-color: var(--primary);">
+            <h1 style="margin-bottom: 0.5rem; font-size: 2rem;">Admin Access</h1>
+            <p style="color: var(--text-dim); margin-bottom: 2rem;">Secure Database Control</p>
+            
+            <div class="input-group">
+                <label>Admin Username</label>
+                <input type="text" id="username" placeholder="e.g. EMYRISLMS" autocomplete="off">
+            </div>
+            <div class="input-group">
+                <label>System Password</label>
+                <input type="password" id="password" placeholder="••••••••">
+            </div>
+
+            <button class="btn btn-primary" style="width: 100%; justify-content: center;" onclick="handleLogin()">
+                Enter Dashboard <i data-lucide="shield-check"></i>
+            </button>
+        </div>
+    </main>
+
+    <main id="adminPortal" style="display: none; padding: 2rem 5%;">
+        <header style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 3rem;">
+            <div>
+                <h1 style="font-size: 2.5rem; margin-bottom: 0.5rem;">Master Catalog</h1>
+                <p style="color: var(--text-dim);">Manage scientific data and product vault</p>
+            </div>
+            <button class="btn btn-primary" onclick="openModal('productModal')">
+                <i data-lucide="plus"></i> Add New Product
+            </button>
+        </header>
+
+        <div id="adminProductGrid" class="dashboard-grid"></div>
+    </main>
+
+    <div id="productModal" class="modal">
+        <div class="glass-panel modal-content animate-fade">
+            <h2 style="font-size: 2rem; margin-bottom: 2rem;">Product Specifications</h2>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
+                <div class="input-group">
+                    <label>Product Title</label>
+                    <input type="text" id="p_title" placeholder="e.g. Emyris-K">
+                </div>
+                <div class="input-group">
+                    <label>Category</label>
+                    <select id="p_category">
+                        <option value="Injectables">Injectables</option>
+                        <option value="Enteral Nutrition">Enteral Nutrition</option>
+                        <option value="Nutraceuticals">Nutraceuticals</option>
+                        <option value="Pharmaceuticals">Pharmaceuticals</option>
+                    </select>
+                </div>
+                <div class="input-group" style="grid-column: span 2;">
+                    <label>Clinical Info / Composition</label>
+                    <textarea id="p_info" rows="4" placeholder="Enter molecular details..."></textarea>
+                </div>
+                <div class="input-group">
+                    <label>Product Image (Packing)</label>
+                    <input type="file" id="p_image" accept="image/*">
+                </div>
+                <div class="input-group">
+                    <label>Video URL</label>
+                    <input type="text" id="p_video" placeholder="YouTube Link">
+                </div>
+                <div class="input-group" style="grid-column: span 2;">
+                    <label>Scientific Journals (PDFs)</label>
+                    <input type="file" id="p_docs" accept=".pdf" multiple>
+                </div>
+            </div>
+            <div style="display: flex; justify-content: flex-end; gap: 1rem; margin-top: 2rem;">
+                <button class="btn btn-glass" onclick="closeModal('productModal')">Cancel</button>
+                <button class="btn btn-primary" onclick="saveProduct()">Save to Vault</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Inline Admin Script for simplicity and separation
+        const API_URL = '/api';
+        
+        function initIcons() { lucide.createIcons(); }
+        function openModal(id) { document.getElementById(id).style.display = 'flex'; }
+        function closeModal(id) { document.getElementById(id).style.display = 'none'; }
+        function logout() { window.location.href = '/'; }
+
+        async function handleLogin() {
+            const empCode = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            const res = await fetch(`${API_URL}/auth/login`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ empCode, password, isAdmin: true })
+            });
+            const data = await res.json();
+            if (data.success) {
+                document.getElementById('authScreen').style.display = 'none';
+                document.getElementById('mainNav').style.display = 'flex';
+                document.getElementById('adminPortal').style.display = 'block';
+                fetchAdminProducts();
+                initIcons();
+            } else { alert('Invalid Admin Credentials'); }
+        }
+
+        async function fetchAdminProducts() {
+            const res = await fetch(`${API_URL}/products`);
+            const data = await res.json();
+            const grid = document.getElementById('adminProductGrid');
+            grid.innerHTML = data.products.map(p => `
+                <div class="glass-panel product-card animate-fade">
+                    <div class="product-content">
+                        <span class="badge">${p.category}</span>
+                        <h3>${p.title}</h3>
+                        <div style="display: flex; gap: 0.5rem; margin-top: 1.5rem;">
+                            <button class="btn btn-glass" style="color: var(--accent);" onclick="deleteProduct('${p._id}')">
+                                <i data-lucide="trash-2"></i> Delete
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+            initIcons();
+        }
+
+        async function deleteProduct(id) {
+            if (!confirm('Delete forever?')) return;
+            await fetch(`${API_URL}/products/${id}`, { method: 'DELETE' });
+            fetchAdminProducts();
+        }
+
+        async function saveProduct() {
+            const p_title = document.getElementById('p_title').value;
+            const p_category = document.getElementById('p_category').value;
+            const p_info = document.getElementById('p_info').value;
+            const p_video = document.getElementById('p_video').value;
+            const imgFile = document.getElementById('p_image').files[0];
+            const docFiles = document.getElementById('p_docs').files;
+
+            const toBase64 = (f) => new Promise((res, rej) => {
+                const r = new FileReader(); r.readAsDataURL(f);
+                r.onload = () => res(r.result); r.onerror = e => rej(e);
+            });
+
+            let imageBase64 = imgFile ? await toBase64(imgFile) : '';
+            let documents = [];
+            for (let f of docFiles) { documents.push({ name: f.name, data: await toBase64(f) }); }
+
+            await fetch(`${API_URL}/products`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ title: p_title, category: p_category, scientificInfo: p_info, videoUrl: p_video, image: imageBase64, documents })
+            });
+            closeModal('productModal');
+            fetchAdminProducts();
+        }
+        
+        window.onload = initIcons;
+    </script>
+</body>
+</html>
