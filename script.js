@@ -328,6 +328,25 @@ async function viewDetails(id) {
                     <h4 style="color: var(--primary); text-transform: uppercase; font-size: 0.8rem; margin-bottom: 1rem;">Scientific Overview</h4>
                     <div class="ql-editor" style="color: var(--text-dim); padding: 0 !important; line-height: 1.8; font-size: 1.1rem;">${p.scientificInfo}</div>
                     
+                    ${p.faqs && p.faqs.length > 0 ? `
+                        <div style="margin-top: 2.5rem; border-top: 1px solid var(--glass-border); padding-top: 1.5rem;">
+                            <h4 style="color: var(--primary); text-transform: uppercase; font-size: 0.8rem; margin-bottom: 1rem;">Clinical & Usage FAQs</h4>
+                            <div style="display: flex; flex-direction: column; gap: 1rem;">
+                                ${p.faqs.map(faq => `
+                                    <div class="glass-panel" style="padding: 1rem; border-radius: 12px; background: rgba(255,255,255,0.01);">
+                                        <div style="font-weight: 600; color: white; margin-bottom: 5px; display: flex; gap: 10px; align-items: flex-start;">
+                                            <i data-lucide="help-circle" style="width: 16px; color: var(--primary); margin-top: 3px;"></i>
+                                            <span>${faq.question}</span>
+                                        </div>
+                                        <div style="font-size: 0.95rem; color: var(--text-dim); line-height: 1.5; padding-left: 26px;">
+                                            ${faq.answer}
+                                        </div>
+                                    </div>
+                                `).join('')}
+                            </div>
+                        </div>
+                    ` : ''}
+
                     ${docsHtml}
                 </div>
             </div>

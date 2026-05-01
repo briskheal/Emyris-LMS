@@ -87,6 +87,10 @@ const ProductSchema = new mongoose.Schema({
         name: String, 
         data: String // Base64 PDF/Doc
     }],
+    faqs: [{
+        question: String,
+        answer: String
+    }],
     createdAt: { type: Date, default: Date.now }
 });
 

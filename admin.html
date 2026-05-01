@@ -132,6 +132,77 @@
             text-overflow: ellipsis;
             max-width: 60%;
         }
+
+        /* Employee Modal Enhancements */
+        .emp-modal-card {
+            max-width: 550px !important; 
+            height: auto !important; 
+            padding: 3rem !important;
+            border-radius: 24px !important;
+        }
+        .input-with-icon {
+            position: relative;
+        }
+        .input-with-icon i {
+            position: absolute;
+            left: 14px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--primary);
+            opacity: 0.7;
+            width: 18px;
+        }
+        .input-with-icon input {
+            padding-left: 45px !important;
+        }
+
+        /* Table Enhancements */
+        .premium-table th {
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--primary);
+            border-bottom: 1px solid var(--glass-border);
+        }
+        .premium-table tr {
+            transition: all 0.2s ease;
+        }
+        .premium-table tbody tr:hover {
+            background: rgba(255,255,255,0.03);
+        }
+        .status-badge {
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-size: 0.7rem;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+        }
+        .status-active { background: rgba(34, 197, 94, 0.1); color: #22c55e; border: 1px solid rgba(34, 197, 94, 0.2); }
+        .status-inactive { background: rgba(244, 63, 94, 0.1); color: #f43f5e; border: 1px solid rgba(244, 63, 94, 0.2); }
+
+        /* FAQ Manager Styles */
+        .faq-item {
+            background: rgba(255,255,255,0.03);
+            border: 1px solid var(--glass-border);
+            border-radius: 12px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            position: relative;
+        }
+        .faq-item:hover { border-color: var(--primary); }
+        .faq-delete-btn {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            color: var(--accent);
+            cursor: pointer;
+            opacity: 0.6;
+            transition: opacity 0.3s;
+        }
+        .faq-delete-btn:hover { opacity: 1; }
     </style>
 </head>
 <body>
@@ -194,17 +265,23 @@
 
         <!-- 3. EMPLOYEE HUB -->
         <section id="employees" class="tab-section">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;"><h1>Employee Hub</h1><button class="btn btn-primary" onclick="openAddStaffModal()">+ Register Staff</button></div>
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+                <div>
+                    <h1 style="font-size: 2rem;">Employee Hub</h1>
+                    <p style="color: var(--text-dim); font-size: 0.9rem;">Manage Staff Access & Security</p>
+                </div>
+                <button class="btn btn-primary" onclick="openAddStaffModal()"><i data-lucide="user-plus"></i> Register Staff</button>
+            </div>
             <div class="glass-panel scroll-area" style="padding: 0;">
-                <table style="width: 100%; border-collapse: collapse; text-align: left;">
+                <table class="premium-table" style="width: 100%; border-collapse: collapse; text-align: left;">
                     <thead style="background: rgba(255,255,255,0.05); position: sticky; top: 0; z-index: 10;">
                         <tr>
-                            <th style="padding: 1rem 1.5rem;">Staff Name</th>
-                            <th>Login ID (Code)</th>
-                            <th>Password</th>
-                            <th>Status</th>
-                            <th>Registered IP (Lock)</th>
-                            <th>Actions</th>
+                            <th style="padding: 1.2rem 1.5rem;"><i data-lucide="user" style="width: 14px; vertical-align: middle; margin-right: 5px;"></i> Staff Name</th>
+                            <th><i data-lucide="id-card" style="width: 14px; vertical-align: middle; margin-right: 5px;"></i> Login ID</th>
+                            <th><i data-lucide="key" style="width: 14px; vertical-align: middle; margin-right: 5px;"></i> Password</th>
+                            <th><i data-lucide="activity" style="width: 14px; vertical-align: middle; margin-right: 5px;"></i> Status</th>
+                            <th><i data-lucide="map-pin" style="width: 14px; vertical-align: middle; margin-right: 5px;"></i> Registered IP</th>
+                            <th><i data-lucide="settings-2" style="width: 14px; vertical-align: middle; margin-right: 5px;"></i> Actions</th>
                         </tr>
                     </thead>
                     <tbody id="empTableBody"></tbody>
@@ -256,6 +333,14 @@
 
                 <div class="input-group"><label>Packing Photo</label><input type="file" id="p_image"></div>
                 <div class="input-group"><label>Journals (PDFs)</label><input type="file" id="p_docs" multiple></div>
+
+                <div style="margin-top: 1rem; padding-top: 1.5rem; border-top: 1px solid var(--glass-border);">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                        <label style="color: var(--primary); font-weight: 700; font-size: 0.9rem;">Product FAQs</label>
+                        <button class="btn btn-glass" style="padding: 4px 10px; font-size: 0.75rem;" onclick="addFaqRow()"><i data-lucide="plus" style="width:14px;"></i> Add FAQ</button>
+                    </div>
+                    <div id="faqContainer"></div>
+                </div>
             </div>
 
             <!-- RIGHT PANEL: Full-Height Scientific Dossier Editor -->
@@ -287,14 +372,58 @@
 
     <!-- Employee Modal -->
     <div id="empModal" class="modal">
-        <div class="glass-panel modal-content" style="max-width: 600px !important;">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;"><h2 id="empModalTitle">Register Staff</h2><button class="btn btn-glass" onclick="closeModal('empModal')"><i data-lucide="x"></i></button></div>
+        <div class="glass-panel modal-content emp-modal-card animate-fade">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2.5rem;">
+                <div style="display: flex; align-items: center; gap: 15px;">
+                    <div style="width: 50px; height: 50px; border-radius: 12px; background: var(--primary-glow); display: flex; align-items: center; justify-content: center; color: white;">
+                        <i data-lucide="user-plus" style="width: 28px; height: 28px;"></i>
+                    </div>
+                    <div>
+                        <h2 id="empModalTitle" style="font-size: 1.5rem; margin: 0;">Register Staff</h2>
+                        <p style="color: var(--text-dim); font-size: 0.85rem; margin-top: 4px;">Configure portal access credentials</p>
+                    </div>
+                </div>
+                <button class="btn btn-glass" style="border: none; padding: 8px;" onclick="closeModal('empModal')"><i data-lucide="x"></i></button>
+            </div>
+            
             <input type="hidden" id="e_id">
+            
             <div style="display: flex; flex-direction: column; gap: 1.5rem;">
-                <div class="input-group"><label>Full Name</label><input type="text" id="e_name"></div>
-                <div class="input-group"><label>Employee ID</label><input type="text" id="e_code"></div>
-                <div class="input-group"><label>Access Password</label><input type="text" id="e_pass"></div>
-                <button class="btn btn-primary" style="width: 100%; justify-content: center;" onclick="saveEmployee()">Enable Portal Access</button>
+                <div class="input-group">
+                    <label>Full Name</label>
+                    <div class="input-with-icon">
+                        <i data-lucide="user"></i>
+                        <input type="text" id="e_name" placeholder="Enter Full Name">
+                    </div>
+                </div>
+                
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;" id="empFieldsGrid">
+                    <div class="input-group">
+                        <label>Employee ID</label>
+                        <div class="input-with-icon">
+                            <i data-lucide="hash"></i>
+                            <input type="text" id="e_code" placeholder="EMP-001">
+                        </div>
+                    </div>
+                    <div class="input-group" id="passFieldGroup">
+                        <label>Access Password</label>
+                        <div class="input-with-icon">
+                            <i data-lucide="key"></i>
+                            <input type="text" id="e_pass" placeholder="••••••••">
+                        </div>
+                    </div>
+                </div>
+
+                <div style="background: rgba(99, 102, 241, 0.05); border: 1px dashed var(--primary-glow); padding: 1.2rem; border-radius: 12px; margin-top: 0.5rem; margin-bottom: 1rem;">
+                    <div style="display: flex; gap: 12px; align-items: flex-start;">
+                        <i data-lucide="info" style="width: 20px; color: var(--primary); flex-shrink: 0; margin-top: 2px;"></i>
+                        <p style="font-size: 0.8rem; color: var(--text-dim); line-height: 1.4;">Staff members will be locked to their first login IP address for security. Administrators can reset this lock from the Employee Hub.</p>
+                    </div>
+                </div>
+
+                <button class="btn btn-primary" style="width: 100%; justify-content: center; padding: 16px; font-size: 1rem; letter-spacing: 0.5px;" onclick="saveEmployee()">
+                    <i data-lucide="shield-check"></i> <span id="empBtnText">Enable Portal Access</span>
+                </button>
             </div>
         </div>
     </div>
@@ -352,6 +481,13 @@
             document.getElementById('p_title').value = editData ? editData.title : '';
             document.getElementById('p_video_link').value = editData ? editData.videoUrl : '';
             
+            // Render FAQs
+            const faqContainer = document.getElementById('faqContainer');
+            faqContainer.innerHTML = '';
+            if (editData && editData.faqs) {
+                editData.faqs.forEach(f => addFaqRow(f.question, f.answer));
+            }
+            
             // Wait for Quill and set content
             if (quill) {
                 quill.root.innerHTML = editData ? editData.scientificInfo : '';
@@ -399,6 +535,24 @@
             await fetch(`${API}/categories/${id}`, { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ active }) });
         }
 
+        function addFaqRow(q = '', a = '') {
+            const div = document.createElement('div');
+            div.className = 'faq-item animate-fade';
+            div.innerHTML = `
+                <i data-lucide="trash-2" class="faq-delete-btn" onclick="this.parentElement.remove()"></i>
+                <div class="input-group" style="margin-bottom: 10px;">
+                    <label style="font-size: 0.75rem;">Question</label>
+                    <input type="text" class="faq-q" value="${q}" placeholder="e.g. How to use?" style="padding: 8px 12px; font-size: 0.85rem;">
+                </div>
+                <div class="input-group" style="margin-bottom: 0;">
+                    <label style="font-size: 0.75rem;">Answer</label>
+                    <textarea class="faq-a" placeholder="Enter answer..." style="padding: 8px 12px; font-size: 0.85rem; height: 60px;">${a}</textarea>
+                </div>
+            `;
+            document.getElementById('faqContainer').appendChild(div);
+            initIcons();
+        }
+
         async function saveProduct() {
             const id = document.getElementById('p_id').value;
             const saveBtn = document.getElementById('saveBtn');
@@ -421,12 +575,20 @@
             let docs = [];
             for (let f of document.getElementById('p_docs').files) { docs.push({ name: f.name, data: await b64(f) }); }
 
+            // Extract FAQs
+            const faqs = [];
+            document.querySelectorAll('.faq-item').forEach(item => {
+                const q = item.querySelector('.faq-q').value;
+                const a = item.querySelector('.faq-a').value;
+                if (q && a) faqs.push({ question: q, answer: a });
+            });
+
             // Clean up colors from HTML before saving to ensure easy copying
             const cleanHtml = quill.root.innerHTML.replace(/style="[^"]*?(?:color|background-color)[^"]*?"/gi, (match) => {
                 return match.replace(/color:[^;]+;?/gi, '').replace(/background-color:[^;]+;?/gi, '');
             });
 
-            const payload = { title: document.getElementById('p_title').value, category: selectedCat, scientificInfo: cleanHtml, videoUrl: videoUrl };
+            const payload = { title: document.getElementById('p_title').value, category: selectedCat, scientificInfo: cleanHtml, videoUrl: videoUrl, faqs: faqs };
             if (img) payload.image = img;
             if (docs.length > 0) payload.documents = docs;
 
@@ -538,26 +700,38 @@
             const data = await res.json(); 
             document.getElementById('empTableBody').innerHTML = data.employees.map(e => `
                 <tr style="border-bottom: 1px solid var(--glass-border);">
-                    <td style="padding: 1rem 1.5rem;">${e.name}</td>
-                    <td><code style="color: var(--primary); font-weight: 600;">${e.empCode}</code></td>
-                    <td><code style="font-size: 0.7rem; opacity: 0.6; color: var(--secondary);">${e.password}</code></td>
+                    <td style="padding: 1.2rem 1.5rem; font-weight: 600;">${e.name}</td>
+                    <td><code style="color: var(--primary); font-weight: 700; background: rgba(99, 102, 241, 0.1); padding: 4px 8px; border-radius: 6px;">${e.empCode}</code></td>
+                    <td><code style="font-size: 0.75rem; opacity: 0.8; color: var(--secondary); letter-spacing: 1px;">${e.password}</code></td>
                     <td>
-                        <label class="switch">
-                            <input type="checkbox" ${e.active ? 'checked' : ''} onchange="toggleEmp('${e._id}', this.checked)">
-                            <span class="slider"></span>
-                        </label>
+                        <div style="display: flex; align-items: center; gap: 10px;">
+                            <label class="switch">
+                                <input type="checkbox" ${e.active ? 'checked' : ''} onchange="toggleEmp('${e._id}', this.checked)">
+                                <span class="slider"></span>
+                            </label>
+                            <span class="status-badge ${e.active ? 'status-active' : 'status-inactive'}">
+                                ${e.active ? 'Active' : 'Disabled'}
+                            </span>
+                        </div>
                     </td>
-                    <td><span style="font-size: 0.8rem; color: var(--text-dim);">${e.registeredIP || '<span style="color:var(--primary)">Not Locked Yet</span>'}</span></td>
+                    <td>
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                            ${e.registeredIP ? 
+                                `<i data-lucide="lock" style="width: 12px; color: var(--primary);"></i> <span style="font-size: 0.85rem; font-family: monospace;">${e.registeredIP}</span>` : 
+                                `<i data-lucide="unlock" style="width: 12px; color: var(--text-dim);"></i> <span style="font-size: 0.8rem; color: var(--primary); font-style: italic;">Unbound</span>`
+                            }
+                        </div>
+                    </td>
                     <td>
                         <div style="display: flex; gap: 8px;">
-                            <button class="btn btn-glass" style="padding: 8px 12px; font-size: 0.8rem;" onclick="editStaff('${e._id}', '${e.name}', '${e.empCode}')" title="Edit Staff">
-                                <i data-lucide="edit"></i> Edit
+                            <button class="btn btn-glass" style="padding: 6px 12px; font-size: 0.75rem; border-radius: 8px;" onclick="editStaff('${e._id}', '${e.name}', '${e.empCode}')" title="Edit Staff">
+                                <i data-lucide="edit-3" style="width:14px;"></i> Edit
                             </button>
-                            <button class="btn btn-glass" style="padding: 8px 12px; font-size: 0.8rem;" onclick="resetPassword('${e._id}')" title="Reset Password">
-                                <i data-lucide="key-round"></i> Pass Reset
+                            <button class="btn btn-glass" style="padding: 6px 12px; font-size: 0.75rem; border-radius: 8px;" onclick="resetPassword('${e._id}')" title="Reset Password">
+                                <i data-lucide="refresh-cw" style="width:14px;"></i> Reset
                             </button>
-                            <button class="btn btn-glass" style="padding: 8px 12px; font-size: 0.8rem; color: var(--accent);" onclick="resetIP('${e._id}')" title="Reset IP Lock">
-                                <i data-lucide="unlocked"></i> IP Reset
+                            <button class="btn btn-glass" style="padding: 6px 12px; font-size: 0.75rem; border-radius: 8px; color: var(--accent);" onclick="resetIP('${e._id}')" title="Reset IP Lock">
+                                <i data-lucide="unlocked" style="width:14px;"></i> IP
                             </button>
                         </div>
                     </td>
@@ -591,7 +765,11 @@
             document.getElementById('e_code').value = '';
             document.getElementById('e_pass').value = '';
             document.getElementById('empModalTitle').innerText = 'Register Staff';
+            document.getElementById('empBtnText').innerText = 'Enable Portal Access';
+            document.getElementById('passFieldGroup').style.display = 'block';
+            document.getElementById('empFieldsGrid').style.gridTemplateColumns = '1fr 1fr';
             openModal('empModal');
+            initIcons();
         }
 
         function editStaff(id, name, code) {
@@ -599,7 +777,12 @@
             document.getElementById('e_name').value = name;
             document.getElementById('e_code').value = code;
             document.getElementById('empModalTitle').innerText = 'Edit Staff Details';
+            document.getElementById('empBtnText').innerText = 'Update Staff Details';
+            // Hide password field during basic edit as it's handled by 'Pass Reset' button in table
+            document.getElementById('passFieldGroup').style.display = 'none';
+            document.getElementById('empFieldsGrid').style.gridTemplateColumns = '1fr';
             openModal('empModal');
+            initIcons();
         }
 
         async function saveEmployee() { 
