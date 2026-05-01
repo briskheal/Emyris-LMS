@@ -6,6 +6,8 @@
     <title>Emyris Admin | Control Center</title>
     <link rel="stylesheet" href="style.css">
     <link rel="icon" href="logo.png">
+    <link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
+    <script src="https://cdn.quilljs.com/1.3.6/quill.js"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
     <style>
         /* High-Efficiency Dashboard Overrides */
@@ -64,6 +66,14 @@
         .switch-board { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 1rem; background: rgba(255,255,255,0.02); padding: 1.5rem; border-radius: 15px; border: 1px solid var(--glass-border); }
         .switch-item { display: flex; justify-content: space-between; align-items: center; background: rgba(255,255,255,0.03); padding: 12px 15px; border-radius: 10px; border: 1px solid transparent; transition: all 0.3s; }
         .switch-item.active { border-color: var(--primary); background: rgba(99, 102, 241, 0.1); }
+
+        /* Quill Dark Mode Overrides */
+        .ql-toolbar.ql-snow { background: rgba(255,255,255,0.05); border-color: var(--glass-border) !important; border-radius: 15px 15px 0 0; }
+        .ql-container.ql-snow { border-color: var(--glass-border) !important; font-family: 'Outfit', sans-serif; font-size: 1rem; }
+        .ql-editor { color: white; min-height: 200px; }
+        .ql-stroke { stroke: #cbd5e1 !important; }
+        .ql-fill { fill: #cbd5e1 !important; }
+        .ql-picker { color: #cbd5e1 !important; }
     </style>
 </head>
 <body>
@@ -161,7 +171,10 @@
                     <div id="p_category_switches" class="switch-board"></div>
                 </div>
 
-                <div class="input-group" style="grid-column: span 4;"><label>Scientific Composition / Details</label><textarea id="p_info" rows="5"></textarea></div>
+                <div class="input-group" style="grid-column: span 4;">
+                    <label>Scientific Composition / Clinical Details (HTML Editor)</label>
+                    <div id="p_info_editor" style="height: 250px; background: rgba(255,255,255,0.02); color: white; border-radius: 0 0 15px 15px; border: 1px solid var(--glass-border);"></div>
+                </div>
                 <div class="input-group" style="grid-column: span 2;"><label>Packing Photo</label><input type="file" id="p_image"></div>
                 <div class="input-group" style="grid-column: span 2;"><label>Journals (Select Multiple PDFs)</label><input type="file" id="p_docs" multiple></div>
             </div>
@@ -200,7 +213,24 @@
 
     <script>
         const API = '/api';
-        function initIcons() { lucide.createIcons(); }
+        let quill;
+
+        function initIcons() { 
+            lucide.createIcons(); 
+            if (!quill) {
+                quill = new Quill('#p_info_editor', {
+                    theme: 'snow',
+                    modules: {
+                        toolbar: [
+                            ['bold', 'italic', 'underline'],
+                            [{ 'list': 'ordered'}, { 'list': 'bullet' }],
+                            ['clean']
+                        ]
+                    }
+                });
+            }
+        }
+
         function openModal(id) { document.getElementById(id).style.display = 'flex'; }
         function closeModal(id) { document.getElementById(id).style.display = 'none'; }
         function logout() { window.location.href = '/admin'; }
@@ -212,7 +242,8 @@
             
             document.getElementById('p_title').value = editData ? editData.title : '';
             document.getElementById('p_video_link').value = editData ? editData.videoUrl : '';
-            document.getElementById('p_info').value = editData ? editData.scientificInfo : '';
+            
+            if (quill) quill.root.innerHTML = editData ? editData.scientificInfo : '';
             
             // Build Switches
             const res = await fetch(`${API}/categories`);
@@ -282,7 +313,7 @@
             let docs = [];
             for (let f of document.getElementById('p_docs').files) { docs.push({ name: f.name, data: await b64(f) }); }
 
-            const payload = { title: document.getElementById('p_title').value, category: selectedCat, scientificInfo: document.getElementById('p_info').value, videoUrl: videoUrl };
+            const payload = { title: document.getElementById('p_title').value, category: selectedCat, scientificInfo: quill.root.innerHTML, videoUrl: videoUrl };
             if (img) payload.image = img;
             if (docs.length > 0) payload.documents = docs;
 
