@@ -295,7 +295,7 @@ async function viewDetails(id) {
             </div>
             <div>
                 <h4 style="color: var(--primary); text-transform: uppercase; font-size: 0.8rem; margin-bottom: 1rem;">Scientific Overview</h4>
-                <div style="line-height: 1.8; color: var(--text-dim); margin-bottom: 1rem; font-size: 1.1rem; overflow-wrap: break-word;">${p.scientificInfo}</div>
+                <div class="ql-editor" style="color: var(--text-dim); padding: 0 !important; line-height: 1.8; font-size: 1.1rem;">${p.scientificInfo}</div>
                 
                 ${docsHtml}
                 
