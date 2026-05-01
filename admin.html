@@ -143,8 +143,11 @@
     <!-- Modals -->
     <div id="productModal" class="modal">
         <div class="glass-panel modal-content">
-            <h2>New Scientific Product</h2>
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin: 2rem 0;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+                <h2 style="font-size: 2rem;">New Scientific Product</h2>
+                <button class="btn btn-glass" style="border: none; padding: 10px;" onclick="closeModal('productModal')"><i data-lucide="x"></i></button>
+            </div>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-bottom: 2rem;">
                 <div class="input-group"><label>Title</label><input type="text" id="p_title"></div>
                 <div class="input-group"><label>Category</label><select id="p_category">
                     <option>Injectables</option><option>Enteral Nutrition</option><option>Nutraceuticals</option><option>Pharmaceuticals</option>
@@ -163,8 +166,11 @@
 
     <div id="empModal" class="modal">
         <div class="glass-panel modal-content" style="max-width: 500px;">
-            <h2>Register Staff</h2>
-            <div style="margin: 2rem 0;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+                <h2>Register Staff</h2>
+                <button class="btn btn-glass" style="border: none; padding: 10px;" onclick="closeModal('empModal')"><i data-lucide="x"></i></button>
+            </div>
+            <div style="margin-bottom: 2rem;">
                 <div class="input-group"><label>Full Name</label><input type="text" id="e_name"></div>
                 <div class="input-group"><label>Employee ID</label><input type="text" id="e_code"></div>
                 <div class="input-group"><label>Password</label><input type="text" id="e_pass"></div>
