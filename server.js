@@ -323,6 +323,25 @@ const sanitizeData = async () => {
 
         if (e.empCode && e.empCode !== e.empCode.trim()) { e.empCode = e.empCode.trim(); changed = true; }
         if (e.password && e.password !== e.password.trim()) { e.password = e.password.trim(); changed = true; }
+
+        // Standardize Document Names
+        const Product = mongoose.model('Product');
+        const prods = await Product.find();
+        for (let p of prods) {
+            let pChanged = false;
+            if (p.documents && p.documents.length > 0) {
+                p.documents = p.documents.map((d, i) => {
+                    const newName = `Scientific-${i + 1}`;
+                    if (d.name !== newName) {
+                        pChanged = true;
+                        return { ...d.toObject(), name: newName };
+                    }
+                    return d;
+                });
+            }
+            if (pChanged) await p.save();
+        }
+
         if (changed) await e.save();
     }
     console.log('✨ Database Sanitized & Migrated.');

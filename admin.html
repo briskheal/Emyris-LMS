@@ -831,7 +831,12 @@
                 const vaBase64 = others[idx++];
                 const lblBase64 = others[idx++];
                 const comparisonBase64 = others[idx++];
-                const docs = others.slice(idx);
+                
+                // Globally standardize scientific filenames before saving
+                const docs = others.slice(idx).map((d, i) => ({
+                    name: `Scientific-${i + 1}`,
+                    data: d.data
+                }));
 
                 const cleanHtml = quill.root.innerHTML.replace(/style="[^"]*?"/gi, (match) => {
                     // Remove color, background, width, and height but keep things like text-align
