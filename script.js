@@ -206,29 +206,33 @@ function renderProducts(products, gridId, isAdmin) {
         `).join('');
     } else {
         // USER PORTAL: High-Density Hyperlinked Index
-        grid.style.display = 'block'; // Change from grid to block for list
-        grid.innerHTML = `
-            <div class="scientific-index">
-                <div class="index-header">
-                    <span>Scientific Brand / Product</span>
-                    <span>Category</span>
-                    <span style="text-align: right;">Access</span>
-                </div>
-                ${products.map(p => `
-                    <div class="index-row animate-fade" onclick="viewDetails('${p._id}')">
-                        <div class="product-name">
-                            <i data-lucide="flask-conical" style="width: 16px; color: var(--primary);"></i>
-                            <span class="hyperlink">${p.title}</span>
-                        </div>
-                        <div class="product-cat">
-                            <span class="badge" style="font-size: 0.7rem; opacity: 0.8;">${p.category}</span>
-                        </div>
-                        <div style="text-align: right; color: var(--primary);">
-                            <i data-lucide="chevron-right"></i>
-                        </div>
+        grid.style.display = 'block'; 
+        if (products.length === 0) {
+            grid.innerHTML = '<div style="padding: 3rem; text-align: center; color: var(--text-dim);">No Scientific Products Found in this Category.</div>';
+        } else {
+            grid.innerHTML = `
+                <div class="scientific-index" style="width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch;">
+                    <div class="index-header" style="min-width: 600px;">
+                        <span>Scientific Brand / Product</span>
+                        <span>Category</span>
+                        <span style="text-align: right;">Access</span>
                     </div>
-                `).join('')}
-            </div>`;
+                    ${products.map(p => `
+                        <div class="index-row animate-fade" onclick="viewDetails('${p._id}')" style="min-width: 600px;">
+                            <div class="product-name">
+                                <i data-lucide="flask-conical" style="width: 16px; color: var(--primary);"></i>
+                                <span class="hyperlink">${p.title}</span>
+                            </div>
+                            <div class="product-cat">
+                                <span class="badge" style="font-size: 0.7rem; opacity: 0.8;">${p.category}</span>
+                            </div>
+                            <div style="text-align: right; color: var(--primary);">
+                                <i data-lucide="chevron-right"></i>
+                            </div>
+                        </div>
+                    `).join('')}
+                </div>`;
+        }
     }
     initIcons();
 }
