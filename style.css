@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&family=Inter:wght@400;600;700&family=Plus+Jakarta+Sans:wght@400;600;700&family=Lexend:wght@400;600;700&display=swap');
 
 :root {
     --primary: #6366f1;
@@ -11,13 +11,19 @@
     --text-main: #f8fafc;
     --text-dim: #94a3b8;
     --card-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+    
+    /* Font Selection Tokens */
+    --font-outfit: 'Outfit', sans-serif;
+    --font-inter: 'Inter', sans-serif;
+    --font-jakarta: 'Plus Jakarta Sans', sans-serif;
+    --font-lexend: 'Lexend', sans-serif;
 }
 
 * {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
-    font-family: 'Outfit', sans-serif;
+    font-family: var(--app-font, 'Outfit', sans-serif);
 }
 
 body {

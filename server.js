@@ -81,11 +81,18 @@ const ProductSchema = new mongoose.Schema({
     scientificInfo: String,
     dosageInfo: String,
     indications: String,
-    image: String, // Packing/Product Photo
-    videoUrl: String, // YouTube or Direct Link
+    image: String, // Packing/Product Photo (Primary)
+    packshots: [String], // Array of additional photos
+    vaPage: String, // Visual Aid Page (File URL)
+    lblPage: String, // Label Page (File URL)
+    comparisonChart: String, // Competitor Comparison Chart (File URL)
+    videoUrl: String, // YouTube or Direct Link (General)
+    videoDetailing: String, // Video Detailing (Direct File URL)
+    pitch15s: String, // 15-sec pitch content
+    pitch30s: String, // 30-sec pitch content
     documents: [{ 
         name: String, 
-        data: String // Base64 PDF/Doc
+        data: String // Base64 or URL
     }],
     faqs: [{
         question: String,
@@ -118,6 +125,7 @@ const CompanySchema = new mongoose.Schema({
     phone: String,
     website: String,
     tollFree: String,
+    appFont: { type: String, default: "'Outfit', sans-serif" },
     updatedAt: { type: Date, default: Date.now }
 });
 
@@ -126,11 +134,32 @@ const CategorySchema = new mongoose.Schema({
     active: { type: Boolean, default: true }
 });
 
+const AssessmentSchema = new mongoose.Schema({
+    brand: String, // Associated brand/product name
+    questions: [{
+        question: String,
+        options: [String],
+        correctAnswer: Number // Index (0-3)
+    }]
+});
+
+const UserScoreSchema = new mongoose.Schema({
+    empCode: String,
+    empName: String, // Added to store employee name at completion
+    brand: String,
+    score: Number,
+    totalQuestions: Number,
+    badge: String, // 'Gold', 'Silver', 'Bronze'
+    completedAt: { type: Date, default: Date.now }
+});
+
 const Product = mongoose.model('Product', ProductSchema);
 const Employee = mongoose.model('Employee', EmployeeSchema);
 const Company = mongoose.model('Company', CompanySchema);
 const Category = mongoose.model('Category', CategorySchema);
 const LoginLog = mongoose.model('LoginLog', LoginLogSchema);
+const Assessment = mongoose.model('Assessment', AssessmentSchema);
+const UserScore = mongoose.model('UserScore', UserScoreSchema);
 
 // --- API ENDPOINTS ---
 
@@ -189,7 +218,7 @@ app.post('/api/auth/login', async (req, res) => {
                 status: 'Success' 
             });
 
-            return res.json({ success: true, role: 'employee', name: emp.name });
+            return res.json({ success: true, role: 'employee', name: emp.name, empCode: emp.empCode });
         } else {
             await LoginLog.create({ 
                 empCode, 
@@ -344,6 +373,57 @@ app.post('/api/categories', async (req, res) => {
 app.patch('/api/categories/:id', async (req, res) => {
     await Category.findByIdAndUpdate(req.params.id, req.body);
     res.json({ success: true });
+});
+
+// --- ASSESSMENT ENDPOINTS ---
+app.get('/api/assessments', async (req, res) => {
+    try {
+        const assessments = await Assessment.find();
+        res.json({ success: true, assessments });
+    } catch (e) { res.status(500).json({ success: false }); }
+});
+
+app.get('/api/assessments/:brand', async (req, res) => {
+    try {
+        const assessment = await Assessment.findOne({ brand: req.params.brand });
+        res.json({ success: true, assessment });
+    } catch (e) { res.status(500).json({ success: false }); }
+});
+
+app.post('/api/assessments', async (req, res) => {
+    try {
+        const { brand, questions } = req.body;
+        await Assessment.findOneAndUpdate({ brand }, { questions }, { upsert: true });
+        res.json({ success: true });
+    } catch (e) { res.status(500).json({ success: false }); }
+});
+
+app.post('/api/scores', async (req, res) => {
+    try {
+        const { empCode, empName, brand, score, totalQuestions } = req.body;
+        let badge = 'Bronze';
+        const percent = (score / totalQuestions) * 100;
+        if (percent >= 90) badge = 'Gold';
+        else if (percent >= 70) badge = 'Silver';
+        
+        const userScore = new UserScore({ empCode, empName, brand, score, totalQuestions, badge });
+        await userScore.save();
+        res.json({ success: true, badge });
+    } catch (e) { res.status(500).json({ success: false }); }
+});
+
+app.get('/api/scores/:empCode', async (req, res) => {
+    try {
+        const scores = await UserScore.find({ empCode: req.params.empCode }).sort({ completedAt: -1 });
+        res.json({ success: true, scores });
+    } catch (e) { res.status(500).json({ success: false }); }
+});
+
+app.get('/api/admin/scores', async (req, res) => {
+    try {
+        const scores = await UserScore.find().sort({ completedAt: -1 });
+        res.json({ success: true, scores });
+    } catch (e) { res.status(500).json({ success: false }); }
 });
 
 // Serve Frontend

@@ -35,6 +35,9 @@ async function fetchBranding() {
         if (data.website) {
             document.getElementById('display_website').innerText = `🌐 ${data.website}`;
         }
+        if (data.appFont) {
+            document.documentElement.style.setProperty('--app-font', data.appFont);
+        }
 
         // Fetch and Render Categories
         const catRes = await fetch(`${API_URL}/categories`);
@@ -290,18 +293,52 @@ async function viewDetails(id) {
         if (p.videoUrl.includes('youtube.com') || p.videoUrl.includes('youtu.be')) {
             const vidId = p.videoUrl.split('v=')[1]?.split('&')[0] || p.videoUrl.split('/').pop();
             videoHtml = `
-                <div class="video-container" style="margin-top: 2rem;">
+                <div class="video-container" style="margin-top: 1rem;">
                     <iframe src="https://www.youtube.com/embed/${vidId}" frameborder="0" allowfullscreen></iframe>
                 </div>`;
         } else {
             videoHtml = `
-                <div class="video-container" style="margin-top: 2rem;">
+                <div class="video-container" style="margin-top: 1rem;">
                     <video controls style="width: 100%; border-radius: 15px; border: 1px solid var(--glass-border);">
                         <source src="${p.videoUrl}" type="video/mp4">
                         Your browser does not support the video tag.
                     </video>
                 </div>`;
         }
+    }
+
+    let packshotsHtml = '';
+    if (p.packshots && p.packshots.length > 0) {
+        packshotsHtml = `
+            <div style="margin-top: 1.5rem;">
+                <h4 style="color: var(--primary); text-transform: uppercase; font-size: 0.7rem; margin-bottom: 0.8rem;">Additional Packshots</h4>
+                <div style="display: flex; gap: 10px; overflow-x: auto; padding-bottom: 10px;">
+                    ${p.packshots.map(img => `<img src="${img}" style="height: 100px; border-radius: 8px; border: 1px solid var(--glass-border); cursor: pointer;" onclick="window.open('${img}')">`).join('')}
+                </div>
+            </div>
+        `;
+    }
+
+    let detailButtonsHtml = `
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.8rem; margin-top: 1.5rem;">
+            ${p.vaPage ? `<button class="btn btn-glass" onclick="window.open('${p.vaPage}')"><i data-lucide="eye"></i> View VA Page</button>` : ''}
+            ${p.lblPage ? `<button class="btn btn-glass" onclick="window.open('${p.lblPage}')"><i data-lucide="download"></i> Download LBL</button>` : ''}
+            ${p.comparisonChart ? `<button class="btn btn-glass" style="grid-column: span 2;" onclick="window.open('${p.comparisonChart}')"><i data-lucide="bar-chart-2"></i> Competitor Comparison</button>` : ''}
+            ${p.videoDetailing ? `<button class="btn btn-primary" style="grid-column: span 2;" onclick="playDetailingVideo('${p.videoDetailing}')"><i data-lucide="play-circle"></i> Play Detailing Video</button>` : ''}
+        </div>
+    `;
+
+    let pitchesHtml = '';
+    if (p.pitch15s || p.pitch30s) {
+        pitchesHtml = `
+            <div style="margin-top: 2rem; background: rgba(255,255,255,0.02); padding: 1.5rem; border-radius: 15px; border: 1px solid var(--glass-border);">
+                <h4 style="color: var(--primary); text-transform: uppercase; font-size: 0.8rem; margin-bottom: 1rem;">Quick Pitch Library</h4>
+                <div style="display: flex; gap: 1rem;">
+                    ${p.pitch15s ? `<button class="btn btn-glass" onclick="showPitch('15-Sec Pitch', \`${p.pitch15s}\`)">15-sec Pitch</button>` : ''}
+                    ${p.pitch30s ? `<button class="btn btn-glass" onclick="showPitch('30-Sec Pitch', \`${p.pitch30s}\`)">30-sec Pitch</button>` : ''}
+                </div>
+            </div>
+        `;
     }
 
     let docsHtml = '';
@@ -337,11 +374,17 @@ async function viewDetails(id) {
                         <span class="badge">${p.category}</span>
                         <h2 style="font-size: 2rem; margin-top: 0.5rem; line-height: 1.1;">${p.title}</h2>
                     </div>
+                    ${packshotsHtml}
+                    ${detailButtonsHtml}
                     ${videoHtml}
+                    <button class="btn btn-primary" style="width: 100%; margin-top: 2rem; background: linear-gradient(45deg, #f59e0b, #d97706); border: none;" onclick="startAssessment('${p.title}')">
+                        <i data-lucide="graduation-cap"></i> Take Assessment Test
+                    </button>
                 </div>
                 <div>
                     <h4 style="color: var(--primary); text-transform: uppercase; font-size: 0.8rem; margin-bottom: 1rem;">Scientific Overview</h4>
                     <div class="ql-editor" style="color: var(--text-dim); padding: 0 !important; line-height: 1.8; font-size: 1.1rem;">${p.scientificInfo}</div>
+                    ${pitchesHtml}
                     ${docsHtml}
                 </div>
             </div>
@@ -382,6 +425,125 @@ async function viewDetails(id) {
         </div>
     `;
     openModal('detailModal');
+    initIcons();
+}
+
+function playDetailingVideo(url) {
+    const modal = document.createElement('div');
+    modal.className = 'modal';
+    modal.style.display = 'flex';
+    modal.innerHTML = `
+        <div class="glass-panel animate-fade" style="max-width: 90%; width: 1000px; padding: 1rem;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                <h3 style="margin: 0;">Scientific Detailing Video</h3>
+                <button class="btn btn-glass" onclick="this.parentElement.parentElement.parentElement.remove()"><i data-lucide="x"></i></button>
+            </div>
+            <video controls autoplay style="width: 100%; border-radius: 12px;">
+                <source src="${url}" type="video/mp4">
+            </video>
+        </div>
+    `;
+    document.body.appendChild(modal);
+    initIcons();
+}
+
+function showPitch(title, content) {
+    const modal = document.createElement('div');
+    modal.className = 'modal';
+    modal.style.display = 'flex';
+    modal.innerHTML = `
+        <div class="glass-panel animate-fade" style="max-width: 600px; padding: 2.5rem;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+                <h3 style="margin: 0;">${title}</h3>
+                <button class="btn btn-glass" onclick="this.parentElement.parentElement.parentElement.remove()"><i data-lucide="x"></i></button>
+            </div>
+            <div style="font-size: 1.2rem; line-height: 1.6; color: var(--text-dim); white-space: pre-line;">${content}</div>
+        </div>
+    `;
+    document.body.appendChild(modal);
+    initIcons();
+}
+
+// --- ASSESSMENT FLOW ---
+async function startAssessment(brand) {
+    const res = await fetch(`${API_URL}/assessments/${brand}`);
+    const data = await res.json();
+    if (!data.assessment || data.assessment.questions.length === 0) {
+        alert('No assessment available for this brand yet.');
+        return;
+    }
+
+    const questions = data.assessment.questions;
+    let currentQ = 0;
+    let score = 0;
+
+    const renderQuestion = () => {
+        const q = questions[currentQ];
+        const content = document.getElementById('assessContent');
+        content.innerHTML = `
+            <div class="animate-fade">
+                <div style="margin-bottom: 1.5rem; display: flex; justify-content: space-between; align-items: center;">
+                    <span style="color: var(--primary); font-weight: 700;">Question ${currentQ + 1} of ${questions.length}</span>
+                    <span style="font-size: 0.8rem; opacity: 0.6;">Score: ${score}</span>
+                </div>
+                <h3 style="font-size: 1.5rem; margin-bottom: 2rem;">${q.question}</h3>
+                <div style="display: grid; grid-template-columns: 1fr; gap: 1rem;">
+                    ${q.options.map((opt, i) => `
+                        <button class="btn btn-glass" style="text-align: left; padding: 1.2rem; font-size: 1.1rem;" onclick="submitAnswer(${i})">${opt}</button>
+                    `).join('')}
+                </div>
+            </div>
+        `;
+        initIcons();
+    };
+
+    window.submitAnswer = async (index) => {
+        if (index === questions[currentQ].correctAnswer) {
+            score++;
+            alert('✅ Correct!');
+        } else {
+            alert('❌ Incorrect.');
+        }
+
+        currentQ++;
+        if (currentQ < questions.length) {
+            renderQuestion();
+        } else {
+            finishAssessment(brand, score, questions.length);
+        }
+    };
+
+    renderQuestion();
+    openModal('assessmentModal');
+}
+
+async function finishAssessment(brand, score, total) {
+    const res = await fetch(`${API_URL}/scores`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ 
+            empCode: loggedInUser.empCode || 'test', 
+            empName: loggedInUser.name || 'Anonymous',
+            brand, 
+            score, 
+            totalQuestions: total 
+        })
+    });
+    const data = await res.json();
+    
+    const content = document.getElementById('assessContent');
+    content.innerHTML = `
+        <div style="text-align: center; padding: 2rem;" class="animate-fade">
+            <i data-lucide="award" style="width: 80px; height: 80px; color: #f59e0b; margin-bottom: 1.5rem;"></i>
+            <h2 style="font-size: 2.5rem; margin-bottom: 1rem;">Assessment Complete!</h2>
+            <p style="font-size: 1.2rem; color: var(--text-dim); margin-bottom: 2rem;">You scored <strong>${score} out of ${total}</strong></p>
+            <div style="background: rgba(255,255,255,0.05); padding: 2rem; border-radius: 20px; border: 1px solid var(--glass-border);">
+                <p style="text-transform: uppercase; letter-spacing: 2px; font-size: 0.8rem; margin-bottom: 0.5rem;">Badge Earned</p>
+                <h3 style="font-size: 2rem; color: ${data.badge === 'Gold' ? '#fbbf24' : data.badge === 'Silver' ? '#94a3b8' : '#b45309'}">${data.badge} Badge</h3>
+            </div>
+            <button class="btn btn-primary" style="margin-top: 3rem; padding: 12px 40px;" onclick="closeModal('assessmentModal')">Close Assessment</button>
+        </div>
+    `;
     initIcons();
 }
 

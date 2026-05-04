@@ -76,6 +76,16 @@
         <div class="glass-panel modal-content animate-fade" id="detailContent"></div>
     </div>
 
+    <div id="assessmentModal" class="modal">
+        <div class="glass-panel modal-content animate-fade" style="max-width: 800px !important; padding: 3rem !important;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+                <h2 id="assessTitle" style="font-size: 2rem;">Knowledge Check</h2>
+                <button class="btn btn-glass" onclick="closeModal('assessmentModal')"><i data-lucide="x"></i></button>
+            </div>
+            <div id="assessContent"></div>
+        </div>
+    </div>
+
     <script src="script.js"></script>
 </body>
 </html>
