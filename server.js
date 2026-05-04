@@ -295,14 +295,25 @@ app.post('/api/employees', async (req, res) => {
 
 // Data Sanitizer (Runs once on startup)
 const sanitizeData = async () => {
+    // Migrate machineId to machineId1 if it exists as an unmapped property
     const emps = await Employee.find();
     for (let e of emps) {
         let changed = false;
+        
+        // Use .toObject() or access via .get() to see unmapped fields
+        const raw = e.toObject({ virtuals: false });
+        if (raw.machineId && !e.machineId1) {
+            e.machineId1 = raw.machineId;
+            e.set('machineId', undefined); // Remove old field
+            changed = true;
+            console.log(`[MIGRATION] Moved Machine ID for ${e.name} to Primary Slot.`);
+        }
+
         if (e.empCode && e.empCode !== e.empCode.trim()) { e.empCode = e.empCode.trim(); changed = true; }
         if (e.password && e.password !== e.password.trim()) { e.password = e.password.trim(); changed = true; }
         if (changed) await e.save();
     }
-    console.log('✨ Database Sanitized: All whitespace removed from credentials.');
+    console.log('✨ Database Sanitized & Migrated.');
 };
 // sanitizeData(); // Moved to connection .then() block for stability
 

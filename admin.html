@@ -1096,7 +1096,8 @@
             const res = await fetch(`${API}/employees`); 
             const data = await res.json(); 
             const body = document.getElementById('empTableBody'); 
-            body.innerHTML = data.map(e => `
+            if (!data.employees) return;
+            body.innerHTML = data.employees.map(e => `
                 <tr style="border-bottom: 1px solid var(--glass-border);">
                     <td style="padding: 1.2rem 1.5rem; font-weight: 600;">${e.name}</td>
                     <td><code style="color: var(--primary); font-weight: 700; background: rgba(99, 102, 241, 0.1); padding: 4px 8px; border-radius: 6px;">${e.empCode}</code></td>
