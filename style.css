@@ -333,33 +333,56 @@ nav {
 .faq-item-ui.active .faq-question-ui i { transform: rotate(180deg); opacity: 1; }
 .faq-item-ui.active { background: rgba(99, 102, 241, 0.05); border-color: var(--primary-glow); }
 
-/* Scientific Editor Responsiveness */
+/* Scientific Editor Responsiveness - STRICT MOBILE-FIRST */
 .ql-editor {
-    word-wrap: break-word;
-    overflow-wrap: break-word;
-    text-align: justify;
+    word-wrap: break-word !important;
+    overflow-wrap: break-word !important;
+    text-align: justify !important;
+    hyphens: auto !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    overflow-x: hidden !important;
+    padding: 0 !important;
 }
+
+/* Force-strip any pasted desktop styles */
 .ql-editor * {
     max-width: 100% !important;
+    width: auto !important;
+    height: auto !important;
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+    box-sizing: border-box !important;
+    font-size: 1rem !important; /* Standard mobile font size */
+    line-height: 1.6 !important;
 }
+
 .ql-editor img {
+    display: block !important;
     max-width: 100% !important;
     height: auto !important;
+    margin: 1rem auto !important;
+    border-radius: 8px;
 }
 
 .ql-editor table {
     width: 100% !important;
     max-width: 100% !important;
-    display: block;
-    overflow-x: auto;
-    border-collapse: collapse;
-}
-.ql-editor iframe {
-    max-width: 100% !important;
-}
-
-@media (max-width: 768px) {
-    .detail-image-container { height: 250px !important; }
+    display: block !important;
+    overflow-x: auto !important;
+    -webkit-overflow-scrolling: touch !important;
+    border-collapse: collapse !important;
+    margin: 1rem 0 !important;
+    table-layout: auto !important;
 }
 
+.ql-editor td, .ql-editor th {
+    padding: 8px !important;
+    min-width: 80px !important;
+    word-break: break-word !important;
+}
 
+
+
+@ m e d i a   ( m a x - w i d t h :   7 6 8 p x )   {   . d e t a i l - i m a g e - c o n t a i n e r   {   h e i g h t :   2 5 0 p x   ! i m p o r t a n t ;   }   }  
+ 
