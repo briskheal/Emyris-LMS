@@ -558,11 +558,23 @@ function toggleFaq(el) {
     if (!isActive) item.classList.add('active');
 }
 
-function downloadDoc(name, data) {
-    const link = document.createElement('a');
-    link.href = data;
-    link.download = name;
-    link.click();
+async function downloadDoc(name, data) {
+    try {
+        const response = await fetch(data);
+        const blob = await response.blob();
+        const url = window.URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = name;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        window.URL.revokeObjectURL(url);
+    } catch (e) {
+        console.error('Download failed', e);
+        // Fallback: Open in new tab if blob fetch fails
+        window.open(data, '_blank');
+    }
 }
 
 // --- UTILS ---
