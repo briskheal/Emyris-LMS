@@ -385,14 +385,18 @@ async function viewDetails(id) {
                     ${packshotsHtml}
                     ${detailButtonsHtml}
                     ${videoHtml}
-                    <button class="btn btn-primary" style="width: 100%; margin-top: 2rem; background: linear-gradient(45deg, #f59e0b, #d97706); border: none;" onclick="startAssessment('${p.title}')">
+                    <button class="btn btn-primary" style="width: 100%; margin-top: 2rem; background: linear-gradient(45deg, #f59e0b, #d97706); border: none; white-space: normal; height: auto; padding: 15px;" onclick="startAssessment(`${p.title.replace(/'/g, "\\'")}`)">
                         <i data-lucide="graduation-cap"></i> Take Assessment Test
                     </button>
                 </div>
                 <div>
                     <h4 style="color: var(--primary); text-transform: uppercase; font-size: 0.8rem; margin-bottom: 1rem;">Scientific Overview</h4>
-                    <div class="ql-editor" style="color: var(--text-dim); padding: 0 !important; line-height: 1.8; font-size: 1.1rem; height: auto !important; overflow: visible !important; text-align: justify;">
-                        ${p.scientificInfo.replace(/style="[^"]*?"/gi, m => m.replace(/(?:width|height|font-size|line-height):[^;]+;?/gi, ''))}
+                    <div class="ql-editor" style="color: var(--text-dim); padding: 0 !important; line-height: 1.8; font-size: 1.1rem; height: auto !important; overflow-x: hidden !important; text-align: justify; word-break: break-word;">
+                        ${p.scientificInfo
+                            .replace(/width="[^"]*?"/gi, 'width="100%"')
+                            .replace(/height="[^"]*?"/gi, 'height="auto"')
+                            .replace(/style="[^"]*?"/gi, m => m.replace(/(?:width|height|font-size|line-height):[^;]+;?|width:[^;]+;?/gi, 'width:100%;'))
+                        }
                     </div>
                     ${pitchesHtml}
                     ${docsHtml}
