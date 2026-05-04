@@ -351,13 +351,13 @@ async function viewDetails(id) {
             <div style="margin-top: 2rem; border-top: 1px solid var(--glass-border); padding-top: 1.5rem;">
                 <h4 style="color: var(--primary); text-transform: uppercase; font-size: 0.75rem; margin-bottom: 1.2rem;">Scientific Resources</h4>
                 <div style="display: flex; flex-direction: column; gap: 0.8rem;">
-                    ${p.documents.map(doc => `
+                    ${p.documents.map((doc, index) => `
                         <div style="display: flex; align-items: center; gap: 12px; width: 100%; margin-bottom: 10px; justify-content: flex-start !important; text-align: left !important;">
                             <button class="btn btn-glass" style="padding: 0; min-width: 40px; width: 40px; height: 40px; border-radius: 10px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; background: rgba(255,255,255,0.05); margin: 0 !important;" onclick="downloadDoc('${doc.name}', '${doc.data}')">
                                 <i data-lucide="download" style="width: 20px; color: var(--primary);"></i>
                             </button>
                             <span style="font-size: 0.95rem; color: var(--text-main); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; flex: 1; text-align: left !important; font-weight: 500;">
-                                ${doc.name}
+                                Scientific-${index + 1}
                             </span>
                         </div>
                     `).join('')}
