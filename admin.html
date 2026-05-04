@@ -730,6 +730,24 @@
             initIcons();
         }
 
+        async function compressFile(file) {
+            const stream = file.stream();
+            const compressedStream = stream.pipeThrough(new CompressionStream('gzip'));
+            const chunks = [];
+            const reader = compressedStream.getReader();
+            while (true) {
+                const { done, value } = await reader.read();
+                if (done) break;
+                chunks.push(value);
+            }
+            const blob = new Blob(chunks);
+            return new Promise((resolve) => {
+                const reader = new FileReader();
+                reader.readAsDataURL(blob);
+                reader.onload = () => resolve('gz:' + reader.result); // Prefix to identify compressed data
+            });
+        }
+
         function toBase64(file) {
             return new Promise((resolve, reject) => {
                 const reader = new FileReader();
@@ -774,15 +792,15 @@
             const docFiles = Array.from(document.getElementById('p_docs').files);
 
             try {
-                // High-Intensity Parallel Processing (Mixed Cloud & Base64)
+                // High-Intensity Parallel Processing (Mixed Cloud & Compressed Base64)
                 const [imageUrl, videoDetailingUrl, ...others] = await Promise.all([
                     uploadFile(imageFile),
                     uploadFile(videoDetailingFile),
                     ...packshotFiles.map(f => uploadFile(f)),
-                    vaFile ? toBase64(vaFile) : Promise.resolve(null),
-                    lblFile ? toBase64(lblFile) : Promise.resolve(null),
-                    comparisonFile ? toBase64(comparisonFile) : Promise.resolve(null),
-                    ...docFiles.map(async f => ({ name: f.name, data: await toBase64(f) }))
+                    vaFile ? compressFile(vaFile) : Promise.resolve(null),
+                    lblFile ? compressFile(lblFile) : Promise.resolve(null),
+                    comparisonFile ? compressFile(comparisonFile) : Promise.resolve(null),
+                    ...docFiles.map(async f => ({ name: f.name, data: await compressFile(f) }))
                 ]);
 
                 // Sort out indices

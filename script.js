@@ -560,19 +560,42 @@ function toggleFaq(el) {
 
 async function downloadDoc(name, data) {
     try {
-        // If it's a data URL (Base64 stored in DB), we can download directly
-        if (data.startsWith('data:')) {
+        let finalData = data;
+        let isCompressed = data.startsWith('gz:');
+
+        if (isCompressed) {
+            // Remove prefix and fetch as blob
+            const base64Data = data.substring(3);
+            const res = await fetch(base64Data);
+            const blob = await res.blob();
+            
+            // Decompress
+            const decompressedStream = blob.stream().pipeThrough(new DecompressionStream('gzip'));
+            const chunks = [];
+            const reader = decompressedStream.getReader();
+            while (true) {
+                const { done, value } = await reader.read();
+                if (done) break;
+                chunks.push(value);
+            }
+            const decompressedBlob = new Blob(chunks);
+            finalData = window.URL.createObjectURL(decompressedBlob);
+        }
+
+        // If it's a direct data URL (not gz compressed) or fallback
+        if (finalData.startsWith('data:') || finalData.startsWith('blob:')) {
             const link = document.createElement('a');
-            link.href = data;
+            link.href = finalData;
             link.download = name;
             document.body.appendChild(link);
             link.click();
             document.body.removeChild(link);
+            if (finalData.startsWith('blob:')) window.URL.revokeObjectURL(finalData);
             return;
         }
 
         // For external URLs (like Cloudinary), use the Blob fetch method
-        const response = await fetch(data);
+        const response = await fetch(finalData);
         const blob = await response.blob();
         const url = window.URL.createObjectURL(blob);
         const link = document.createElement('a');
@@ -584,7 +607,7 @@ async function downloadDoc(name, data) {
         window.URL.revokeObjectURL(url);
     } catch (e) {
         console.error('Download failed', e);
-        window.open(data, '_blank');
+        window.open(data.replace('gz:', ''), '_blank');
     }
 }
 
