@@ -833,8 +833,9 @@
                 const comparisonBase64 = others[idx++];
                 const docs = others.slice(idx);
 
-                const cleanHtml = quill.root.innerHTML.replace(/style="[^"]*?(?:color|background-color)[^"]*?"/gi, (match) => {
-                    return match.replace(/color:[^;]+;?/gi, '').replace(/background-color:[^;]+;?/gi, '');
+                const cleanHtml = quill.root.innerHTML.replace(/style="[^"]*?"/gi, (match) => {
+                    // Remove color, background, width, and height but keep things like text-align
+                    return match.replace(/(?:color|background-color|width|height|font-size|line-height):[^;]+;?/gi, '');
                 });
 
                 const faqs = [];

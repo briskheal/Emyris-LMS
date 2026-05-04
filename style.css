@@ -337,11 +337,16 @@ nav {
 .ql-editor {
     word-wrap: break-word;
     overflow-wrap: break-word;
+    text-align: justify;
+}
+.ql-editor * {
+    max-width: 100% !important;
 }
 .ql-editor img {
     max-width: 100% !important;
     height: auto !important;
 }
+
 .ql-editor table {
     width: 100% !important;
     max-width: 100% !important;

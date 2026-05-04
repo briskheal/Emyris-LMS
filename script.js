@@ -387,7 +387,9 @@ async function viewDetails(id) {
                 </div>
                 <div>
                     <h4 style="color: var(--primary); text-transform: uppercase; font-size: 0.8rem; margin-bottom: 1rem;">Scientific Overview</h4>
-                    <div class="ql-editor" style="color: var(--text-dim); padding: 0 !important; line-height: 1.8; font-size: 1.1rem; height: auto !important; overflow: visible !important;">${p.scientificInfo}</div>
+                    <div class="ql-editor" style="color: var(--text-dim); padding: 0 !important; line-height: 1.8; font-size: 1.1rem; height: auto !important; overflow: visible !important; text-align: justify;">
+                        ${p.scientificInfo.replace(/style="[^"]*?"/gi, m => m.replace(/(?:width|height|font-size|line-height):[^;]+;?/gi, ''))}
+                    </div>
                     ${pitchesHtml}
                     ${docsHtml}
                 </div>
