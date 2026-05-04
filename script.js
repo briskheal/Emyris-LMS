@@ -385,7 +385,7 @@ async function viewDetails(id) {
                     ${packshotsHtml}
                     ${detailButtonsHtml}
                     ${videoHtml}
-                    <button class="btn btn-primary" style="width: 100%; margin-top: 2rem; background: linear-gradient(45deg, #f59e0b, #d97706); border: none; white-space: normal; height: auto; padding: 15px;" onclick="startAssessment(`${p.title.replace(/'/g, "\\'")}`)">
+                    <button class="btn btn-primary" style="width: 100%; margin-top: 2rem; background: linear-gradient(45deg, #f59e0b, #d97706); border: none; white-space: normal; height: auto; padding: 15px;" onclick="startAssessment('${p.title.replace(/'/g, "\\'")}')">
                         <i data-lucide="graduation-cap"></i> Take Assessment Test
                     </button>
                 </div>
