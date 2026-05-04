@@ -191,32 +191,39 @@ app.post('/api/auth/login', async (req, res) => {
             const { machineId } = req.body;
             
             if (machineId && machineId !== 'N/A') {
+                // On-the-fly migration for legacy accounts
+                if (!emp.machineId1 && !emp.machineId2) {
+                    const raw = emp.toObject({ virtuals: false });
+                    const legacyId = raw.machineId || emp.get('machineId');
+                    if (legacyId) {
+                        emp.machineId1 = legacyId;
+                        console.log(`[MIGRATION] On-the-fly migration for ${emp.name}: ${legacyId}`);
+                    }
+                }
+
                 const mid1 = emp.machineId1 ? emp.machineId1.trim() : null;
                 const mid2 = emp.machineId2 ? emp.machineId2.trim() : null;
 
-                if (!mid1) {
-                    // Register first device
+                console.log(`[AUTH] Checking Device - User: ${emp.name}, Current: ${machineId}, Registered: [${mid1}, ${mid2}]`);
+
+                if (!mid1 || mid1 === 'null' || mid1 === '') {
                     emp.machineId1 = machineId;
                     console.log(`[SECURITY] Registered Primary Machine ID for ${emp.name}: ${machineId}`);
                 } else if (mid1 === machineId) {
-                    // Primary device match - proceed
                     console.log(`[SECURITY] Primary Device Match for ${emp.name}`);
-                } else if (!mid2) {
-                    // Register second device
+                } else if (!mid2 || mid2 === 'null' || mid2 === '') {
                     emp.machineId2 = machineId;
                     console.log(`[SECURITY] Registered Secondary Machine ID for ${emp.name}: ${machineId}`);
                 } else if (mid2 === machineId) {
-                    // Secondary device match - proceed
                     console.log(`[SECURITY] Secondary Device Match for ${emp.name}`);
                 } else {
-                    // Both slots filled and none match
-                    console.warn(`[SECURITY] Device Mismatch for ${emp.name}. Expected: [${mid1}, ${mid2}], Got: ${machineId}`);
+                    console.warn(`[SECURITY] Device Blocked for ${emp.name}. Expected: [${mid1}, ${mid2}], Got: ${machineId}`);
                     await LoginLog.create({ 
                         empCode, name: emp.name, ip: clientIP, machineId, status: 'Blocked (Device Limit)' 
                     });
                     return res.status(403).json({ 
                         success: false, 
-                        message: 'Unauthorized Device. Both registered slots are full. Please contact Admin.',
+                        message: `Unauthorized Device. This account is already locked to two other machines. Registered: ${mid1} and ${mid2}. Current: ${machineId}.`,
                         securityCode: 'DEVICE_LIMIT_EXCEEDED'
                     });
                 }

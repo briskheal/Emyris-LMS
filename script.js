@@ -567,10 +567,14 @@ async function downloadDoc(name, data) {
         let isCompressed = data.startsWith('gz:');
 
         if (isCompressed) {
-            // Remove prefix and fetch as blob
-            const base64Data = data.substring(3);
-            const res = await fetch(base64Data);
-            const blob = await res.blob();
+            // Remove prefix and convert base64 to Blob manually (more robust than fetch for large data URLs)
+            const base64Content = data.substring(3).split(',')[1];
+            const binaryString = atob(base64Content);
+            const bytes = new Uint8Array(binaryString.length);
+            for (let i = 0; i < binaryString.length; i++) {
+                bytes[i] = binaryString.charCodeAt(i);
+            }
+            const blob = new Blob([bytes], { type: 'application/gzip' });
             
             // Decompress
             const decompressedStream = blob.stream().pipeThrough(new DecompressionStream('gzip'));
@@ -581,36 +585,23 @@ async function downloadDoc(name, data) {
                 if (done) break;
                 chunks.push(value);
             }
-            const decompressedBlob = new Blob(chunks);
+            const decompressedBlob = new Blob(chunks, { type: 'application/pdf' });
             finalData = window.URL.createObjectURL(decompressedBlob);
         }
 
-        // If it's a direct data URL (not gz compressed) or fallback
-        if (finalData.startsWith('data:') || finalData.startsWith('blob:')) {
-            const link = document.createElement('a');
-            link.href = finalData;
-            link.download = name;
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-            if (finalData.startsWith('blob:')) window.URL.revokeObjectURL(finalData);
-            return;
-        }
-
-        // For external URLs (like Cloudinary), use the Blob fetch method
-        const response = await fetch(finalData);
-        const blob = await response.blob();
-        const url = window.URL.createObjectURL(blob);
+        // Trigger Download
         const link = document.createElement('a');
-        link.href = url;
-        link.download = name;
+        link.href = finalData.startsWith('gz:') ? finalData.substring(3) : finalData;
+        link.download = name.endsWith('.pdf') ? name : name + '.pdf';
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);
-        window.URL.revokeObjectURL(url);
+        if (finalData.startsWith('blob:')) setTimeout(() => window.URL.revokeObjectURL(finalData), 100);
     } catch (e) {
         console.error('Download failed', e);
-        window.open(data.replace('gz:', ''), '_blank');
+        // Clean fallback
+        const fallbackUrl = data.startsWith('gz:') ? data.substring(3) : data;
+        window.open(fallbackUrl, '_blank');
     }
 }
 
