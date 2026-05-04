@@ -352,11 +352,11 @@ async function viewDetails(id) {
                 <h4 style="color: var(--primary); text-transform: uppercase; font-size: 0.75rem; margin-bottom: 1.2rem;">Scientific Resources</h4>
                 <div style="display: flex; flex-direction: column; gap: 0.8rem;">
                     ${p.documents.map(doc => `
-                        <div style="display: flex; align-items: center; gap: 12px; width: 100%; margin-bottom: 8px;">
-                            <button class="btn btn-glass" style="padding: 0; min-width: 38px; width: 38px; height: 38px; border-radius: 10px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; background: rgba(255,255,255,0.05);" onclick="downloadDoc('${doc.name}', '${doc.data}')">
-                                <i data-lucide="download" style="width: 18px; color: var(--primary);"></i>
+                        <div style="display: flex; align-items: center; gap: 12px; width: 100%; margin-bottom: 10px; justify-content: flex-start !important; text-align: left !important;">
+                            <button class="btn btn-glass" style="padding: 0; min-width: 40px; width: 40px; height: 40px; border-radius: 10px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; background: rgba(255,255,255,0.05); margin: 0 !important;" onclick="downloadDoc('${doc.name}', '${doc.data}')">
+                                <i data-lucide="download" style="width: 20px; color: var(--primary);"></i>
                             </button>
-                            <span style="font-size: 0.9rem; color: var(--text-main); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; flex: 1; text-align: left; font-weight: 500;">
+                            <span style="font-size: 0.95rem; color: var(--text-main); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; flex: 1; text-align: left !important; font-weight: 500;">
                                 ${doc.name}
                             </span>
                         </div>
