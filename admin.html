@@ -730,6 +730,15 @@
             initIcons();
         }
 
+        function toBase64(file) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.readAsDataURL(file);
+                reader.onload = () => resolve(reader.result);
+                reader.onerror = error => reject(error);
+            });
+        }
+
         async function uploadFile(file) {
             if (!file) return null;
             const formData = new FormData();
@@ -753,7 +762,7 @@
             }
 
             saveBtn.disabled = true;
-            saveBtn.innerHTML = '<i data-lucide="loader-2" class="animate-spin"></i> Syncing Assets...';
+            saveBtn.innerHTML = '<i data-lucide="loader-2" class="animate-spin"></i> Processing Assets...';
 
             // Files
             const imageFile = document.getElementById('p_image').files[0];
@@ -765,20 +774,25 @@
             const docFiles = Array.from(document.getElementById('p_docs').files);
 
             try {
-                // Upload files in parallel
-                const [imageUrl, vaUrl, lblUrl, comparisonUrl, videoDetailingUrl, ...others] = await Promise.all([
+                // High-Intensity Parallel Processing (Mixed Cloud & Base64)
+                const [imageUrl, videoDetailingUrl, ...others] = await Promise.all([
                     uploadFile(imageFile),
-                    uploadFile(vaFile),
-                    uploadFile(lblFile),
-                    uploadFile(comparisonFile),
                     uploadFile(videoDetailingFile),
                     ...packshotFiles.map(f => uploadFile(f)),
-                    ...docFiles.map(async f => ({ name: f.name, data: await uploadFile(f) }))
+                    vaFile ? toBase64(vaFile) : Promise.resolve(null),
+                    lblFile ? toBase64(lblFile) : Promise.resolve(null),
+                    comparisonFile ? toBase64(comparisonFile) : Promise.resolve(null),
+                    ...docFiles.map(async f => ({ name: f.name, data: await toBase64(f) }))
                 ]);
 
-                // Sort out others (packshots and docs)
-                const packshots = others.slice(0, packshotFiles.length).filter(u => u);
-                const docs = others.slice(packshotFiles.length);
+                // Sort out indices
+                let idx = 0;
+                const packshots = others.slice(idx, idx + packshotFiles.length).filter(u => u);
+                idx += packshotFiles.length;
+                const vaBase64 = others[idx++];
+                const lblBase64 = others[idx++];
+                const comparisonBase64 = others[idx++];
+                const docs = others.slice(idx);
 
                 const cleanHtml = quill.root.innerHTML.replace(/style="[^"]*?(?:color|background-color)[^"]*?"/gi, (match) => {
                     return match.replace(/color:[^;]+;?/gi, '').replace(/background-color:[^;]+;?/gi, '');
@@ -803,9 +817,9 @@
 
                 if (imageUrl) payload.image = imageUrl;
                 if (packshots.length > 0) payload.packshots = packshots;
-                if (vaUrl) payload.vaPage = vaUrl;
-                if (lblUrl) payload.lblPage = lblUrl;
-                if (comparisonUrl) payload.comparisonChart = comparisonUrl;
+                if (vaBase64) payload.vaPage = vaBase64;
+                if (lblBase64) payload.lblPage = lblBase64;
+                if (comparisonBase64) payload.comparisonChart = comparisonBase64;
                 if (videoDetailingUrl) payload.videoDetailing = videoDetailingUrl;
                 if (docs.length > 0) payload.documents = docs;
 
@@ -822,7 +836,7 @@
                 }
             } catch (err) {
                 console.error(err);
-                alert('❌ Sync Failed: ' + err.message);
+                alert('❌ Process Failed: ' + err.message);
             } finally {
                 saveBtn.disabled = false;
                 saveBtn.innerHTML = originalBtnHtml;

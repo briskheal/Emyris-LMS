@@ -560,6 +560,18 @@ function toggleFaq(el) {
 
 async function downloadDoc(name, data) {
     try {
+        // If it's a data URL (Base64 stored in DB), we can download directly
+        if (data.startsWith('data:')) {
+            const link = document.createElement('a');
+            link.href = data;
+            link.download = name;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            return;
+        }
+
+        // For external URLs (like Cloudinary), use the Blob fetch method
         const response = await fetch(data);
         const blob = await response.blob();
         const url = window.URL.createObjectURL(blob);
@@ -572,7 +584,6 @@ async function downloadDoc(name, data) {
         window.URL.revokeObjectURL(url);
     } catch (e) {
         console.error('Download failed', e);
-        // Fallback: Open in new tab if blob fetch fails
         window.open(data, '_blank');
     }
 }
