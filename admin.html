@@ -301,18 +301,18 @@
                     <h1 style="font-size: 2rem;">Employee Hub</h1>
                     <p style="color: var(--text-dim); font-size: 0.9rem;">Manage Staff Access & Security</p>
                 </div>
-                <button class="btn btn-primary" onclick="openAddStaffModal()"><i data-lucide="user-plus"></i> Register Staff</button>
+                <button class="btn btn-primary" onclick="openEmpModal()"><i data-lucide="user-plus"></i> Register Staff</button>
             </div>
             <div class="glass-panel scroll-area" style="padding: 0;">
                 <table class="premium-table" style="width: 100%; border-collapse: collapse; text-align: left;">
                     <thead style="background: rgba(255,255,255,0.05); position: sticky; top: 0; z-index: 10;">
                         <tr>
-                            <th style="padding: 1.2rem 1.5rem;"><i data-lucide="user" style="width: 14px; vertical-align: middle; margin-right: 5px;"></i> Staff Name</th>
-                            <th><i data-lucide="id-card" style="width: 14px; vertical-align: middle; margin-right: 5px;"></i> Login ID</th>
-                            <th><i data-lucide="key" style="width: 14px; vertical-align: middle; margin-right: 5px;"></i> Password</th>
-                            <th><i data-lucide="activity" style="width: 14px; vertical-align: middle; margin-right: 5px;"></i> Status</th>
-                            <th><i data-lucide="monitor" style="width: 14px; vertical-align: middle; margin-right: 5px;"></i> Machine Registration</th>
-                            <th><i data-lucide="settings-2" style="width: 14px; vertical-align: middle; margin-right: 5px;"></i> Actions</th>
+                            <th style="padding: 1.2rem 1.5rem;">Staff Member</th>
+                            <th>Login ID</th>
+                            <th>Primary Device</th>
+                            <th>Secondary Device</th>
+                            <th>Status</th>
+                            <th style="text-align: right; padding-right: 2rem;">Actions</th>
                         </tr>
                     </thead>
                     <tbody id="empTableBody"></tbody>
@@ -321,6 +321,11 @@
         </section>
 
         <!-- 4. SECURITY LOGS -->
+        <section id="securityLogs" class="tab-section">
+            <div style="margin-bottom: 1.5rem;">
+                <h1 style="font-size: 2rem;">Security Logs</h1>
+                <p style="color: var(--text-dim); font-size: 0.9rem;">Monitor Portal Access & Device Changes</p>
+            </div>
             <div class="glass-panel scroll-area" style="padding: 0;">
                 <table style="width: 100%; border-collapse: collapse; text-align: left;">
                     <thead style="background: rgba(255,255,255,0.05); position: sticky; top: 0; z-index: 10;">
