@@ -348,15 +348,17 @@ async function viewDetails(id) {
     let docsHtml = '';
     if (p.documents && p.documents.length > 0) {
         docsHtml = `
-            <div style="margin-top: 2rem;">
-                <h4 style="color: var(--primary); text-transform: uppercase; font-size: 0.8rem; margin-bottom: 1rem;">Scientific Journals & Content</h4>
-                <div style="display: flex; flex-direction: column; gap: 0.5rem;">
+            <div style="margin-top: 2rem; border-top: 1px solid var(--glass-border); padding-top: 1.5rem;">
+                <h4 style="color: var(--primary); text-transform: uppercase; font-size: 0.75rem; margin-bottom: 1.2rem;">Scientific Resources</h4>
+                <div style="display: flex; flex-direction: column; gap: 0.8rem;">
                     ${p.documents.map(doc => `
-                        <div class="glass-panel" style="padding: 10px 15px; display: flex; justify-content: space-between; align-items: center; border-radius: 10px;">
-                            <span style="font-size: 0.9rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 70%;">${doc.name}</span>
-                            <button class="btn btn-glass" style="padding: 5px 12px; font-size: 0.8rem;" onclick="downloadDoc('${doc.name}', '${doc.data}')">
-                                <i data-lucide="download"></i> Download
+                        <div style="display: flex; align-items: center; gap: 10px; width: 100%;">
+                            <button class="btn btn-glass" style="padding: 6px; min-width: 36px; height: 36px; border-radius: 8px; justify-content: center; flex-shrink: 0;" onclick="downloadDoc('${doc.name}', '${doc.data}')" title="Download">
+                                <i data-lucide="download" style="width: 16px;"></i>
                             </button>
+                            <span style="font-size: 0.85rem; color: var(--text-dim); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-weight: 500;">
+                                ${doc.name.length > 25 ? doc.name.substring(0, 22) + '...' : doc.name}
+                            </span>
                         </div>
                     `).join('')}
                 </div>
