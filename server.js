@@ -190,22 +190,27 @@ app.post('/api/auth/login', async (req, res) => {
             // --- DUAL DEVICE LOCKING LOGIC ---
             const { machineId } = req.body;
             
-            if (machineId) {
-                if (!emp.machineId1) {
+            if (machineId && machineId !== 'N/A') {
+                const mid1 = emp.machineId1 ? emp.machineId1.trim() : null;
+                const mid2 = emp.machineId2 ? emp.machineId2.trim() : null;
+
+                if (!mid1) {
                     // Register first device
                     emp.machineId1 = machineId;
                     console.log(`[SECURITY] Registered Primary Machine ID for ${emp.name}: ${machineId}`);
-                } else if (emp.machineId1 === machineId) {
+                } else if (mid1 === machineId) {
                     // Primary device match - proceed
-                } else if (!emp.machineId2) {
+                    console.log(`[SECURITY] Primary Device Match for ${emp.name}`);
+                } else if (!mid2) {
                     // Register second device
                     emp.machineId2 = machineId;
                     console.log(`[SECURITY] Registered Secondary Machine ID for ${emp.name}: ${machineId}`);
-                } else if (emp.machineId2 === machineId) {
+                } else if (mid2 === machineId) {
                     // Secondary device match - proceed
+                    console.log(`[SECURITY] Secondary Device Match for ${emp.name}`);
                 } else {
                     // Both slots filled and none match
-                    console.warn(`[SECURITY] Device Mismatch for ${emp.name}. Current: ${machineId}`);
+                    console.warn(`[SECURITY] Device Mismatch for ${emp.name}. Expected: [${mid1}, ${mid2}], Got: ${machineId}`);
                     await LoginLog.create({ 
                         empCode, name: emp.name, ip: clientIP, machineId, status: 'Blocked (Device Limit)' 
                     });
@@ -341,7 +346,7 @@ app.patch('/api/employees/:id/status', async (req, res) => {
 
 app.patch('/api/employees/:id/reset-lock', async (req, res) => {
     try {
-        await Employee.findByIdAndUpdate(req.params.id, { machineId: null });
+        await Employee.findByIdAndUpdate(req.params.id, { machineId1: null, machineId2: null });
         res.json({ success: true });
     } catch (e) { res.status(500).json({ success: false }); }
 });

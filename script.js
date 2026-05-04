@@ -383,11 +383,14 @@ async function viewDetails(id) {
                 </div>
                 <div>
                     <h4 style="color: var(--primary); text-transform: uppercase; font-size: 0.8rem; margin-bottom: 1rem;">Scientific Overview</h4>
-                    <div class="ql-editor" style="color: var(--text-dim); padding: 0 !important; line-height: 1.8; font-size: 1.1rem;">${p.scientificInfo}</div>
+                    <div class="ql-editor" style="color: var(--text-dim); padding: 0 !important; line-height: 1.8; font-size: 1.1rem; height: auto !important; overflow: visible !important;">${p.scientificInfo}</div>
                     ${pitchesHtml}
                     ${docsHtml}
                 </div>
             </div>
+
+            <!-- Clearfix for FAQ spacing -->
+            <div style="clear: both; height: 1px;"></div>
 
             ${p.faqs && p.faqs.length > 0 ? `
                 <div style="margin-top: 3rem; border-top: 1px solid var(--glass-border); padding-top: 2rem;">
