@@ -353,3 +353,8 @@ nav {
     max-width: 100% !important;
 }
 
+@media (max-width: 768px) {
+    .detail-image-container { height: 250px !important; }
+}
+
+

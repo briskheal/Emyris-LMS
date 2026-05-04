@@ -369,8 +369,12 @@ async function viewDetails(id) {
             
             <div style="display: grid; grid-template-columns: 1fr 1.5fr; gap: 2.5rem;" class="detail-mobile-stack">
                 <div>
-                    ${p.image ? `<img src="${p.image}" style="width:100%; border-radius:16px; border:1px solid var(--glass-border);">` : ''}
-                    <div style="margin-top: 1.5rem;">
+                    ${p.image ? `
+                        <div style="background: rgba(0,0,0,0.3); border-radius: 16px; border: 1px solid var(--glass-border); height: 350px; display: flex; align-items: center; justify-content: center; overflow: hidden; margin-bottom: 1.5rem;" class="detail-image-container">
+                            <img src="${p.image}" style="max-width: 100%; max-height: 100%; object-fit: contain; filter: drop-shadow(0 10px 20px rgba(0,0,0,0.3));">
+                        </div>
+                    ` : ''}
+                    <div style="margin-top: 0;">
                         <span class="badge">${p.category}</span>
                         <h2 style="font-size: 2rem; margin-top: 0.5rem; line-height: 1.1;">${p.title}</h2>
                     </div>
