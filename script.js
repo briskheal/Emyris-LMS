@@ -352,12 +352,12 @@ async function viewDetails(id) {
                 <h4 style="color: var(--primary); text-transform: uppercase; font-size: 0.75rem; margin-bottom: 1.2rem;">Scientific Resources</h4>
                 <div style="display: flex; flex-direction: column; gap: 0.8rem;">
                     ${p.documents.map(doc => `
-                        <div style="display: flex; align-items: center; gap: 10px; width: 100%;">
-                            <button class="btn btn-glass" style="padding: 6px; min-width: 36px; height: 36px; border-radius: 8px; justify-content: center; flex-shrink: 0;" onclick="downloadDoc('${doc.name}', '${doc.data}')" title="Download">
-                                <i data-lucide="download" style="width: 16px;"></i>
+                        <div style="display: flex; align-items: center; gap: 12px; width: 100%; margin-bottom: 8px;">
+                            <button class="btn btn-glass" style="padding: 0; min-width: 38px; width: 38px; height: 38px; border-radius: 10px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; background: rgba(255,255,255,0.05);" onclick="downloadDoc('${doc.name}', '${doc.data}')">
+                                <i data-lucide="download" style="width: 18px; color: var(--primary);"></i>
                             </button>
-                            <span style="font-size: 0.85rem; color: var(--text-dim); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-weight: 500;">
-                                ${doc.name.length > 25 ? doc.name.substring(0, 22) + '...' : doc.name}
+                            <span style="font-size: 0.9rem; color: var(--text-main); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; flex: 1; text-align: left; font-weight: 500;">
+                                ${doc.name}
                             </span>
                         </div>
                     `).join('')}
@@ -392,12 +392,11 @@ async function viewDetails(id) {
                     </button>
                 </div>
                 <div>
-                    <h4 style="color: var(--primary); text-transform: uppercase; font-size: 0.8rem; margin-bottom: 1rem;">Scientific Overview</h4>
                     <div class="ql-editor" style="color: var(--text-dim); padding: 0 !important; line-height: 1.8; font-size: 1.1rem; height: auto !important; overflow-x: hidden !important; text-align: justify; word-break: break-word;">
                         ${p.scientificInfo
                             .replace(/width="[^"]*?"/gi, 'width="100%"')
                             .replace(/height="[^"]*?"/gi, 'height="auto"')
-                            .replace(/style="[^"]*?"/gi, m => m.replace(/(?:width|height|font-size|line-height):[^;]+;?|width:[^;]+;?/gi, 'width:100%;'))
+                            .replace(/style="[^"]*?"/gi, m => m.replace(/(?:width|height|font-size|line-height):[^;]+;?/gi, ''))
                         }
                     </div>
                     ${pitchesHtml}

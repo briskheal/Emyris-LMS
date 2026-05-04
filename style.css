@@ -348,7 +348,6 @@ nav {
 /* Force-strip any pasted desktop styles */
 .ql-editor * {
     max-width: 100% !important;
-    width: auto !important;
     height: auto !important;
     margin-left: 0 !important;
     margin-right: 0 !important;
