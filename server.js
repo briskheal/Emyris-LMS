@@ -106,7 +106,8 @@ const EmployeeSchema = new mongoose.Schema({
     password: { type: String, required: true },
     name: String,
     active: { type: Boolean, default: true },
-    machineId: { type: String, default: null }, // Device-based lock
+    machineId1: { type: String, default: null }, // Primary Device
+    machineId2: { type: String, default: null }, // Secondary Device
     lastLogin: Date
 });
 
@@ -186,23 +187,32 @@ app.post('/api/auth/login', async (req, res) => {
         if (emp) {
             if (!emp.active) return res.status(403).json({ success: false, message: 'Account Deactivated' });
 
-            // --- DEVICE LOCKING LOGIC ---
+            // --- DUAL DEVICE LOCKING LOGIC ---
             const { machineId } = req.body;
             
             if (machineId) {
-                if (!emp.machineId) {
+                if (!emp.machineId1) {
                     // Register first device
-                    emp.machineId = machineId;
-                    console.log(`[SECURITY] Registered first Machine ID for ${emp.name}: ${machineId}`);
-                } else if (emp.machineId !== machineId) {
-                    console.warn(`[SECURITY] Device Mismatch for ${emp.name}. Registered: ${emp.machineId}, Current: ${machineId}`);
+                    emp.machineId1 = machineId;
+                    console.log(`[SECURITY] Registered Primary Machine ID for ${emp.name}: ${machineId}`);
+                } else if (emp.machineId1 === machineId) {
+                    // Primary device match - proceed
+                } else if (!emp.machineId2) {
+                    // Register second device
+                    emp.machineId2 = machineId;
+                    console.log(`[SECURITY] Registered Secondary Machine ID for ${emp.name}: ${machineId}`);
+                } else if (emp.machineId2 === machineId) {
+                    // Secondary device match - proceed
+                } else {
+                    // Both slots filled and none match
+                    console.warn(`[SECURITY] Device Mismatch for ${emp.name}. Current: ${machineId}`);
                     await LoginLog.create({ 
-                        empCode, name: emp.name, ip: clientIP, machineId, status: 'Blocked (Device)' 
+                        empCode, name: emp.name, ip: clientIP, machineId, status: 'Blocked (Device Limit)' 
                     });
                     return res.status(403).json({ 
                         success: false, 
-                        message: 'Unauthorized Device. Please contact Admin to register this machine.',
-                        securityCode: 'DEVICE_MISMATCH'
+                        message: 'Unauthorized Device. Both registered slots are full. Please contact Admin.',
+                        securityCode: 'DEVICE_LIMIT_EXCEEDED'
                     });
                 }
             }

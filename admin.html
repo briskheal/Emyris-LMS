@@ -518,20 +518,36 @@
                     </div>
                 </div>
                 
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;" id="empFieldsGrid">
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
                     <div class="input-group">
-                        <label>Employee ID</label>
+                        <label>Employee Code</label>
                         <div class="input-with-icon">
                             <i data-lucide="hash"></i>
-                            <input type="text" id="e_code" placeholder="EMP-001">
+                            <input type="text" id="e_code" placeholder="e.g. EMP001">
                         </div>
                     </div>
-                    <div class="input-group" id="passFieldGroup">
-                        <label>Access Password</label>
+                    <div class="input-group">
+                        <label>Portal Key (Password)</label>
                         <div class="input-with-icon">
                             <i data-lucide="key"></i>
-                            <input type="text" id="e_pass" placeholder="••••••••">
+                            <input type="text" id="e_pass" placeholder="Password">
                         </div>
+                    </div>
+                </div>
+
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; padding: 1.5rem; background: rgba(255,255,255,0.02); border-radius: 15px; border: 1px solid var(--glass-border);">
+                    <div class="input-group" style="margin-bottom: 0;">
+                        <label style="font-size: 0.75rem; color: var(--primary);">Machine ID 1 (Primary)</label>
+                        <input type="text" id="e_machine1" placeholder="Registered Device ID 1" readonly style="background: rgba(0,0,0,0.2); font-family: monospace; font-size: 0.8rem;">
+                    </div>
+                    <div class="input-group" style="margin-bottom: 0;">
+                        <label style="font-size: 0.75rem; color: var(--primary);">Machine ID 2 (Secondary)</label>
+                        <input type="text" id="e_machine2" placeholder="Registered Device ID 2" readonly style="background: rgba(0,0,0,0.2); font-family: monospace; font-size: 0.8rem;">
+                    </div>
+                    <div style="grid-column: span 2; display: flex; justify-content: flex-end; margin-top: 10px;">
+                        <button class="btn btn-glass" style="font-size: 0.7rem; padding: 5px 12px;" onclick="resetDevices()">
+                            <i data-lucide="refresh-cw" style="width:12px;"></i> Reset Device Locks
+                        </button>
                     </div>
                 </div>
 
@@ -1069,7 +1085,6 @@
                 appFont: document.getElementById('c_font').value
             };
             
-            const logoFile = document.getElementById('c_logo_file').files[0];
             if (logoFile) payload.logo = await uploadFile(logoFile);
 
             await fetch(`${API}/company`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
@@ -1080,11 +1095,13 @@
         async function fetchEmployees() { 
             const res = await fetch(`${API}/employees`); 
             const data = await res.json(); 
-            document.getElementById('empTableBody').innerHTML = data.employees.map(e => `
+            const body = document.getElementById('empTableBody'); 
+            body.innerHTML = data.map(e => `
                 <tr style="border-bottom: 1px solid var(--glass-border);">
                     <td style="padding: 1.2rem 1.5rem; font-weight: 600;">${e.name}</td>
                     <td><code style="color: var(--primary); font-weight: 700; background: rgba(99, 102, 241, 0.1); padding: 4px 8px; border-radius: 6px;">${e.empCode}</code></td>
-                    <td><code style="font-size: 0.75rem; opacity: 0.8; color: var(--secondary); letter-spacing: 1px;">${e.password}</code></td>
+                    <td><div style="font-size: 0.75rem; font-family: monospace;">${e.machineId1 || '<span style="color:var(--text-dim)">None</span>'}</div></td>
+                    <td><div style="font-size: 0.75rem; font-family: monospace;">${e.machineId2 || '<span style="color:var(--text-dim)">None</span>'}</div></td>
                     <td>
                         <div style="display: flex; align-items: center; gap: 10px;">
                             <label class="switch">
@@ -1096,29 +1113,61 @@
                             </span>
                         </div>
                     </td>
-                    <td>
-                        <div style="display: flex; flex-direction: column; gap: 4px;">
-                            ${e.machineId ? 
-                                `<div style="display: flex; align-items: center; gap: 8px;"><i data-lucide="monitor" style="width: 12px; color: var(--primary);"></i> <span style="font-size: 0.75rem; font-family: monospace; color: #fff;">${e.machineId}</span></div>` : 
-                                `<div style="display: flex; align-items: center; gap: 8px;"><i data-lucide="unlock" style="width: 12px; color: var(--text-dim);"></i> <span style="font-size: 0.75rem; color: var(--primary); font-style: italic;">No Device Bound</span></div>`
-                            }
-                        </div>
-                    </td>
-                    <td>
-                        <div style="display: flex; gap: 8px;">
-                            <button class="btn btn-glass" style="padding: 6px 12px; font-size: 0.75rem; border-radius: 8px;" onclick="editStaff('${e._id}', '${e.name}', '${e.empCode}')" title="Edit Staff">
+                    <td style="text-align: right; padding-right: 2rem;">
+                        <div style="display: flex; gap: 8px; justify-content: flex-end;">
+                            <button class="btn btn-glass" style="padding: 6px 12px; font-size: 0.75rem;" onclick='openEmpModal(${JSON.stringify(e)})'>
                                 <i data-lucide="edit-3" style="width:14px;"></i> Edit
                             </button>
-                            <button class="btn btn-glass" style="padding: 6px 12px; font-size: 0.75rem; border-radius: 8px;" onclick="resetPassword('${e._id}')" title="Reset Password">
-                                <i data-lucide="refresh-cw" style="width:14px;"></i> Reset
-                            </button>
-                            <button class="btn btn-glass" style="padding: 6px 12px; font-size: 0.75rem; border-radius: 8px; color: var(--accent);" onclick="resetLock('${e._id}')" title="Reset Security Lock">
-                                <i data-lucide="unlocked" style="width:14px;"></i> Lock
+                            <button class="btn btn-glass" style="padding: 6px 12px; font-size: 0.75rem; color: var(--accent);" onclick="deleteEmployee('${e._id}')">
+                                <i data-lucide="trash-2" style="width:14px;"></i> Delete
                             </button>
                         </div>
                     </td>
                 </tr>`).join(''); 
             initIcons();
+        }
+
+        function openEmpModal(data = null) {
+            document.getElementById('e_id').value = data ? data._id : '';
+            document.getElementById('e_name').value = data ? data.name : '';
+            document.getElementById('e_code').value = data ? data.empCode : '';
+            document.getElementById('e_pass').value = data ? data.password : '';
+            document.getElementById('e_machine1').value = data ? (data.machineId1 || '') : '';
+            document.getElementById('e_machine2').value = data ? (data.machineId2 || '') : '';
+            document.getElementById('empModalTitle').innerText = data ? 'Edit Staff Credentials' : 'Register Staff Member';
+            openModal('empModal');
+        }
+
+        function resetDevices() {
+            document.getElementById('e_machine1').value = '';
+            document.getElementById('e_machine2').value = '';
+        }
+
+        async function saveEmployee() {
+            const id = document.getElementById('e_id').value;
+            const payload = {
+                name: document.getElementById('e_name').value,
+                empCode: document.getElementById('e_code').value,
+                password: document.getElementById('e_pass').value,
+                machineId1: document.getElementById('e_machine1').value,
+                machineId2: document.getElementById('e_machine2').value
+            };
+            const method = id ? 'PATCH' : 'POST';
+            const url = id ? `${API}/employees/${id}` : `${API}/employees`;
+            await fetch(url, { method, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
+            closeModal('empModal');
+            fetchEmployees();
+        }
+
+        async function deleteEmployee(id) {
+            if (!confirm('Permanently delete this staff member?')) return;
+            await fetch(`${API}/employees/${id}`, { method: 'DELETE' });
+            fetchEmployees();
+        }
+
+        async function toggleEmp(id, active) { 
+            await fetch(`${API}/employees/${id}/status`, { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ active }) }); 
+            fetchEmployees(); 
         }
 
         async function fetchLogs() {
@@ -1134,65 +1183,6 @@
             `).join('');
             initIcons();
         }
-
-        async function resetLock(id) {
-            if (!confirm('Reset Security Lock for this employee? They will be locked to the next device they use.')) return;
-            await fetch(`${API}/employees/${id}/reset-lock`, { method: 'PATCH' });
-            fetchEmployees();
-        }
-
-        function openAddStaffModal() {
-            document.getElementById('e_id').value = '';
-            document.getElementById('e_name').value = '';
-            document.getElementById('e_code').value = '';
-            document.getElementById('e_pass').value = '';
-            document.getElementById('empModalTitle').innerText = 'Register Staff';
-            document.getElementById('empBtnText').innerText = 'Enable Portal Access';
-            document.getElementById('passFieldGroup').style.display = 'block';
-            document.getElementById('empFieldsGrid').style.gridTemplateColumns = '1fr 1fr';
-            openModal('empModal');
-            initIcons();
-        }
-
-        function editStaff(id, name, code) {
-            document.getElementById('e_id').value = id;
-            document.getElementById('e_name').value = name;
-            document.getElementById('e_code').value = code;
-            document.getElementById('empModalTitle').innerText = 'Edit Staff Details';
-            document.getElementById('empBtnText').innerText = 'Update Staff Details';
-            // Hide password field during basic edit as it's handled by 'Pass Reset' button in table
-            document.getElementById('passFieldGroup').style.display = 'none';
-            document.getElementById('empFieldsGrid').style.gridTemplateColumns = '1fr';
-            openModal('empModal');
-            initIcons();
-        }
-
-        async function saveEmployee() { 
-            const id = document.getElementById('e_id').value;
-            const payload = { 
-                name: document.getElementById('e_name').value, 
-                empCode: document.getElementById('e_code').value 
-            };
-            if (!id) payload.password = document.getElementById('e_pass').value;
-
-            const method = id ? 'PATCH' : 'POST';
-            const url = id ? `${API}/employees/${id}` : `${API}/employees`;
-            await fetch(url, { method, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) }); 
-            closeModal('empModal'); 
-            fetchEmployees(); 
-        }
-
-        async function resetPassword(id) {
-            const newPass = Math.random().toString(36).slice(-8).toUpperCase();
-            if (!confirm(`Generate new password: ${newPass}?`)) return;
-            await fetch(`${API}/employees/${id}`, {
-                method: 'PATCH',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ password: newPass })
-            });
-            fetchEmployees();
-        }
-        async function toggleEmp(id, active) { await fetch(`${API}/employees/${id}/status`, { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ active }) }); fetchEmployees(); }
 
         window.onload = initIcons;
     </script>
