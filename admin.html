@@ -20,8 +20,9 @@
         .compact-card { padding: 2rem; margin-bottom: 0; }
         .main-content { 
             margin-left: 240px; 
-            padding: 2rem;
+            padding: 1.5rem;
             min-height: 100vh;
+            overflow-x: hidden;
         }
         .modal-content { 
             width: 1400px; 
@@ -158,17 +159,17 @@
 
         /* Table Enhancements */
         .premium-table th {
-            padding: 1rem 1.2rem;
+            padding: 0.8rem 1rem;
             text-transform: uppercase;
-            font-size: 0.7rem;
+            font-size: 0.65rem;
             letter-spacing: 0.1em;
             color: #818cf8;
             border-bottom: 1px solid rgba(255,255,255,0.1);
         }
 
         .premium-table td {
-            padding: 0.9rem 1.2rem;
-            font-size: 0.85rem;
+            padding: 0.8rem 1rem;
+            font-size: 0.8rem;
             color: #e2e8f0;
         }
         .premium-table tr {
@@ -1331,8 +1332,8 @@
             if (!data.employees) return;
             body.innerHTML = data.employees.map(e => `
                 <tr style="border-bottom: 1px solid var(--glass-border);">
-                    <td style="padding: 1.2rem 1.5rem; font-weight: 600;">${e.name}</td>
-                    <td><code style="color: #818cf8; font-weight: 700; background: rgba(129, 140, 248, 0.1); padding: 4px 8px; border-radius: 6px;">${e.empCode}</code></td>
+                    <td style="padding: 1rem; font-weight: 700; font-size: 0.75rem; color: white;">${e.name}</td>
+                    <td><code style="color: #818cf8; font-weight: 700; background: rgba(129, 140, 248, 0.1); padding: 3px 6px; border-radius: 4px; font-size: 0.7rem;">${e.empCode}</code></td>
                     <td>
                         <div style="display: flex; align-items: center; gap: 8px;">
                             <span id="pass_${e._id}" style="font-family: 'JetBrains Mono', monospace; color: #fbbf24; font-weight: 700; font-size: 0.8rem;">••••••••</span>
