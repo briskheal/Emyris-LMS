@@ -520,12 +520,13 @@
                 <table class="premium-table" style="width: 100%; border-collapse: collapse; text-align: left;">
                     <thead style="background: rgba(255,255,255,0.05); position: sticky; top: 0; z-index: 10;">
                         <tr>
-                            <th style="padding: 1.2rem 1.5rem;">Staff Member</th>
-                            <th>Login ID</th>
-                            <th>Primary Device</th>
-                            <th>Secondary Device</th>
-                            <th>Status</th>
-                            <th style="text-align: right; padding-right: 2rem;">Actions</th>
+                            <th style="padding: 1rem 1.2rem;">Staff Name</th>
+                            <th>Registry ID</th>
+                            <th>Portal Key</th>
+                            <th>Primary Slot</th>
+                            <th>Secondary Slot</th>
+                            <th>Access</th>
+                            <th style="text-align: right; padding-right: 2rem;">Security Actions</th>
                         </tr>
                     </thead>
                     <tbody id="empTableBody"></tbody>
@@ -1331,9 +1332,17 @@
             body.innerHTML = data.employees.map(e => `
                 <tr style="border-bottom: 1px solid var(--glass-border);">
                     <td style="padding: 1.2rem 1.5rem; font-weight: 600;">${e.name}</td>
-                    <td><code style="color: var(--primary); font-weight: 700; background: rgba(99, 102, 241, 0.1); padding: 4px 8px; border-radius: 6px;">${e.empCode}</code></td>
-                    <td><div style="font-size: 0.75rem; font-family: monospace;">${e.machineId1 || '<span style="color:var(--text-dim)">None</span>'}</div></td>
-                    <td><div style="font-size: 0.75rem; font-family: monospace;">${e.machineId2 || '<span style="color:var(--text-dim)">None</span>'}</div></td>
+                    <td><code style="color: #818cf8; font-weight: 700; background: rgba(129, 140, 248, 0.1); padding: 4px 8px; border-radius: 6px;">${e.empCode}</code></td>
+                    <td>
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                            <span id="pass_${e._id}" style="font-family: 'JetBrains Mono', monospace; color: #fbbf24; font-weight: 700; font-size: 0.8rem;">••••••••</span>
+                            <button class="btn btn-glass" style="padding: 4px; border: none; background: transparent;" onclick="togglePassVisibility('${e._id}', '${e.password}')">
+                                <i data-lucide="eye" style="width: 14px; opacity: 0.5;"></i>
+                            </button>
+                        </div>
+                    </td>
+                    <td><div style="font-size: 0.75rem; font-family: 'JetBrains Mono', monospace; opacity: 0.8;">${e.machineId1 || '<span style="color:#64748b">None</span>'}</div></td>
+                    <td><div style="font-size: 0.75rem; font-family: 'JetBrains Mono', monospace; opacity: 0.8;">${e.machineId2 || '<span style="color:#64748b">None</span>'}</div></td>
                     <td>
                         <div style="display: flex; align-items: center; gap: 10px;">
                             <label class="switch">
@@ -1398,6 +1407,15 @@
             if (!confirm('Permanently delete this staff member?')) return;
             await fetch(`${API}/employees/${id}`, { method: 'DELETE' });
             fetchEmployees();
+        }
+
+        function togglePassVisibility(id, pass) {
+            const el = document.getElementById(`pass_${id}`);
+            if (el.innerText === '••••••••') {
+                el.innerText = pass;
+            } else {
+                el.innerText = '••••••••';
+            }
         }
 
         async function quickResetPassword(id, name) {
