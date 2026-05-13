@@ -275,17 +275,38 @@
 
         .premium-input-group {
             position: relative;
+            background: rgba(255, 255, 255, 0.02);
+            padding: 1.5rem;
+            border-radius: 24px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            transition: all 0.4s cubic-bezier(0.23, 1, 0.32, 1);
+        }
+
+        .premium-input-group:hover {
+            background: rgba(255, 255, 255, 0.04);
+            border-color: rgba(99, 102, 241, 0.2);
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
         }
 
         .premium-input-group label {
-            font-size: 0.7rem;
+            font-size: 0.65rem;
             font-weight: 800;
-            color: #6366f1;
+            color: #818cf8;
             text-transform: uppercase;
-            letter-spacing: 0.1em;
-            margin-bottom: 0.8rem;
-            display: block;
-            opacity: 0.8;
+            letter-spacing: 0.15em;
+            margin-bottom: 1.2rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            opacity: 0.9;
+        }
+
+        .premium-input-group label::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: linear-gradient(90deg, rgba(129, 140, 248, 0.3), transparent);
         }
 
         .input-wrapper {
@@ -298,31 +319,31 @@
             left: 1.25rem;
             top: 50%;
             transform: translateY(-50%);
-            color: rgba(255,255,255,0.3);
+            color: #818cf8;
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            width: 18px;
-            height: 18px;
+            width: 20px;
+            height: 20px;
             pointer-events: none;
             z-index: 5;
+            filter: drop-shadow(0 0 8px rgba(129, 140, 248, 0.3));
         }
 
         .input-wrapper input {
             width: 100% !important;
             padding: 1.2rem 1.2rem 1.2rem 3.8rem !important;
-            background: rgba(99, 102, 241, 0.05) !important;
-            border: 1px solid rgba(99, 102, 241, 0.2) !important;
-            border-radius: 18px !important;
+            background: rgba(0, 0, 0, 0.2) !important;
+            border: 1px solid rgba(255, 255, 255, 0.08) !important;
+            border-radius: 20px !important;
             color: white !important;
             font-size: 1.05rem !important;
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
             outline: none !important;
-            box-shadow: inset 0 2px 4px rgba(0,0,0,0.2);
         }
 
         .input-wrapper input:focus {
-            background: rgba(99, 102, 241, 0.1) !important;
+            background: rgba(0, 0, 0, 0.3) !important;
             border-color: #818cf8 !important;
-            box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.15), 0 0 30px rgba(99, 102, 241, 0.2) !important;
+            box-shadow: 0 0 0 1px #818cf8, 0 0 30px rgba(99, 102, 241, 0.3) !important;
         }
 
         .input-wrapper input:focus + i, .input-wrapper i.active {
@@ -790,46 +811,54 @@
                 <input type="hidden" id="e_id">
                 
                 <div class="premium-input-group">
-                    <label>Personnel Identity</label>
+                    <label><i data-lucide="user-check" style="width: 12px;"></i> Personnel Identity</label>
                     <div class="input-wrapper">
-                        <i data-lucide="user"></i>
+                        <i data-lucide="user" style="color: #60a5fa;"></i>
                         <input type="text" id="e_name" placeholder="Full Legal Name">
                     </div>
                 </div>
 
                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem;">
                     <div class="premium-input-group">
-                        <label>Registry Code</label>
+                        <label><i data-lucide="fingerprint" style="width: 12px;"></i> Registry Code</label>
                         <div class="input-wrapper">
-                            <i data-lucide="hash"></i>
+                            <i data-lucide="hash" style="color: #a78bfa;"></i>
                             <input type="text" id="e_code" placeholder="EMP-ID">
                         </div>
                     </div>
                     <div class="premium-input-group">
-                        <label>Portal Master Key</label>
+                        <label><i data-lucide="lock-keyhole" style="width: 12px;"></i> Portal Master Key</label>
                         <div class="input-wrapper">
-                            <i data-lucide="key-round"></i>
+                            <i data-lucide="key-round" style="color: #fbbf24;"></i>
                             <input type="text" id="e_pass" placeholder="••••••••">
                         </div>
                     </div>
                 </div>
 
                 <div class="security-config-card">
-                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
-                        <span style="font-size: 0.75rem; font-weight: 800; color: #6366f1; text-transform: uppercase; letter-spacing: 0.05em;">Authorized Device Slots</span>
-                        <button class="btn btn-glass" style="padding: 6px 16px; font-size: 0.7rem; border-radius: 10px; border-color: rgba(244, 63, 94, 0.4); color: #f43f5e;" onclick="resetDevices()">
-                            <i data-lucide="refresh-cw" style="width: 12px;"></i> Wipe Device Locks
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+                        <span style="font-size: 0.75rem; font-weight: 800; color: #818cf8; text-transform: uppercase; letter-spacing: 0.1em; display: flex; align-items: center; gap: 8px;">
+                            <i data-lucide="monitor-smartphone" style="width: 16px;"></i> Authorized Device Slots
+                        </span>
+                        <button class="btn btn-glass" style="padding: 8px 20px; font-size: 0.75rem; border-radius: 12px; border-color: rgba(244, 63, 94, 0.4); color: #f43f5e;" onclick="resetDevices()">
+                            <i data-lucide="refresh-cw" style="width: 12px;"></i> Wipe Authentication
                         </button>
                     </div>
                     
-                    <div class="device-info-grid">
+                    <div class="device-info-grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
                         <div class="device-slot">
-                            <span>Primary Slot</span>
-                            <input type="text" id="e_machine1" placeholder="Slot Available" readonly>
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.8rem;">
+                                <span>Primary Hub</span>
+                                <div id="status_machine1" style="font-size: 0.6rem; padding: 2px 8px; border-radius: 20px; background: rgba(244, 63, 94, 0.1); color: #f43f5e; border: 1px solid rgba(244, 63, 94, 0.2);">UNAUTHORIZED</div>
+                            </div>
+                            <input type="text" id="e_machine1" placeholder="Empty Slot" readonly>
                         </div>
                         <div class="device-slot">
-                            <span>Secondary Slot</span>
-                            <input type="text" id="e_machine2" placeholder="Slot Available" readonly>
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.8rem;">
+                                <span>Secondary Hub</span>
+                                <div id="status_machine2" style="font-size: 0.6rem; padding: 2px 8px; border-radius: 20px; background: rgba(244, 63, 94, 0.1); color: #f43f5e; border: 1px solid rgba(244, 63, 94, 0.2);">UNAUTHORIZED</div>
+                            </div>
+                            <input type="text" id="e_machine2" placeholder="Empty Slot" readonly>
                         </div>
                     </div>
                 </div>
@@ -1430,6 +1459,34 @@
             document.getElementById('e_pass').value = data ? data.password : '';
             document.getElementById('e_machine1').value = data ? (data.machineId1 || '') : '';
             document.getElementById('e_machine2').value = data ? (data.machineId2 || '') : '';
+
+            // Update Status Badges
+            const s1 = document.getElementById('status_machine1');
+            const s2 = document.getElementById('status_machine2');
+            if (data && data.machineId1) {
+                s1.innerText = 'AUTHORIZED';
+                s1.style.background = 'rgba(34, 211, 238, 0.1)';
+                s1.style.color = '#22d3ee';
+                s1.style.borderColor = 'rgba(34, 211, 238, 0.2)';
+            } else {
+                s1.innerText = 'UNAUTHORIZED';
+                s1.style.background = 'rgba(244, 63, 94, 0.1)';
+                s1.style.color = '#f43f5e';
+                s1.style.borderColor = 'rgba(244, 63, 94, 0.2)';
+            }
+
+            if (data && data.machineId2) {
+                s2.innerText = 'AUTHORIZED';
+                s2.style.background = 'rgba(34, 211, 238, 0.1)';
+                s2.style.color = '#22d3ee';
+                s2.style.borderColor = 'rgba(34, 211, 238, 0.2)';
+            } else {
+                s2.innerText = 'UNAUTHORIZED';
+                s2.style.background = 'rgba(244, 63, 94, 0.1)';
+                s2.style.color = '#f43f5e';
+                s2.style.borderColor = 'rgba(244, 63, 94, 0.2)';
+            }
+
             document.getElementById('empModalTitle').innerText = data ? 'Edit Staff Credentials' : 'Register Staff Member';
             openModal('empModal');
         }
