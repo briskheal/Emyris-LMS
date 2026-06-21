@@ -372,9 +372,8 @@ async function viewDetails(id) {
             <button class="btn btn-glass" style="position: absolute; right: -1rem; top: -1rem; border: none; z-index: 10;" onclick="closeModal('detailModal')">
                 <i data-lucide="x"></i>
             </button>
-            
-            <div style="display: grid; grid-template-columns: 1fr 1.5fr; gap: 2.5rem;" class="detail-mobile-stack">
-                <div>
+            <div class="detail-wrap-container" style="display: block;">
+                <div class="detail-media-panel" style="float: left; width: 40%; margin-right: 2.5rem; margin-bottom: 1.5rem;">
                     ${p.image ? `
                         <div style="background: rgba(0,0,0,0.3); border-radius: 16px; border: 1px solid var(--glass-border); height: 350px; display: flex; align-items: center; justify-content: center; overflow: hidden; margin-bottom: 1.5rem;" class="detail-image-container">
                             <img src="${p.image}" style="max-width: 100%; max-height: 100%; object-fit: contain; filter: drop-shadow(0 10px 20px rgba(0,0,0,0.3));">
@@ -391,7 +390,7 @@ async function viewDetails(id) {
                         <i data-lucide="graduation-cap"></i> Take Assessment Test
                     </button>
                 </div>
-                <div>
+                <div class="detail-content-panel">
                     <div class="ql-editor" style="color: var(--text-dim); padding: 0 !important; line-height: 1.8; font-size: 1.1rem; height: auto !important; overflow-x: hidden !important; text-align: justify; word-break: break-word;">
                         ${p.scientificInfo
                             .replace(/width="[^"]*?"/gi, 'width="100%"')
@@ -402,6 +401,7 @@ async function viewDetails(id) {
                     ${pitchesHtml}
                     ${docsHtml}
                 </div>
+                <div style="clear: both;"></div>
             </div>
 
             <!-- Clearfix for FAQ spacing -->
