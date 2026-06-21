@@ -297,12 +297,12 @@ async function viewDetails(id) {
         if (p.videoUrl.includes('youtube.com') || p.videoUrl.includes('youtu.be')) {
             const vidId = p.videoUrl.split('v=')[1]?.split('&')[0] || p.videoUrl.split('/').pop();
             videoHtml = `
-                <div class="video-container" style="margin-top: 1.5rem; max-width: 280px;">
-                    <iframe style="width: 100%; height: 160px; border-radius: 12px;" src="https://www.youtube.com/embed/${vidId}" frameborder="0" allowfullscreen></iframe>
+                <div class="video-container" style="margin-bottom: 2rem; width: 100%;">
+                    <iframe style="width: 100%; aspect-ratio: 16/9; border-radius: 12px;" src="https://www.youtube.com/embed/${vidId}" frameborder="0" allowfullscreen></iframe>
                 </div>`;
         } else {
             videoHtml = `
-                <div class="video-container" style="margin-top: 1.5rem; max-width: 280px;">
+                <div class="video-container" style="margin-bottom: 2rem; width: 100%;">
                     <video controls style="width: 100%; border-radius: 12px; border: 1px solid var(--glass-border);">
                         <source src="${p.videoUrl}" type="video/mp4">
                         Your browser does not support the video tag.
@@ -372,25 +372,27 @@ async function viewDetails(id) {
             <button class="btn btn-glass" style="position: absolute; right: -1rem; top: -1rem; border: none; z-index: 10;" onclick="closeModal('detailModal')">
                 <i data-lucide="x"></i>
             </button>
-            <div class="detail-wrap-container" style="display: block;">
-                <div class="detail-media-panel" style="float: left; width: 40%; margin-right: 2.5rem; margin-bottom: 1.5rem;">
-                    ${p.image ? `
-                        <div style="background: rgba(0,0,0,0.3); border-radius: 16px; border: 1px solid var(--glass-border); height: 220px; display: flex; align-items: center; justify-content: center; overflow: hidden; margin-bottom: 1.5rem;" class="detail-image-container">
-                            <img src="${p.image}" style="max-width: 100%; max-height: 100%; object-fit: contain; filter: drop-shadow(0 10px 20px rgba(0,0,0,0.3));">
-                        </div>
-                    ` : ''}
-                    <div style="margin-top: 0;">
-                        <span class="badge">${p.category}</span>
-                        <h2 style="font-size: 2rem; margin-top: 0.5rem; line-height: 1.1;">${p.title}</h2>
+            <div class="product-detail-header" style="margin-bottom: 2rem; border-bottom: 1px solid var(--glass-border); padding-bottom: 1.5rem;">
+                <span class="badge">${p.category}</span>
+                <h2 style="font-size: 2.5rem; margin-top: 0.5rem; line-height: 1.1;">${p.title}</h2>
+            </div>
+            <div class="product-detail-grid">
+                <div class="product-sidebar">
+                    <div class="sticky-container">
+                        ${p.image ? `
+                            <div style="background: rgba(0,0,0,0.3); border-radius: 16px; border: 1px solid var(--glass-border); display: flex; align-items: center; justify-content: center; overflow: hidden; margin-bottom: 1.5rem;" class="detail-image-container">
+                                <img src="${p.image}" style="max-width: 100%; max-height: 100%; object-fit: contain; filter: drop-shadow(0 10px 20px rgba(0,0,0,0.3));">
+                            </div>
+                        ` : ''}
+                        ${packshotsHtml}
+                        ${detailButtonsHtml}
+                        <button class="btn btn-primary" style="width: 100%; margin-top: 2rem; background: linear-gradient(45deg, #f59e0b, #d97706); border: none; white-space: normal; height: auto; padding: 15px;" onclick="startAssessment('${p.title.replace(/'/g, "\\'")}')">
+                            <i data-lucide="graduation-cap"></i> Take Assessment Test
+                        </button>
                     </div>
-                    ${packshotsHtml}
-                    ${detailButtonsHtml}
-                    ${videoHtml}
-                    <button class="btn btn-primary" style="width: 100%; margin-top: 2rem; background: linear-gradient(45deg, #f59e0b, #d97706); border: none; white-space: normal; height: auto; padding: 15px;" onclick="startAssessment('${p.title.replace(/'/g, "\\'")}')">
-                        <i data-lucide="graduation-cap"></i> Take Assessment Test
-                    </button>
                 </div>
-                <div class="detail-content-panel">
+                <div class="product-main-content">
+                    ${videoHtml}
                     <div class="ql-editor" style="color: var(--text-dim); padding: 0 !important; line-height: 1.8; font-size: 1.1rem; height: auto !important; overflow: visible !important; width: auto !important; display: block !important; position: static !important; text-align: justify; word-break: break-word;">
                         ${p.scientificInfo
                             .replace(/width="[^"]*?"/gi, 'width="100%"')
@@ -401,7 +403,6 @@ async function viewDetails(id) {
                     ${pitchesHtml}
                     ${docsHtml}
                 </div>
-                <div style="clear: both;"></div>
             </div>
 
             <!-- Clearfix for FAQ spacing -->
