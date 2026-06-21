@@ -372,37 +372,42 @@ async function viewDetails(id) {
             <button class="btn btn-glass" style="position: absolute; right: -1rem; top: -1rem; border: none; z-index: 10;" onclick="closeModal('detailModal')">
                 <i data-lucide="x"></i>
             </button>
-            <div class="product-detail-header" style="margin-bottom: 2rem; border-bottom: 1px solid var(--glass-border); padding-bottom: 1.5rem;">
-                <span class="badge">${p.category}</span>
-                <h2 style="font-size: 2.5rem; margin-top: 0.5rem; line-height: 1.1;">${p.title}</h2>
-            </div>
-            <div class="product-detail-grid">
-                <div class="product-sidebar">
-                    <div class="sticky-container">
-                        ${p.image ? `
-                            <div style="background: rgba(0,0,0,0.3); border-radius: 16px; border: 1px solid var(--glass-border); display: flex; align-items: center; justify-content: center; overflow: hidden; margin-bottom: 1.5rem;" class="detail-image-container">
-                                <img src="${p.image}" style="max-width: 100%; max-height: 100%; object-fit: contain; filter: drop-shadow(0 10px 20px rgba(0,0,0,0.3));">
-                            </div>
-                        ` : ''}
-                        ${packshotsHtml}
-                        ${detailButtonsHtml}
-                        <button class="btn btn-primary" style="width: 100%; margin-top: 2rem; background: linear-gradient(45deg, #f59e0b, #d97706); border: none; white-space: normal; height: auto; padding: 15px;" onclick="startAssessment('${p.title.replace(/'/g, "\\'")}')">
-                            <i data-lucide="graduation-cap"></i> Take Assessment Test
-                        </button>
-                    </div>
-                </div>
-                <div class="product-main-content">
+            <div class="detail-wrap-container" style="display: block;">
+                <!-- Left Float Media Block -->
+                <div class="detail-media-panel" style="float: left; width: 280px; max-width: 100%; margin-right: 2.5rem; margin-bottom: 1.5rem;">
+                    ${p.image ? `
+                        <div style="background: rgba(0,0,0,0.3); border-radius: 16px; border: 1px solid var(--glass-border); display: flex; align-items: center; justify-content: center; overflow: hidden; margin-bottom: 1.5rem;" class="detail-image-container">
+                            <img src="${p.image}" style="max-width: 100%; max-height: 100%; object-fit: contain; filter: drop-shadow(0 10px 20px rgba(0,0,0,0.3));">
+                        </div>
+                    ` : ''}
                     ${videoHtml}
-                    <div class="ql-editor" style="color: var(--text-dim); padding: 0 !important; line-height: 1.8; font-size: 1.1rem; height: auto !important; overflow: visible !important; width: auto !important; display: block !important; position: static !important; text-align: justify; word-break: break-word;">
-                        ${p.scientificInfo
-                            .replace(/width="[^"]*?"/gi, 'width="100%"')
-                            .replace(/height="[^"]*?"/gi, 'height="auto"')
-                            .replace(/style="[^"]*?"/gi, m => m.replace(/(?:width|height|font-size|line-height):[^;]+;?/gi, ''))
-                        }
-                    </div>
-                    ${pitchesHtml}
-                    ${docsHtml}
                 </div>
+                
+                <!-- Right Wrapping Content -->
+                <div class="product-detail-header" style="margin-bottom: 1.5rem;">
+                    <span class="badge">${p.category}</span>
+                    <h2 style="font-size: 2.5rem; margin-top: 0.5rem; line-height: 1.1;">${p.title}</h2>
+                </div>
+                ${packshotsHtml}
+                ${pitchesHtml}
+                ${detailButtonsHtml}
+                
+                <div style="clear: both; margin-bottom: 2rem;"></div>
+                
+                <!-- Assessment Button (Divider) -->
+                <button class="btn btn-primary" style="width: 100%; margin-bottom: 2.5rem; background: linear-gradient(45deg, #f59e0b, #d97706); border: none; white-space: normal; height: auto; padding: 15px;" onclick="startAssessment('${p.title.replace(/'/g, "\\'")}')">
+                    <i data-lucide="graduation-cap"></i> Take Assessment Test
+                </button>
+                
+                <!-- Scientific Details (Bottom) -->
+                <div class="ql-editor" style="color: var(--text-dim); padding: 0 !important; line-height: 1.8; font-size: 1.1rem; height: auto !important; overflow: visible !important; width: auto !important; display: block !important; position: static !important; text-align: justify; word-break: break-word;">
+                    ${p.scientificInfo
+                        .replace(/width="[^"]*?"/gi, 'width="100%"')
+                        .replace(/height="[^"]*?"/gi, 'height="auto"')
+                        .replace(/style="[^"]*?"/gi, m => m.replace(/(?:width|height|font-size|line-height):[^;]+;?/gi, ''))
+                    }
+                </div>
+                ${docsHtml}
             </div>
 
             <!-- Clearfix for FAQ spacing -->

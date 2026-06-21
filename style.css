@@ -456,29 +456,15 @@ nav {
     word-break: break-word !important;
 }
 
-.product-detail-grid {
-    display: grid;
-    grid-template-columns: 350px 1fr;
-    gap: 3.5rem;
-    align-items: start;
-}
-
-.sticky-container {
-    position: sticky;
-    top: 0;
-}
-
 .detail-image-container {
-    height: 300px;
+    height: 180px;
 }
 
 @media (max-width: 768px) { 
-    .product-detail-grid {
-        grid-template-columns: 1fr;
-        gap: 2rem;
+    .detail-media-panel {
+        float: none !important;
+        width: 100% !important;
+        margin-right: 0 !important;
     }
-    .sticky-container {
-        position: static;
-    }
-    .detail-image-container { height: 160px !important; } 
+    .detail-image-container { height: 150px !important; } 
 }
