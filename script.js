@@ -375,7 +375,7 @@ async function viewDetails(id) {
             <div class="detail-wrap-container" style="display: block;">
                 <div class="detail-media-panel" style="float: left; width: 40%; margin-right: 2.5rem; margin-bottom: 1.5rem;">
                     ${p.image ? `
-                        <div style="background: rgba(0,0,0,0.3); border-radius: 16px; border: 1px solid var(--glass-border); height: 350px; display: flex; align-items: center; justify-content: center; overflow: hidden; margin-bottom: 1.5rem;" class="detail-image-container">
+                        <div style="background: rgba(0,0,0,0.3); border-radius: 16px; border: 1px solid var(--glass-border); height: 220px; display: flex; align-items: center; justify-content: center; overflow: hidden; margin-bottom: 1.5rem;" class="detail-image-container">
                             <img src="${p.image}" style="max-width: 100%; max-height: 100%; object-fit: contain; filter: drop-shadow(0 10px 20px rgba(0,0,0,0.3));">
                         </div>
                     ` : ''}
@@ -391,7 +391,7 @@ async function viewDetails(id) {
                     </button>
                 </div>
                 <div class="detail-content-panel">
-                    <div class="ql-editor" style="color: var(--text-dim); padding: 0 !important; line-height: 1.8; font-size: 1.1rem; height: auto !important; overflow-x: hidden !important; text-align: justify; word-break: break-word;">
+                    <div class="ql-editor" style="color: var(--text-dim); padding: 0 !important; line-height: 1.8; font-size: 1.1rem; height: auto !important; overflow-x: visible !important; width: auto !important; text-align: justify; word-break: break-word;">
                         ${p.scientificInfo
                             .replace(/width="[^"]*?"/gi, 'width="100%"')
                             .replace(/height="[^"]*?"/gi, 'height="auto"')

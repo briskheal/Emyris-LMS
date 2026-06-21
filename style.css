@@ -414,9 +414,9 @@ nav {
     overflow-wrap: break-word !important;
     text-align: justify !important;
     hyphens: auto !important;
-    width: 100% !important;
+    width: auto !important;
     max-width: 100% !important;
-    overflow-x: hidden !important;
+    overflow-x: visible !important;
     padding: 0 !important;
 }
 
@@ -457,6 +457,6 @@ nav {
 }
 
 
-
-@ m e d i a   ( m a x - w i d t h :   7 6 8 p x )   {   . d e t a i l - i m a g e - c o n t a i n e r   {   h e i g h t :   2 5 0 p x   ! i m p o r t a n t ;   }   }  
- 
+@media (max-width: 768px) { 
+    .detail-image-container { height: 160px !important; } 
+}
