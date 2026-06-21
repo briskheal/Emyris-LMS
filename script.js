@@ -297,13 +297,13 @@ async function viewDetails(id) {
         if (p.videoUrl.includes('youtube.com') || p.videoUrl.includes('youtu.be')) {
             const vidId = p.videoUrl.split('v=')[1]?.split('&')[0] || p.videoUrl.split('/').pop();
             videoHtml = `
-                <div class="video-container" style="margin-top: 1rem;">
-                    <iframe src="https://www.youtube.com/embed/${vidId}" frameborder="0" allowfullscreen></iframe>
+                <div class="video-container" style="margin-top: 1.5rem; max-width: 280px;">
+                    <iframe style="width: 100%; height: 160px; border-radius: 12px;" src="https://www.youtube.com/embed/${vidId}" frameborder="0" allowfullscreen></iframe>
                 </div>`;
         } else {
             videoHtml = `
-                <div class="video-container" style="margin-top: 1rem;">
-                    <video controls style="width: 100%; border-radius: 15px; border: 1px solid var(--glass-border);">
+                <div class="video-container" style="margin-top: 1.5rem; max-width: 280px;">
+                    <video controls style="width: 100%; border-radius: 12px; border: 1px solid var(--glass-border);">
                         <source src="${p.videoUrl}" type="video/mp4">
                         Your browser does not support the video tag.
                     </video>
@@ -391,7 +391,7 @@ async function viewDetails(id) {
                     </button>
                 </div>
                 <div class="detail-content-panel">
-                    <div class="ql-editor" style="color: var(--text-dim); padding: 0 !important; line-height: 1.8; font-size: 1.1rem; height: auto !important; overflow-x: visible !important; width: auto !important; text-align: justify; word-break: break-word;">
+                    <div class="ql-editor" style="color: var(--text-dim); padding: 0 !important; line-height: 1.8; font-size: 1.1rem; height: auto !important; overflow: visible !important; width: auto !important; display: block !important; position: static !important; text-align: justify; word-break: break-word;">
                         ${p.scientificInfo
                             .replace(/width="[^"]*?"/gi, 'width="100%"')
                             .replace(/height="[^"]*?"/gi, 'height="auto"')
